@@ -1,0 +1,170 @@
+/* Google Fonts — Source Serif 4 (display) + IBM Plex Sans (body) + IBM Plex Mono (labels/chips) */
+/* Full Arabic / Cyrillic / CJK coverage built into these families */
+/* Loaded via <link> in nuxt.config.ts head to avoid CSS @import ordering issues */
+
+@import "tailwindcss";
+
+/* ─── Design tokens (verbatim from shared.css, mapped to Tailwind v4 @theme namespace) ─── */
+@theme {
+  /* Core palette → generates bg-parchment, text-ink, border-accent, etc. */
+  --color-parchment:      #F5EFE4;
+  --color-parchment-mid:  #EDE4D3;
+  --color-parchment-deep: #E0D5C4;
+  --color-ink:            #1A1A1A;
+  --color-ink-mid:        #3D3D3D;
+  --color-ink-light:      #6B6B6B;
+  --color-ink-ghost:      #A8A08E;
+  --color-accent:         #C44536;
+  --color-accent-hover:   #A8372A;
+
+  /* Severity tiers — used ONLY in data layers (map markers, chips) */
+  --color-sev-minimal:  #D4A574;
+  --color-sev-partial:  #C9722C;
+  --color-sev-complete: #8B2E2A;
+
+  /* Typography → generates font-serif, font-sans, font-mono */
+  --font-serif: 'Source Serif 4', Georgia, serif;
+  --font-sans:  'IBM Plex Sans', 'Helvetica Neue', Arial, sans-serif;
+  --font-mono:  'IBM Plex Mono', 'Courier New', monospace;
+
+  /* Border radius → generates rounded-sm, rounded-md */
+  --radius-sm: 3px;
+  --radius-md: 6px;
+}
+
+/* ─── Raw CSS custom properties (used by shared utilities below with color-mix()) ─── */
+:root {
+  --c-parchment:      #F5EFE4;
+  --c-parchment-mid:  #EDE4D3;
+  --c-parchment-deep: #E0D5C4;
+  --c-ink:            #1A1A1A;
+  --c-ink-light:      #6B6B6B;
+  --c-accent:         #C44536;
+  --c-accent-hover:   #A8372A;
+  --c-sev-minimal:    #D4A574;
+  --c-sev-partial:    #C9722C;
+  --c-sev-complete:   #8B2E2A;
+
+  --sp-xs:  4px;  --sp-sm: 8px;   --sp-md: 16px;
+  --sp-lg: 24px;  --sp-xl: 40px;  --sp-2xl: 64px;
+
+  --sidebar-left:  300px;
+  --sidebar-right: 360px;
+
+  --t-fast: 120ms ease;  --t-med: 220ms ease;  --t-slow: 400ms ease;
+}
+
+/* ─── Base ─── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { font-size: 16px; }
+
+body {
+  font-family: var(--font-sans);
+  background: var(--c-parchment);
+  color: var(--c-ink);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* RTL support — wired from day 1 for Phase 8 Arabic */
+[dir="rtl"] { direction: rtl; text-align: right; }
+
+/* ─── Reusable utilities (lifted verbatim from shared.css) ─── */
+
+/* Tiny uppercase tracked label — "STEP 1 OF 5", section labels */
+.label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--c-ink-light);
+}
+
+/* Slab display heading */
+.display {
+  font-family: var(--font-serif);
+  font-weight: 700;
+}
+
+/* Severity chip — IBM Plex Mono uppercase badge */
+.sev-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+}
+.sev-chip.minimal  { background: color-mix(in srgb, var(--c-sev-minimal)  18%, var(--c-parchment)); color: color-mix(in srgb, var(--c-sev-minimal)  80%, var(--c-ink)); }
+.sev-chip.partial  { background: color-mix(in srgb, var(--c-sev-partial)  18%, var(--c-parchment)); color: color-mix(in srgb, var(--c-sev-partial)  80%, var(--c-ink)); }
+.sev-chip.complete { background: color-mix(in srgb, var(--c-sev-complete) 20%, var(--c-parchment)); color: color-mix(in srgb, var(--c-sev-complete) 90%, #200); }
+
+/* Topographic crosshair registration mark — signature visual element */
+.crosshair {
+  position: relative;
+  display: inline-block;
+  width: 24px; height: 24px;
+  opacity: 0.22;
+}
+.crosshair::before,
+.crosshair::after {
+  content: '';
+  position: absolute;
+  background: var(--c-ink);
+}
+.crosshair::before { top: 50%; left: 0; right: 0; height: 1px; transform: translateY(-50%); }
+.crosshair::after  { left: 50%; top: 0; bottom: 0; width: 1px; transform: translateX(-50%); }
+
+.crosshair-ring {
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 10px; height: 10px;
+  border: 1px solid var(--c-ink);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  opacity: 0.22;
+}
+
+/* Button primitives */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-sm);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  padding: 11px 22px;
+  border-radius: var(--radius-sm);
+  border: none;
+  cursor: pointer;
+  transition: background var(--t-fast), color var(--t-fast), border-color var(--t-fast), opacity var(--t-fast);
+  text-decoration: none;
+  white-space: nowrap;
+}
+.btn-primary { background: var(--c-accent); color: #fff; }
+.btn-primary:hover { background: var(--c-accent-hover); }
+.btn-ghost { background: transparent; color: var(--c-ink); border: 1.5px solid var(--c-ink); }
+.btn-ghost:hover { background: var(--c-ink); color: var(--c-parchment); }
+.btn-full { width: 100%; padding: 14px 22px; font-size: 15px; }
+
+/* Divider */
+.rule {
+  border: none;
+  border-top: 1px solid var(--c-parchment-deep);
+  margin: var(--sp-lg) 0;
+}
+
+/* Screen-reader only */
+.sr-only {
+  position: absolute; width: 1px; height: 1px;
+  padding: 0; margin: -1px; overflow: hidden;
+  clip: rect(0, 0, 0, 0); border: 0;
+}
