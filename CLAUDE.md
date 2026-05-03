@@ -59,12 +59,14 @@ Always store the full 4-tier value in `severity`; the DB derives the export colu
 
 ## Env vars (Vercel + local .env)
 
-| Var | Purpose |
-|---|---|
-| `SUPABASE_URL` | `runtimeConfig.public.supabaseUrl` |
-| `SUPABASE_ANON_KEY` | `runtimeConfig.public.supabaseAnonKey` |
-| `SUPABASE_SERVICE_KEY` | `runtimeConfig.supabaseServiceKey` (server only) |
-| `DB_URL` | `runtimeConfig.dbUrl` — Supavisor pooler URL (server only) |
+Nuxt 4 maps `runtimeConfig` keys to `NUXT_*` env vars automatically (camelCase → SCREAMING_SNAKE_CASE).
+
+| Env var | runtimeConfig key | Purpose |
+|---|---|---|
+| `NUXT_PUBLIC_SUPABASE_URL` | `public.supabaseUrl` | Supabase project URL |
+| `NUXT_PUBLIC_SUPABASE_ANON_KEY` | `public.supabaseAnonKey` | Supabase anon key |
+| `NUXT_SUPABASE_SERVICE_KEY` | `supabaseServiceKey` (server only) | Supabase service role key |
+| `NUXT_DB_URL` | `dbUrl` (server only) | Supavisor pooler URL |
 
 ## Coding style
 
