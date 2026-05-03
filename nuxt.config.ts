@@ -25,11 +25,11 @@ export default defineNuxtConfig({
     }
   },
   runtimeConfig: {
-    dbUrl: '',              // DB_URL env — Supavisor pooler, port 6543, ?prepareThreshold=0
-    supabaseServiceKey: '', // SUPABASE_SERVICE_KEY env
+    dbUrl: '',              // NUXT_DB_URL — Supavisor pooler, port 6543, ?prepareThreshold=0
+    supabaseServiceKey: '', // NUXT_SUPABASE_SERVICE_KEY
     public: {
-      supabaseUrl: '',      // SUPABASE_URL env
-      supabaseAnonKey: ''   // SUPABASE_ANON_KEY env
+      supabaseUrl: '',      // NUXT_PUBLIC_SUPABASE_URL
+      supabaseAnonKey: ''   // NUXT_PUBLIC_SUPABASE_ANON_KEY
     }
   },
   nitro: {

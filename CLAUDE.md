@@ -45,9 +45,11 @@ Read HTML source directly — do NOT screenshot. Match visual output; recreate i
 | `moderate` | `partial` |
 | `severe` | `complete` |
 | `destroyed` | `complete` |
+| `unknown` | `NULL` — excluded from exports |
 
 The `damage_classification` column is `GENERATED ALWAYS AS ... STORED` — never write to it directly.
 Always store the full 4-tier value in `severity`; the DB derives the export column automatically.
+Rows where `damage_classification IS NULL` are reports with unknown severity — filter them out in export queries.
 
 ## Database connections
 

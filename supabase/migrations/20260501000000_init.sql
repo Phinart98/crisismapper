@@ -69,7 +69,7 @@ CREATE TABLE damage_reports (
       WHEN severity = 'negligible'              THEN 'minimal'
       WHEN severity = 'moderate'                THEN 'partial'
       WHEN severity IN ('severe', 'destroyed')  THEN 'complete'
-      ELSE 'unknown'
+      -- 'unknown' severity produces NULL (not a valid export tier; filter in export queries)
     END
   ) STORED,
 

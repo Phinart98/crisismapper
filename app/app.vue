@@ -14,8 +14,8 @@ useHead({ title: 'CrisisMapper — Phase 1 Foundation' })
       </div>
 
       <span class="label">Phase 1 · Foundation</span>
-      <h1 class="display text-5xl mt-3 mb-5" style="font-family: var(--font-serif)">CrisisMapper</h1>
-      <p class="text-lg leading-relaxed" style="color: var(--c-ink-light)">
+      <h1 class="display text-5xl mt-3 mb-5">CrisisMapper</h1>
+      <p class="text-lg leading-relaxed text-ink-light">
         Report damage from any phone, anywhere — even without internet.
       </p>
 
