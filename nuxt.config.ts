@@ -3,6 +3,7 @@ import tailwindcss from '@tailwindcss/vite'
 export default defineNuxtConfig({
   compatibilityDate: '2026-05-01',
   devtools: { enabled: true },
+  modules: ['@nuxtjs/i18n'],
   css: ['~/assets/css/main.css'],
   vite: {
     plugins: [tailwindcss()]
@@ -24,12 +25,27 @@ export default defineNuxtConfig({
       ]
     }
   },
+  i18n: {
+    strategy: 'no_prefix',
+    defaultLocale: 'en',
+    vueI18n: './i18n.config.ts',
+    langDir: 'locales/',
+    locales: [
+      { code: 'en', file: 'en.json', dir: 'ltr' },
+      { code: 'es', file: 'es.json', dir: 'ltr' },
+      { code: 'fr', file: 'fr.json', dir: 'ltr' },
+      { code: 'ar', file: 'ar.json', dir: 'rtl' },
+      { code: 'ru', file: 'ru.json', dir: 'ltr' },
+      { code: 'zh', file: 'zh.json', dir: 'ltr' },
+    ],
+  },
   runtimeConfig: {
     dbUrl: '',              // NUXT_DB_URL — Supavisor pooler, port 6543, ?prepareThreshold=0
     supabaseServiceKey: '', // NUXT_SUPABASE_SERVICE_KEY
     public: {
       supabaseUrl: '',      // NUXT_PUBLIC_SUPABASE_URL
-      supabaseAnonKey: ''   // NUXT_PUBLIC_SUPABASE_ANON_KEY
+      supabaseAnonKey: '',  // NUXT_PUBLIC_SUPABASE_ANON_KEY
+      demoCrisisId: '',     // NUXT_PUBLIC_DEMO_CRISIS_ID — seeded Myanmar EQ 2026 UUID
     }
   },
   nitro: {

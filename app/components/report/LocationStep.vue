@@ -1,0 +1,79 @@
+<script setup lang="ts">
+import { useGeolocation } from '~/composables/useGeolocation'
+import type { GpsResult } from '~/composables/useGeolocation'
+
+const emit = defineEmits<{ resolved: [GpsResult] }>()
+const props = defineProps<{ hasError?: boolean }>()
+
+const { state, result, inputText, requestGps, confirmInput } = useGeolocation()
+
+watch(result, (v) => { if (v) emit('resolved', v) })
+
+function onInputEnter() {
+  confirmInput()
+}
+</script>
+
+<template>
+  <section class="mb-7">
+    <div class="mb-3.5">
+      <div class="label mb-1">{{ $t('step3label') }}</div>
+      <div class="font-serif text-xl font-semibold leading-tight">{{ $t('step3title') }}</div>
+    </div>
+
+    <!-- GPS button -->
+    <button
+      class="flex items-center gap-2.5 w-full p-3.5 mb-3 rounded border transition-all duration-200 text-[14px] font-medium cursor-pointer"
+      :class="state === 'done'
+        ? 'bg-sev-minimal/10 border-sev-minimal text-ink'
+        : 'bg-parchment-mid border-parchment-deep text-ink'"
+      :disabled="state === 'locating'"
+      @click="requestGps"
+    >
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M1 12h4M19 12h4"/>
+      </svg>
+      <span>
+        {{ state === 'locating' ? $t('gpsLocating') : state === 'done' ? $t('gpsLocated') : $t('gpsBtn') }}
+      </span>
+      <span v-if="state === 'done'" class="ms-auto text-sev-minimal text-base">✓</span>
+      <span
+        v-if="state === 'locating'"
+        class="ms-auto w-4 h-4 border-2 border-sev-partial border-t-transparent rounded-full animate-spin"
+      />
+    </button>
+
+    <!-- GPS result display -->
+    <div
+      v-if="state === 'done' && result"
+      class="label text-ink-light px-3 py-2 bg-parchment-mid rounded-sm mb-3"
+    >
+      <template v-if="result.method === 'gps'">
+        {{ result.lat.toFixed(4) }}° N, {{ result.lng.toFixed(4) }}° E
+      </template>
+      <template v-else-if="result.method === 'plus_code'">
+        {{ result.plusCode }} ({{ result.lat.toFixed(4) }}° N, {{ result.lng.toFixed(4) }}° E)
+      </template>
+      <template v-else>
+        Landmark recorded — approximate position
+      </template>
+    </div>
+
+    <!-- Denied message -->
+    <div v-if="state === 'denied'" class="text-[13px] text-ink-light mb-2">
+      {{ $t('gpsDenied') }}
+    </div>
+
+    <div class="label text-ink-ghost text-center mb-2">— or —</div>
+
+    <!-- Plus Code / landmark input -->
+    <input
+      v-model="inputText"
+      type="text"
+      :placeholder="$t('gpsPlaceholder')"
+      class="w-full px-3.5 py-3 bg-white border rounded text-[14px] text-ink outline-none"
+      :class="hasError ? 'border-accent' : 'border-parchment-deep'"
+      @keydown.enter="onInputEnter"
+    />
+  </section>
+</template>
