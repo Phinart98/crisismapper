@@ -111,11 +111,15 @@
 .sev-chip.partial  { background: color-mix(in srgb, var(--c-sev-partial)  18%, var(--c-parchment)); color: color-mix(in srgb, var(--c-sev-partial)  80%, var(--c-ink)); }
 .sev-chip.complete { background: color-mix(in srgb, var(--c-sev-complete) 20%, var(--c-parchment)); color: color-mix(in srgb, var(--c-sev-complete) 90%, #200); }
 
-/* Topographic crosshair registration mark — signature visual element */
+/* Topographic crosshair registration mark — signature visual element.
+   Size is a CSS custom property (--size, default 24px) so consumers can scale it
+   inline without breaking the unlayered class precedence. The ring auto-scales
+   to ~40% of the crosshair size. */
 .crosshair {
   position: relative;
   display: inline-block;
-  width: 24px; height: 24px;
+  width:  var(--size, 24px);
+  height: var(--size, 24px);
   opacity: 0.22;
 }
 .crosshair::before,
@@ -130,7 +134,8 @@
 .crosshair-ring {
   position: absolute;
   top: 50%; left: 50%;
-  width: 10px; height: 10px;
+  width:  calc(var(--size, 24px) * 0.42);
+  height: calc(var(--size, 24px) * 0.42);
   border: 1px solid var(--c-ink);
   border-radius: 50%;
   transform: translate(-50%, -50%);
