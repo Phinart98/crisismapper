@@ -7,7 +7,7 @@ export default defineEventHandler(async () => {
     return { ok: true, db: 'connected', database: row!.db, ts: row!.ts }
   } catch (err) {
     return { ok: false, db: 'error', error: err instanceof Error ? err.message : String(err) }
-  } finally {
-    await db.end()
   }
+  // Do NOT call db.end() — the pool is a module-scope singleton shared across
+  // requests in the same Fluid Compute instance. Ending it kills future requests.
 })
