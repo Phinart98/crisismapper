@@ -78,6 +78,18 @@ Nuxt 4 maps `runtimeConfig` keys to `NUXT_*` env vars automatically (camelCase �
 - TypeScript types where non-obvious; don't annotate what TS infers
 - No comments explaining WHAT — only add WHY when non-obvious
 
+## Responsive contract (every component, no exceptions)
+
+Full version in `snoopy-dazzling-tide.md` §8. Quick rules:
+
+- **Typography:** never bare `text-[Npx]` — use Tailwind scale or pair with a breakpoint (`text-sm` not `text-[13px]`; `text-xl sm:text-2xl` for titles). Form `<input>`/`<textarea>` always `text-base` (16px) — anything smaller triggers iOS Safari zoom-on-focus.
+- **Touch targets:** every interactive element `min-h-[44px]` (WCAG AA), or `min-h-[36px]` for clearly secondary chips (locale switcher, count badges).
+- **Padding:** scale up — `px-4 sm:px-6 lg:px-8`. Never hardcoded `px-8` alone or inline `style="padding: 16px"`.
+- **Grids:** stack on mobile — `grid-cols-1 sm:grid-cols-2`, never bare `grid-cols-2`.
+- **Media:** aspect ratios — `aspect-[4/3] sm:aspect-[16/10]`, never fixed `h-[Npx]`.
+- **Focus:** `focus-ring` utility on interactive elements; global `:focus-visible` already handles inputs.
+- **No inline `style=""`** outside `@theme` — Tailwind utilities only (exception: dynamic value binding like `:style="{ background: severityColor }"`).
+
 ## WABA credentials (WhatsApp Business API)
 
 Stored in memory only (MEMORY.md). Never check into the repo. Phase 5 wires the webhook.
