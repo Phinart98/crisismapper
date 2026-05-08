@@ -16,20 +16,20 @@ const INFRA: { key: InfraType; i18nKey: string }[] = [
 </script>
 
 <template>
-  <section class="mb-7">
-    <div class="mb-3.5">
-      <div class="label mb-1">{{ $t('step4label') }}</div>
-      <div class="font-serif text-xl font-semibold leading-tight">{{ $t('step4title') }}</div>
+  <section class="mb-10 sm:mb-12">
+    <div class="mb-5">
+      <div class="label mb-1.5">{{ $t('step4label') }}</div>
+      <div class="font-serif text-xl sm:text-2xl font-semibold leading-tight">{{ $t('step4title') }}</div>
     </div>
 
     <div class="flex flex-wrap gap-2">
       <button
         v-for="item in INFRA"
         :key="item.key"
-        class="py-2 px-4 rounded-full text-[13px] font-medium cursor-pointer transition-all duration-150"
+        class="min-h-[44px] py-2.5 px-4 rounded-full text-sm font-medium cursor-pointer transition-colors duration-150 focus-ring"
         :class="modelValue === item.key
           ? 'border-2 border-ink bg-ink text-parchment'
-          : 'border border-parchment-deep bg-white text-ink-mid hover:border-ink-light'"
+          : 'border border-parchment-deep bg-white text-ink-mid hover:border-ink-light hover:bg-parchment-mid'"
         @click="emit('update:modelValue', item.key)"
       >{{ $t(item.i18nKey) }}</button>
     </div>

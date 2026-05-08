@@ -29,21 +29,21 @@ function retake() {
 </script>
 
 <template>
-  <section class="mb-7">
-    <div class="mb-3.5">
-      <div class="label mb-1">{{ $t('step1label') }}</div>
-      <div class="font-serif text-xl font-semibold leading-tight">{{ $t('step1title') }}</div>
+  <section class="mb-10 sm:mb-12">
+    <div class="mb-5">
+      <div class="label mb-1.5">{{ $t('step1label') }}</div>
+      <div class="font-serif text-xl sm:text-2xl font-semibold leading-tight">{{ $t('step1title') }}</div>
     </div>
 
     <!-- Tips (shown before capture) -->
-    <div v-if="!photo" class="mb-4">
+    <div v-if="!photo" class="mb-6">
       <div
         v-for="(key, i) in ['tip1', 'tip2', 'tip3']"
         :key="key"
-        class="flex items-start gap-2 mb-2"
+        class="flex items-start gap-3 mb-3 last:mb-0"
       >
-        <div class="label text-ink-ghost mt-0.5 shrink-0">{{ String(i + 1).padStart(2, '0') }}</div>
-        <div class="text-[13px] text-ink-mid leading-relaxed">{{ $t(key) }}</div>
+        <div class="label text-ink-ghost mt-1 shrink-0">{{ String(i + 1).padStart(2, '0') }}</div>
+        <div class="text-sm text-ink-mid leading-relaxed">{{ $t(key) }}</div>
       </div>
     </div>
 
@@ -58,7 +58,7 @@ function retake() {
         @change="onFileChange"
       />
       <button
-        class="btn btn-primary btn-full h-16 text-base gap-2.5"
+        class="btn btn-primary btn-full h-14 sm:h-16 text-base gap-2.5"
         :disabled="processing"
         @click="fileInput?.click()"
       >
@@ -71,14 +71,14 @@ function retake() {
     </div>
 
     <!-- Warnings -->
-    <div v-if="error" class="mt-2 text-[13px] text-accent leading-snug">
+    <div v-if="error" class="mt-2.5 text-sm text-accent leading-snug">
       {{ $t(error) }}
     </div>
 
     <!-- Preview -->
     <div v-if="photo" class="relative">
       <div
-        class="w-full h-[200px] rounded border border-parchment-deep relative overflow-hidden"
+        class="w-full aspect-[4/3] sm:aspect-[16/10] rounded border border-parchment-deep relative overflow-hidden"
         style="background: linear-gradient(135deg, #B5A898 0%, #8A7A6A 50%, #C4B08A 100%)"
       >
         <img :src="photo.previewUrl" class="w-full h-full object-cover" alt="damage photo" />
@@ -97,11 +97,11 @@ function retake() {
       </div>
 
       <!-- Quality warnings (non-blocking) -->
-      <div v-if="photo.blurry" class="mt-1.5 text-[13px] text-sev-partial leading-snug">⚠ {{ $t('blurWarning') }}</div>
-      <div v-if="photo.peopleDetected" class="mt-1.5 text-[13px] text-sev-partial leading-snug">⚠ {{ $t('faceWarning') }}</div>
+      <div v-if="photo.blurry" class="mt-2 text-sm text-sev-partial leading-snug">⚠ {{ $t('blurWarning') }}</div>
+      <div v-if="photo.peopleDetected" class="mt-2 text-sm text-sev-partial leading-snug">⚠ {{ $t('faceWarning') }}</div>
 
       <button
-        class="mt-2 label text-ink-light bg-transparent border-none cursor-pointer underline"
+        class="mt-3 min-h-[36px] label text-ink-light bg-transparent border-none cursor-pointer underline focus-ring rounded-sm px-1"
         @click="retake"
       >{{ $t('retake') }}</button>
     </div>

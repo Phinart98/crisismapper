@@ -54,21 +54,27 @@
   --t-fast: 120ms ease;  --t-med: 220ms ease;  --t-slow: 400ms ease;
 }
 
-/* ─── Base ─── */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+/*
+  Base styles MUST live inside @layer base so Tailwind v4 utilities (which live in
+  @layer utilities) can override them. Unlayered styles beat all layered styles in
+  the cascade — putting the reset outside a layer silently zeros out every px-/mx-
+  utility we apply. Tailwind v4's preflight already handles box-sizing/margin/padding
+  reset, so this layer is mostly for our app-specific defaults.
+*/
+@layer base {
+  html { font-size: 16px; }
 
-html { font-size: 16px; }
+  body {
+    font-family: var(--font-sans);
+    background: var(--c-parchment);
+    color: var(--c-ink);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
 
-body {
-  font-family: var(--font-sans);
-  background: var(--c-parchment);
-  color: var(--c-ink);
-  -webkit-font-smoothing: antialiased;
-  text-rendering: optimizeLegibility;
+  /* RTL support — wired from day 1 for Phase 8 Arabic */
+  [dir="rtl"] { direction: rtl; text-align: right; }
 }
-
-/* RTL support — wired from day 1 for Phase 8 Arabic */
-[dir="rtl"] { direction: rtl; text-align: right; }
 
 /* ─── Reusable utilities (lifted verbatim from shared.css) ─── */
 
@@ -154,6 +160,23 @@ body {
 .btn-ghost { background: transparent; color: var(--c-ink); border: 1.5px solid var(--c-ink); }
 .btn-ghost:hover { background: var(--c-ink); color: var(--c-parchment); }
 .btn-full { width: 100%; padding: 14px 22px; font-size: 15px; }
+.btn:disabled { opacity: 0.55; cursor: not-allowed; }
+
+/* Keyboard focus ring — visible on tab navigation, hidden on click. WCAG AA. */
+.btn:focus-visible,
+.focus-ring:focus-visible {
+  outline: 2px solid var(--c-accent);
+  outline-offset: 2px;
+}
+
+/* Form input focus state */
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: none;
+  border-color: var(--c-accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--c-accent) 22%, transparent);
+}
 
 /* Divider */
 .rule {

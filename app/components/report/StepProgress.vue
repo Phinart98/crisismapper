@@ -3,7 +3,7 @@ defineProps<{ current: number; total?: number }>()
 </script>
 
 <template>
-  <div class="flex gap-1 px-4 pt-3">
+  <div class="flex gap-1 px-5 sm:px-7 md:px-6 pt-3">
     <div
       v-for="s in (total ?? 5)"
       :key="s"

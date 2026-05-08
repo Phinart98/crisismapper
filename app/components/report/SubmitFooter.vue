@@ -6,11 +6,10 @@ const emit = defineEmits<{ submit: [] }>()
 </script>
 
 <template>
-  <div class="sticky bottom-0 px-4 py-3 bg-parchment border-t border-parchment-deep">
+  <div class="sticky bottom-0 px-5 sm:px-7 md:px-6 py-3 sm:py-4 bg-parchment border-t border-parchment-deep">
     <button
-      class="btn btn-primary btn-full h-[52px] text-base"
+      class="btn btn-primary btn-full h-12 sm:h-[52px] text-base"
       :disabled="phase === 'metadata' || phase === 'photo'"
-      :style="{ opacity: phase === 'metadata' || phase === 'photo' ? 0.7 : 1 }"
       @click="emit('submit')"
     >
       <span v-if="phase === 'metadata'">{{ $t('submitting') }}</span>

@@ -24,16 +24,16 @@ const FIELDS = [
 </script>
 
 <template>
-  <section class="mb-7">
-    <div class="mb-3.5">
-      <div class="label mb-1">{{ $t('step5label') }}</div>
-      <div class="font-serif text-xl font-semibold leading-tight">{{ $t('step5title') }}</div>
-      <div class="text-[13px] text-ink-light mt-1">{{ $t('step5sub') }}</div>
+  <section class="mb-10 sm:mb-12">
+    <div class="mb-5">
+      <div class="label mb-1.5">{{ $t('step5label') }}</div>
+      <div class="font-serif text-xl sm:text-2xl font-semibold leading-tight">{{ $t('step5title') }}</div>
+      <div class="text-sm text-ink-light mt-2">{{ $t('step5sub') }}</div>
     </div>
 
     <!-- Accordion trigger -->
     <button
-      class="flex justify-between items-center w-full px-3.5 py-3 bg-parchment-mid border border-parchment-deep rounded cursor-pointer text-[14px] font-medium text-ink"
+      class="flex justify-between items-center w-full min-h-[48px] px-3.5 py-3 bg-parchment-mid border border-parchment-deep rounded cursor-pointer text-sm font-medium text-ink focus-ring transition-colors hover:bg-parchment-deep/60"
       @click="open = !open"
     >
       {{ $t('extraToggle') }}
@@ -54,7 +54,7 @@ const FIELDS = [
           rows="2"
           :placeholder="$t(field.phKey)"
           :value="(($props as unknown) as Record<string, string>)[field.prop]"
-          class="w-full px-2.5 py-2 bg-parchment border border-parchment-deep rounded-sm text-[13px] text-ink font-sans resize-none outline-none leading-relaxed"
+          class="w-full px-3 py-2.5 bg-parchment border border-parchment-deep rounded-sm text-base sm:text-sm text-ink font-sans resize-y leading-relaxed transition-colors"
           @input="emit(field.event as any, ($event.target as HTMLTextAreaElement).value)"
         />
       </div>

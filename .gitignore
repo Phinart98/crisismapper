@@ -21,6 +21,10 @@ logs
 # Vercel
 .vercel
 
+# Playwright MCP screenshots / artifacts (local debug only)
+.playwright-mcp/
+report-*.png
+
 # Local env files
 .env
 .env.*

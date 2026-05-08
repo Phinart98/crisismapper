@@ -40,7 +40,7 @@ function onInfraSelected() {
     />
 
     <!-- Form body -->
-    <div v-else class="flex-1 px-4 pt-5 pb-28 overflow-auto">
+    <div v-else class="flex-1 px-5 sm:px-7 md:px-6 pt-6 sm:pt-8 pb-24 sm:pb-28 overflow-auto">
       <ReportPhotoStep @captured="onPhotoCaptured" @retake="onRetake" />
 
       <Transition name="slide-up">

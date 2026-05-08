@@ -15,38 +15,38 @@ function onInputEnter() {
 </script>
 
 <template>
-  <section class="mb-7">
-    <div class="mb-3.5">
-      <div class="label mb-1">{{ $t('step3label') }}</div>
-      <div class="font-serif text-xl font-semibold leading-tight">{{ $t('step3title') }}</div>
+  <section class="mb-10 sm:mb-12">
+    <div class="mb-5">
+      <div class="label mb-1.5">{{ $t('step3label') }}</div>
+      <div class="font-serif text-xl sm:text-2xl font-semibold leading-tight">{{ $t('step3title') }}</div>
     </div>
 
     <!-- GPS button -->
     <button
-      class="flex items-center gap-2.5 w-full p-3.5 mb-3 rounded border transition-all duration-200 text-[14px] font-medium cursor-pointer"
+      class="flex items-center gap-2.5 w-full min-h-[48px] p-3.5 mb-3 rounded border transition-colors duration-200 text-sm font-medium cursor-pointer focus-ring"
       :class="state === 'done'
         ? 'bg-sev-minimal/10 border-sev-minimal text-ink'
-        : 'bg-parchment-mid border-parchment-deep text-ink'"
+        : 'bg-parchment-mid border-parchment-deep text-ink hover:bg-parchment-deep/60'"
       :disabled="state === 'locating'"
       @click="requestGps"
     >
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="shrink-0">
         <circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M1 12h4M19 12h4"/>
       </svg>
-      <span>
+      <span class="text-start">
         {{ state === 'locating' ? $t('gpsLocating') : state === 'done' ? $t('gpsLocated') : $t('gpsBtn') }}
       </span>
-      <span v-if="state === 'done'" class="ms-auto text-sev-minimal text-base">✓</span>
+      <span v-if="state === 'done'" class="ms-auto text-sev-minimal text-base shrink-0">✓</span>
       <span
         v-if="state === 'locating'"
-        class="ms-auto w-4 h-4 border-2 border-sev-partial border-t-transparent rounded-full animate-spin"
+        class="ms-auto w-4 h-4 border-2 border-sev-partial border-t-transparent rounded-full animate-spin shrink-0"
       />
     </button>
 
     <!-- GPS result display -->
     <div
       v-if="state === 'done' && result"
-      class="label text-ink-light px-3 py-2 bg-parchment-mid rounded-sm mb-3"
+      class="label text-ink-light px-3 py-2 bg-parchment-mid rounded-sm mb-3 break-words"
     >
       <template v-if="result.method === 'gps'">
         {{ result.lat.toFixed(4) }}° N, {{ result.lng.toFixed(4) }}° E
@@ -60,18 +60,18 @@ function onInputEnter() {
     </div>
 
     <!-- Denied message -->
-    <div v-if="state === 'denied'" class="text-[13px] text-ink-light mb-2">
+    <div v-if="state === 'denied'" class="text-sm text-ink-light mb-2">
       {{ $t('gpsDenied') }}
     </div>
 
-    <div class="label text-ink-ghost text-center mb-2">— or —</div>
+    <div class="label text-ink-ghost text-center my-3">— or —</div>
 
-    <!-- Plus Code / landmark input -->
+    <!-- Plus Code / landmark input. text-base prevents iOS Safari zoom-on-focus. -->
     <input
       v-model="inputText"
       type="text"
       :placeholder="$t('gpsPlaceholder')"
-      class="w-full px-3.5 py-3 bg-white border rounded text-[14px] text-ink outline-none"
+      class="w-full min-h-[48px] px-3.5 py-3 bg-white border rounded text-base text-ink transition-colors"
       :class="hasError ? 'border-accent' : 'border-parchment-deep'"
       @keydown.enter="onInputEnter"
     />

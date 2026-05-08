@@ -7,63 +7,60 @@
   <aside class="flex-col h-screen sticky top-0 border-e border-parchment-deep overflow-y-auto">
 
     <!-- Branding -->
-    <div class="flex items-center gap-2.5 px-5 py-4 border-b border-parchment-deep shrink-0">
+    <div class="flex items-center gap-2.5 px-5 lg:px-6 py-4 border-b border-parchment-deep shrink-0">
       <svg width="20" height="20" viewBox="0 0 20 20" fill="none" class="shrink-0">
         <circle cx="10" cy="10" r="9" stroke="var(--color-accent)" stroke-width="2"/>
         <line x1="0" y1="10" x2="20" y2="10" stroke="var(--color-accent)" stroke-width="1.5"/>
         <line x1="10" y1="0" x2="10" y2="20" stroke="var(--color-accent)" stroke-width="1.5"/>
       </svg>
-      <div>
-        <div class="font-serif font-semibold text-[15px] tracking-[-0.01em] text-ink leading-none">CrisisMapper</div>
-        <div class="label text-ink-ghost mt-0.5">UNDP Crisis Mapping</div>
+      <div class="min-w-0">
+        <div class="font-serif font-semibold text-[15px] lg:text-base tracking-[-0.01em] text-ink leading-none">CrisisMapper</div>
+        <div class="label text-ink-ghost mt-1">UNDP Crisis Mapping</div>
       </div>
     </div>
 
     <!-- Active crisis -->
-    <div class="px-5 py-4 border-b border-parchment-deep shrink-0">
+    <div class="px-5 lg:px-6 py-4 border-b border-parchment-deep shrink-0">
       <div class="label text-ink-ghost mb-2.5">Active Crisis</div>
-      <div class="font-serif font-semibold text-[16px] leading-snug text-ink mb-1.5">
+      <div class="font-serif font-semibold text-base lg:text-lg leading-snug text-ink mb-1.5">
         Myanmar Earthquake 2026
       </div>
       <div class="flex items-center gap-1.5">
         <span class="w-1.5 h-1.5 rounded-full bg-accent shrink-0 animate-pulse" />
-        <span class="text-[12px] text-ink-mid leading-none">Live · Mandalay Region</span>
+        <span class="text-xs text-ink-mid leading-none">Live · Mandalay Region</span>
       </div>
     </div>
 
     <!-- Photo tips -->
-    <div class="px-5 py-4 border-b border-parchment-deep shrink-0">
+    <div class="px-5 lg:px-6 py-4 border-b border-parchment-deep shrink-0">
       <div class="label text-ink-ghost mb-3">Photo tips</div>
       <div class="flex flex-col gap-2.5">
         <div
           v-for="(key, i) in ['tip1', 'tip2', 'tip3']"
           :key="key"
-          class="flex items-start gap-2"
+          class="flex items-start gap-2.5"
         >
-          <span
-            class="label text-ink-ghost shrink-0 mt-px w-4"
-            style="font-size: 9px"
-          >{{ String(i + 1).padStart(2, '0') }}</span>
-          <span class="text-[12.5px] text-ink-mid leading-relaxed">{{ $t(key) }}</span>
+          <span class="label text-ink-ghost shrink-0 mt-0.5 w-4">{{ String(i + 1).padStart(2, '0') }}</span>
+          <span class="text-xs lg:text-[13px] text-ink-mid leading-relaxed">{{ $t(key) }}</span>
         </div>
       </div>
     </div>
 
     <!-- Severity guide -->
-    <div class="px-5 py-4 border-b border-parchment-deep shrink-0">
+    <div class="px-5 lg:px-6 py-4 border-b border-parchment-deep shrink-0">
       <div class="label text-ink-ghost mb-3">Damage severity</div>
-      <div class="flex flex-col gap-1.5">
+      <div class="flex flex-col gap-2">
         <div class="flex items-center gap-2.5">
-          <span class="sev-chip minimal">{{ $t('sevMinimal') }}</span>
-          <span class="text-[11.5px] text-ink-ghost leading-none">Structural integrity intact</span>
+          <span class="sev-chip minimal shrink-0">{{ $t('sevMinimal') }}</span>
+          <span class="text-xs text-ink-ghost leading-snug">Structural integrity intact</span>
         </div>
         <div class="flex items-center gap-2.5">
-          <span class="sev-chip partial">{{ $t('sevPartial') }}</span>
-          <span class="text-[11.5px] text-ink-ghost leading-none">Significant damage</span>
+          <span class="sev-chip partial shrink-0">{{ $t('sevPartial') }}</span>
+          <span class="text-xs text-ink-ghost leading-snug">Significant damage</span>
         </div>
         <div class="flex items-center gap-2.5">
-          <span class="sev-chip complete">{{ $t('sevComplete') }}</span>
-          <span class="text-[11.5px] text-ink-ghost leading-none">Total loss / collapsed</span>
+          <span class="sev-chip complete shrink-0">{{ $t('sevComplete') }}</span>
+          <span class="text-xs text-ink-ghost leading-snug">Total loss / collapsed</span>
         </div>
       </div>
     </div>
@@ -92,7 +89,7 @@
     </div>
 
     <!-- Footer -->
-    <div class="px-5 py-4 border-t border-parchment-deep shrink-0">
+    <div class="px-5 lg:px-6 py-4 border-t border-parchment-deep shrink-0">
       <div class="label text-ink-ghost leading-[1.9]">
         Phase 2 · Reporter Form<br>
         Open source · Built for resilience
