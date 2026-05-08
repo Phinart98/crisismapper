@@ -1,4 +1,8 @@
-import { decode as decodePlusCode } from 'pluscodes'
+// pluscodes ships CommonJS — Node ESM in Vercel rejects named imports from CJS.
+// Default-import the namespace and destructure to stay portable across Vite (dev)
+// and Node (production SSR).
+import pluscodes from 'pluscodes'
+const { decode: decodePlusCode } = pluscodes
 
 const PLUS_CODE_RE = /[23456789CFGHJMPQRVWX]{4,8}\+[23456789CFGHJMPQRVWX]{2,3}/i
 
