@@ -29,8 +29,8 @@ watch(pendingCount, (n, prev) => {
           <span class="label !text-[10px]">{{ pendingCount }}</span>
         </div>
         <div class="min-w-0 flex-1 text-start">
-          <div class="label">{{ $t('syncTitle') }}</div>
-          <div class="text-sm text-ink/70">{{ $t('syncSub') }}</div>
+          <div class="label truncate">{{ $t('syncTitle') }}</div>
+          <div class="hidden sm:block text-sm text-ink/70">{{ $t('syncSub') }}</div>
         </div>
         <button
           type="button"

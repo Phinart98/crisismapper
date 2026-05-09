@@ -1,8 +1,8 @@
 <script setup lang="ts">
 const { locale, setLocale } = useI18n()
+const { pendingCount, flush, isFlushing } = useOfflineQueue()
 
 const LOCALES = ['en', 'es', 'fr', 'ar', 'ru', 'zh'] as const
-const pendingCount = ref(0) // Phase 3 wires to Dexie queue count
 </script>
 
 <template>
@@ -37,13 +37,15 @@ const pendingCount = ref(0) // Phase 3 wires to Dexie queue count
         >{{ code.toUpperCase() }}</button>
       </div>
 
-      <!-- Pending sync badge — dot + count only (per prototype). Aria label carries the meaning. -->
+      <!-- Pending sync badge — clicking flushes immediately when count > 0 -->
       <button
-        class="flex items-center gap-1.5 label min-h-[32px] px-2 rounded-sm border cursor-pointer focus-ring transition-colors"
+        class="flex items-center gap-1.5 label min-h-[32px] px-2 rounded-sm border cursor-pointer focus-ring transition-colors disabled:opacity-50"
         :class="pendingCount > 0
           ? 'border-sev-partial text-sev-partial bg-sev-partial/10'
           : 'border-parchment-deep text-ink-ghost bg-transparent hover:bg-parchment-mid'"
         :aria-label="$t('pending') + ' (' + pendingCount + ')'"
+        :disabled="pendingCount === 0 || isFlushing"
+        @click="flush()"
       >
         <span v-if="pendingCount > 0" class="w-1.5 h-1.5 rounded-full bg-sev-partial shrink-0" />
         <span>({{ pendingCount }})</span>
