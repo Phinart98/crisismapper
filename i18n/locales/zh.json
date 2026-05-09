@@ -1,1 +1,10 @@
-{}
+{
+  "updateTitle": "Update available",
+  "updateSub": "A new version is ready.",
+  "updateReload": "Reload",
+  "updateLater": "Later",
+  "installTitle": "Install CrisisMapper",
+  "installSub": "Add to home screen for offline access.",
+  "installAdd": "Install",
+  "installLater": "Not now"
+}
