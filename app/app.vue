@@ -5,4 +5,6 @@ useHead({ title: 'CrisisMapper' })
 <template>
   <NuxtPage />
   <OfflinePendingSyncTray />
+  <OfflinePwaUpdateToast />
+  <OfflineInstallPrompt />
 </template>
