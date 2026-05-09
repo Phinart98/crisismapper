@@ -14,14 +14,9 @@ export default defineNuxtPlugin(() => {
     if (document.visibilityState === 'visible') flush()
   })
 
-  // SW finished a drain → liveQuery already keeps the count reactive,
-  // but this hook is here for future telemetry / toast notifications.
-  const channel = new BroadcastChannel('crisismapper-sync')
-  channel.addEventListener('message', (e) => {
-    if (e.data?.type === 'drained') {
-      // No-op for now.
-    }
-  })
+  // The SW posts to BroadcastChannel('crisismapper-sync') after a Background Sync
+  // drain so the page can react. We don't subscribe yet — Dexie's liveQuery already
+  // keeps pendingCount reactive — but the SW broadcast is in place for future telemetry.
 
   // Initial flush on app boot — covers: user opens app online after submitting offline yesterday.
   if (navigator.onLine) flush()

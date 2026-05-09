@@ -26,7 +26,7 @@ watch(pendingCount, (n, prev) => {
     >
       <div class="mx-auto flex max-w-screen-md items-center gap-3 px-4 py-3 sm:px-6">
         <div class="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-ink/5">
-          <span class="label !text-[10px]">{{ pendingCount }}</span>
+          <span class="label">{{ pendingCount }}</span>
         </div>
         <div class="min-w-0 flex-1 text-start">
           <div class="label truncate">{{ $t('syncTitle') }}</div>

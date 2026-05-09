@@ -32,7 +32,7 @@ const LOCALES = ['en', 'es', 'fr', 'ar', 'ru', 'zh'] as const
           :class="locale === code
             ? 'bg-ink text-parchment'
             : 'bg-transparent text-ink-light hover:text-ink hover:bg-parchment-mid'"
-          :aria-label="$t('locale')"
+          :aria-label="`${$t('locale')} (${code.toUpperCase()})`"
           @click="setLocale(code)"
         >{{ code.toUpperCase() }}</button>
       </div>
