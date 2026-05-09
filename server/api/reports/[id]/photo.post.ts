@@ -55,7 +55,7 @@ export default defineEventHandler(async (event) => {
         photo_hash = ${photoHashHex ? Buffer.from(photoHashHex, 'hex') : null}
     WHERE id = ${reportId}
       AND photo_url IS NULL
-      AND submitted_at > now() - interval '10 minutes'
+      AND submitted_at > now() - interval '72 hours'
   `
   if (result.count === 0) {
     // Roll back the upload so we don't park an orphan in a public bucket.
