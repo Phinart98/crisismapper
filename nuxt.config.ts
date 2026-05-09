@@ -3,7 +3,7 @@ import tailwindcss from '@tailwindcss/vite'
 export default defineNuxtConfig({
   compatibilityDate: '2026-05-01',
   devtools: { enabled: true },
-  modules: ['@nuxtjs/i18n'],
+  modules: ['@nuxtjs/i18n', '@vite-pwa/nuxt'],
   css: ['~/assets/css/main.css'],
   vite: {
     plugins: [tailwindcss()]
@@ -50,5 +50,42 @@ export default defineNuxtConfig({
   },
   nitro: {
     preset: 'vercel'
-  }
+  },
+  pwa: {
+    strategies: 'injectManifest',
+    srcDir: 'service-worker',
+    filename: 'sw.ts',
+    registerType: 'autoUpdate',
+    injectRegister: 'auto',
+    scope: '/',
+    base: '/',
+    manifest: {
+      name: 'CrisisMapper',
+      short_name: 'CrisisMapper',
+      description: 'Report damage from any phone, anywhere — even without internet.',
+      theme_color: '#0e1116',
+      background_color: '#f4eee2',
+      display: 'standalone',
+      start_url: '/',
+      scope: '/',
+      icons: [
+        { src: '/icons/icon-192.png', sizes: '192x192', type: 'image/png' },
+        { src: '/icons/icon-512.png', sizes: '512x512', type: 'image/png' },
+        { src: '/icons/icon-512-maskable.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+      ],
+    },
+    injectManifest: {
+      globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+    },
+    devOptions: {
+      enabled: true,
+      type: 'module',
+      suppressWarnings: true,
+      navigateFallback: '/',
+    },
+    client: {
+      installPrompt: true,
+      periodicSyncForUpdates: 3600,
+    },
+  },
 })
