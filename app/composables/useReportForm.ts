@@ -1,12 +1,14 @@
 import type { UiSeverity } from '~/utils/severity'
 import type { GpsResult } from '~/composables/useGeolocation'
 import type { PhotoResult } from '~/composables/usePhotoPipeline'
+import { getDb } from '~/utils/db'
 
 export type InfraType = 'building' | 'road' | 'bridge' | 'hospital' | 'school' | 'utility' | 'other'
-export type SubmitPhase = 'idle' | 'metadata' | 'photo' | 'done' | 'error'
+export type SubmitPhase = 'idle' | 'metadata' | 'photo' | 'queued' | 'done' | 'error'
 
 export function useReportForm() {
   const { public: { demoCrisisId } } = useRuntimeConfig()
+  const queue = useOfflineQueue()
 
   // Step state
   const step = ref(1)
@@ -49,11 +51,11 @@ export function useReportForm() {
     submitPhase.value = 'metadata'
 
     const loc = location.value!
-    const body = {
+    const payload = {
       crisis_id: demoCrisisId,
       severity: severity.value,
-      infrastructure_type: infraType.value,
-      location: [loc.lng, loc.lat],
+      infrastructure_type: infraType.value!,
+      location: [loc.lng, loc.lat] as [number, number],
       location_method: loc.method,
       plus_code: loc.plusCode,
       description: description.value || undefined,
@@ -63,33 +65,19 @@ export function useReportForm() {
       vulnerable_groups: vulnerableGroups.value || undefined,
     }
 
-    try {
-      const res = await $fetch<{ id: string }>('/api/reports', { method: 'POST', body })
-      reportId.value = res.id
-    } catch {
-      submitPhase.value = 'error'
-      return
-    }
+    const myId = await queue.enqueue({
+      payload,
+      photo: photo.value!.webpBlob,
+      photo_hash: photo.value!.hashHex,
+    })
 
-    // Phase 2: upload photo
     submitPhase.value = 'photo'
     photoError.value = false
-    await uploadPhoto()
-  }
+    await queue.flush()
+    await queue.registerBackgroundSync()
 
-  async function uploadPhoto() {
-    if (!photo.value || !reportId.value) return
-    const fd = new FormData()
-    fd.append('photo', photo.value.webpBlob, 'photo.webp')
-    fd.append('photo_hash', photo.value.hashHex)
-
-    try {
-      await $fetch(`/api/reports/${reportId.value}/photo`, { method: 'POST', body: fd })
-      submitPhase.value = 'done'
-    } catch {
-      photoError.value = true
-      submitPhase.value = 'done' // still show confirm — metadata is in DB
-    }
+    const stillQueued = await getDb().pending_reports.get(myId)
+    submitPhase.value = stillQueued ? 'queued' : 'done'
   }
 
   function reset() {
@@ -114,6 +102,6 @@ export function useReportForm() {
     step, photo, severity, location, infraType,
     description, electricityStatus, healthStatus, communityNeeds, vulnerableGroups,
     submitPhase, reportId, photoError, errors,
-    submit, uploadPhoto, reset,
+    submit, reset,
   }
 }

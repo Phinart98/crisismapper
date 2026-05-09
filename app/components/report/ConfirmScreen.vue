@@ -1,18 +1,21 @@
 <script setup lang="ts">
-defineProps<{ photoError?: boolean }>()
+defineProps<{ photoError?: boolean; queued?: boolean }>()
 const emit = defineEmits<{ again: [] }>()
 </script>
 
 <template>
   <div class="flex-1 flex flex-col items-center justify-center px-5 sm:px-8 py-10 sm:py-12 text-center min-h-screen">
-    <!-- Checkmark -->
+    <!-- Checkmark / queued indicator -->
     <div
-      class="w-[72px] h-[72px] rounded-full flex items-center justify-center mb-6 text-3xl border-2 border-accent bg-accent/15"
-    >✓</div>
+      class="w-[72px] h-[72px] rounded-full flex items-center justify-center mb-6 text-3xl border-2"
+      :class="queued ? 'border-ink/40 bg-ink/5' : 'border-accent bg-accent/15'"
+    >{{ queued ? '⏱' : '✓' }}</div>
 
-    <div class="label text-accent mb-2.5">{{ $t('confirmLabel') }}</div>
+    <div class="label mb-2.5" :class="queued ? 'text-ink/60' : 'text-accent'">
+      {{ queued ? $t('syncTitle') : $t('confirmLabel') }}
+    </div>
     <div class="font-serif text-2xl sm:text-3xl font-bold leading-tight mb-3">
-      {{ $t('confirmTitle', { n: 47 }) }}
+      {{ queued ? $t('syncSub') : $t('confirmTitle', { n: 47 }) }}
     </div>
     <div class="text-sm text-ink-light mb-7 leading-relaxed max-w-xs">
       {{ $t('confirmBody') }}

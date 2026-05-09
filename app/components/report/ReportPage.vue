@@ -34,8 +34,9 @@ function onInfraSelected() {
 
     <!-- Confirm screen -->
     <ReportConfirmScreen
-      v-if="form.submitPhase.value === 'done'"
+      v-if="form.submitPhase.value === 'done' || form.submitPhase.value === 'queued'"
       :photo-error="form.photoError.value"
+      :queued="form.submitPhase.value === 'queued'"
       @again="form.reset"
     />
 
@@ -85,7 +86,7 @@ function onInfraSelected() {
 
     <!-- Sticky footer -->
     <ReportSubmitFooter
-      v-if="form.step.value >= 4 && form.submitPhase.value !== 'done'"
+      v-if="form.step.value >= 4 && form.submitPhase.value !== 'done' && form.submitPhase.value !== 'queued'"
       :phase="form.submitPhase.value"
       @submit="form.submit()"
     />
