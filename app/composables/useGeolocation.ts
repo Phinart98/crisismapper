@@ -1,12 +1,12 @@
-// pluscodes ships CommonJS — Node ESM in Vercel rejects named imports from CJS.
-// Default-import the namespace and destructure to stay portable across Vite (dev)
-// and Node (production SSR).
-import pluscodes from 'pluscodes'
-const { decode: decodePlusCode } = pluscodes
+// pluscodes ships CJS with __esModule + named exports and no default. Named
+// imports trip Node ESM in production; default imports resolve to undefined
+// under Vite SSR. Namespace import works in both.
+import * as pluscodes from 'pluscodes'
+const decodePlusCode = pluscodes.decode
 
 const PLUS_CODE_RE = /[23456789CFGHJMPQRVWX]{4,8}\+[23456789CFGHJMPQRVWX]{2,3}/i
 
-export type GpsResult = { lng: number; lat: number; plusCode?: string; landmark?: string; method: 'gps' | 'plus_code' | 'landmark_text' }
+export type GpsResult = { lng: number; lat: number; plusCode?: string; method: 'gps' | 'plus_code' }
 
 export function useGeolocation() {
   const state = ref<'idle' | 'locating' | 'done' | 'denied'>('idle')
@@ -35,30 +35,44 @@ export function useGeolocation() {
     })
   }
 
+  // Landmark fallback removed; the previous hardcoded centroid was poisoning
+  // every landmark_text row with identical coordinates.
   function resolveInput(text: string): GpsResult | null {
     const trimmed = text.trim()
     if (!trimmed) return null
 
     const plusMatch = trimmed.match(PLUS_CODE_RE)
-    if (plusMatch) {
-      const decoded = decodePlusCode(plusMatch[0].toUpperCase())
-      if (decoded) {
-        return {
-          lng: decoded.longitude,
-          lat: decoded.latitude,
-          plusCode: plusMatch[0].toUpperCase(),
-          method: 'plus_code',
-        }
-      }
-    }
+    if (!plusMatch) return null
 
-    // Landmark fallback: use demo crisis centroid (Mandalay bbox center)
-    return { lng: 96.15, lat: 21.85, landmark: trimmed, method: 'landmark_text' }
+    const decoded = decodePlusCode(plusMatch[0].toUpperCase())
+    if (!decoded) return null
+
+    return {
+      lng: decoded.longitude,
+      lat: decoded.latitude,
+      plusCode: plusMatch[0].toUpperCase(),
+      method: 'plus_code',
+    }
   }
+
+  const inputError = ref(false)
+  // Editing the input after a Plus Code resolution invalidates it — otherwise the
+  // form would submit the previously confirmed coords while the visible text differs.
+  watch(inputText, () => {
+    inputError.value = false
+    if (result.value?.method === 'plus_code') {
+      result.value = null
+      state.value = 'idle'
+    }
+  })
 
   function confirmInput(): boolean {
     const resolved = resolveInput(inputText.value)
-    if (!resolved) return false
+    if (!resolved) {
+      inputError.value = true
+      return false
+    }
+    inputError.value = false
     result.value = resolved
     state.value = 'done'
     return true
@@ -68,7 +82,8 @@ export function useGeolocation() {
     state.value = 'idle'
     result.value = null
     inputText.value = ''
+    inputError.value = false
   }
 
-  return { state, result, inputText, requestGps, confirmInput, reset }
+  return { state, result, inputText, inputError, requestGps, confirmInput, reset }
 }

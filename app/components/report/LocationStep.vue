@@ -5,12 +5,16 @@ import type { GpsResult } from '~/composables/useGeolocation'
 const emit = defineEmits<{ resolved: [GpsResult] }>()
 const props = defineProps<{ hasError?: boolean }>()
 
-const { state, result, inputText, requestGps, confirmInput } = useGeolocation()
+const { state, result, inputText, inputError, requestGps, confirmInput } = useGeolocation()
 
 watch(result, (v) => { if (v) emit('resolved', v) })
 
 function onInputEnter() {
   confirmInput()
+}
+
+function onInputBlur() {
+  if (inputText.value && state.value !== 'done') confirmInput()
 }
 </script>
 
@@ -51,11 +55,8 @@ function onInputEnter() {
       <template v-if="result.method === 'gps'">
         {{ result.lat.toFixed(4) }}° N, {{ result.lng.toFixed(4) }}° E
       </template>
-      <template v-else-if="result.method === 'plus_code'">
-        {{ result.plusCode }} ({{ result.lat.toFixed(4) }}° N, {{ result.lng.toFixed(4) }}° E)
-      </template>
       <template v-else>
-        Landmark recorded — approximate position
+        {{ result.plusCode }} ({{ result.lat.toFixed(4) }}° N, {{ result.lng.toFixed(4) }}° E)
       </template>
     </div>
 
@@ -66,14 +67,16 @@ function onInputEnter() {
 
     <div class="label text-ink-ghost text-center my-3">— or —</div>
 
-    <!-- Plus Code / landmark input. text-base prevents iOS Safari zoom-on-focus. -->
+    <!-- Plus Code input. text-base prevents iOS Safari zoom-on-focus. -->
     <input
       v-model="inputText"
       type="text"
       :placeholder="$t('gpsPlaceholder')"
       class="w-full min-h-[48px] px-3.5 py-3 bg-white border rounded text-base text-ink transition-colors"
-      :class="hasError ? 'border-accent' : 'border-parchment-deep'"
+      :class="(hasError || inputError) ? 'border-accent' : 'border-parchment-deep'"
       @keydown.enter="onInputEnter"
+      @blur="onInputBlur"
     />
+    <div v-if="inputError" class="text-sm text-accent mt-2">{{ $t('gpsInvalid') }}</div>
   </section>
 </template>

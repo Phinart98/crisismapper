@@ -56,7 +56,6 @@ export function useReportForm() {
       location: [loc.lng, loc.lat],
       location_method: loc.method,
       plus_code: loc.plusCode,
-      location_landmark: loc.method === 'landmark_text' ? (loc.landmark ?? '') : undefined,
       description: description.value || undefined,
       electricity_status: electricityStatus.value || undefined,
       health_status: healthStatus.value || undefined,

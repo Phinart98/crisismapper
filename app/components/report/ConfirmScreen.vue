@@ -7,8 +7,7 @@ const emit = defineEmits<{ again: [] }>()
   <div class="flex-1 flex flex-col items-center justify-center px-5 sm:px-8 py-10 sm:py-12 text-center min-h-screen">
     <!-- Checkmark -->
     <div
-      class="w-[72px] h-[72px] rounded-full flex items-center justify-center mb-6 text-[28px] border-2 border-accent"
-      style="background: color-mix(in srgb, var(--color-accent) 15%, var(--color-parchment))"
+      class="w-[72px] h-[72px] rounded-full flex items-center justify-center mb-6 text-3xl border-2 border-accent bg-accent/15"
     >✓</div>
 
     <div class="label text-accent mb-2.5">{{ $t('confirmLabel') }}</div>

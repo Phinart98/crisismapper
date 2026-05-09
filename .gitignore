@@ -24,6 +24,9 @@ logs
 # Playwright MCP screenshots / artifacts (local debug only)
 .playwright-mcp/
 report-*.png
+landing-*.png
+mobile-*.png
+desktop-*.png
 
 # Local env files
 .env

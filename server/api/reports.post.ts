@@ -6,10 +6,15 @@ const ReportSchema = v.object({
   crisis_id: v.pipe(v.string(), v.uuid()),
   severity: v.picklist(['minimal', 'partial', 'complete']),
   infrastructure_type: v.picklist(['building', 'road', 'bridge', 'hospital', 'school', 'utility', 'other']),
-  location: v.tuple([v.number(), v.number()]),   // [lng, lat]
-  location_method: v.picklist(['gps', 'plus_code', 'landmark_text']),
+  location: v.tuple([
+    v.pipe(v.number(), v.minValue(-180), v.maxValue(180)), // lng
+    v.pipe(v.number(), v.minValue(-90), v.maxValue(90)),   // lat
+  ]),
+  // PWA channel only produces 'gps' and 'plus_code'. WhatsApp (Phase 5) submits
+  // through a separate webhook, not this endpoint, so accepting other methods here
+  // would just be unverified attacker input.
+  location_method: v.picklist(['gps', 'plus_code']),
   plus_code: v.optional(v.string()),
-  location_landmark: v.optional(v.string()),
   description: v.optional(v.string()),
   electricity_status: v.optional(v.picklist(['functional', 'partial', 'non-functional', 'unknown'])),
   health_status: v.optional(v.picklist(['operational', 'partial', 'down', 'unknown'])),
@@ -32,14 +37,14 @@ export default defineEventHandler(async (event) => {
   const [row] = await db<{ id: string }[]>`
     INSERT INTO damage_reports (
       crisis_id, channel, severity, infrastructure_type,
-      location, location_method, plus_code, location_landmark,
+      location, location_method, plus_code,
       description, electricity_status, health_status,
       community_needs, vulnerable_groups
     ) VALUES (
       ${d.crisis_id}, 'pwa', ${dbSeverity}, ${d.infrastructure_type},
       ST_SetSRID(ST_MakePoint(${lng}, ${lat}), 4326),
       ${d.location_method},
-      ${d.plus_code ?? null}, ${d.location_landmark ?? null},
+      ${d.plus_code ?? null},
       ${d.description ?? null}, ${d.electricity_status ?? null}, ${d.health_status ?? null},
       ${d.community_needs ?? null}, ${d.vulnerable_groups ?? null}
     )

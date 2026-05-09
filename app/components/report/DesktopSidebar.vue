@@ -14,7 +14,7 @@
         <line x1="10" y1="0" x2="10" y2="20" stroke="var(--color-accent)" stroke-width="1.5"/>
       </svg>
       <div class="min-w-0">
-        <div class="font-serif font-semibold text-[15px] lg:text-base tracking-[-0.01em] text-ink leading-none">CrisisMapper</div>
+        <div class="font-serif font-semibold text-sm lg:text-base tracking-[-0.01em] text-ink leading-none">CrisisMapper</div>
         <div class="label text-ink-ghost mt-1">UNDP Crisis Mapping</div>
       </div>
     </div>
@@ -41,7 +41,7 @@
           class="flex items-start gap-2.5"
         >
           <span class="label text-ink-ghost shrink-0 mt-0.5 w-4">{{ String(i + 1).padStart(2, '0') }}</span>
-          <span class="text-xs lg:text-[13px] text-ink-mid leading-relaxed">{{ $t(key) }}</span>
+          <span class="text-xs lg:text-sm text-ink-mid leading-relaxed">{{ $t(key) }}</span>
         </div>
       </div>
     </div>

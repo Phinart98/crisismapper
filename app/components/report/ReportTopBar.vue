@@ -12,7 +12,7 @@ const pendingCount = ref(0) // Phase 3 wires to Dexie queue count
     <!-- Logo -->
     <NuxtLink
       to="/"
-      class="flex items-center gap-2 no-underline text-ink font-serif font-semibold text-[15px] focus-ring rounded-sm min-w-0"
+      class="flex items-center gap-2 no-underline text-ink font-serif font-semibold text-sm focus-ring rounded-sm min-w-0"
     >
       <svg width="20" height="20" viewBox="0 0 20 20" fill="none" class="shrink-0">
         <circle cx="10" cy="10" r="9" stroke="var(--color-accent)" stroke-width="2" fill="none"/>

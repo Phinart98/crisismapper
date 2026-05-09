@@ -54,7 +54,7 @@ const FIELDS = [
           rows="2"
           :placeholder="$t(field.phKey)"
           :value="(($props as unknown) as Record<string, string>)[field.prop]"
-          class="w-full px-3 py-2.5 bg-parchment border border-parchment-deep rounded-sm text-base sm:text-sm text-ink font-sans resize-y leading-relaxed transition-colors"
+          class="w-full px-3 py-2.5 bg-parchment border border-parchment-deep rounded-sm text-base text-ink font-sans resize-y leading-relaxed transition-colors"
           @input="emit(field.event as any, ($event.target as HTMLTextAreaElement).value)"
         />
       </div>
