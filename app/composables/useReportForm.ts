@@ -1,7 +1,6 @@
 import type { UiSeverity } from '~/utils/severity'
 import type { GpsResult } from '~/composables/useGeolocation'
 import type { PhotoResult } from '~/composables/usePhotoPipeline'
-import { getDb } from '~/utils/db'
 
 export type InfraType = 'building' | 'road' | 'bridge' | 'hospital' | 'school' | 'utility' | 'other'
 export type SubmitPhase = 'idle' | 'metadata' | 'photo' | 'queued' | 'done' | 'error'
@@ -65,19 +64,33 @@ export function useReportForm() {
       vulnerable_groups: vulnerableGroups.value || undefined,
     }
 
-    const myId = await queue.enqueue({
-      payload,
-      photo: photo.value!.webpBlob,
-      photo_hash: photo.value!.hashHex,
-    })
+    let myId: number
+    try {
+      myId = await queue.enqueue({
+        payload,
+        photo: photo.value!.webpBlob,
+        photo_hash: photo.value!.hashHex,
+      })
+    } catch {
+      // Most likely cause: IndexedDB quota exceeded on a low-storage phone.
+      // Nothing we can salvage — the photo Blob can't be persisted anywhere safe.
+      submitPhase.value = 'error'
+      return
+    }
 
     submitPhase.value = 'photo'
     photoError.value = false
-    await queue.flush()
-    await queue.registerBackgroundSync()
+    const result = await queue.flush()
 
-    const stillQueued = await getDb().pending_reports.get(myId)
-    submitPhase.value = stillQueued ? 'queued' : 'done'
+    if (result.drainedIds.includes(myId)) {
+      submitPhase.value = 'done'
+    } else {
+      // Foreground drain failed; register Android Background Sync so the OS
+      // retries on next connectivity. Skipping the register when the row
+      // already drained avoids the SW double-POSTing the same row later.
+      await queue.registerBackgroundSync()
+      submitPhase.value = 'queued'
+    }
   }
 
   function reset() {

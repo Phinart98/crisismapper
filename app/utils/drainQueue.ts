@@ -8,6 +8,7 @@ export interface DrainResult {
   drained: number
   failed: number
   remaining: number
+  drainedIds: number[]
 }
 
 export function drainQueue(db: CrisisDB): Promise<DrainResult> {
@@ -22,13 +23,13 @@ async function runDrain(db: CrisisDB): Promise<DrainResult> {
     .filter(r => (r.retries ?? 0) < MAX_RETRIES)
     .toArray()
 
-  let drained = 0
+  const drainedIds: number[] = []
   let failed = 0
 
   for (const row of pending) {
     try {
       await drainOne(db, row)
-      drained++
+      drainedIds.push(row.id!)
     } catch {
       await db.pending_reports
         .where('id').equals(row.id!)
@@ -38,13 +39,13 @@ async function runDrain(db: CrisisDB): Promise<DrainResult> {
       // SW Background Sync keeps the registration alive for OS-driven retry.
       const remaining = await db.pending_reports.count()
       const err = new Error('drain_failed')
-      ;(err as any).result = { drained, failed, remaining }
+      ;(err as any).result = { drained: drainedIds.length, failed, remaining, drainedIds }
       throw err
     }
   }
 
   const remaining = await db.pending_reports.count()
-  return { drained, failed, remaining }
+  return { drained: drainedIds.length, failed, remaining, drainedIds }
 }
 
 async function drainOne(db: CrisisDB, row: PendingReport): Promise<void> {

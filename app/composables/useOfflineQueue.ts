@@ -9,23 +9,24 @@ const _lastResult = ref<DrainResult | null>(null)
 let _initialized = false
 
 function ensureInitialized() {
-  if (_initialized) return
+  if (!import.meta.client || _initialized) return
   _initialized = true
   const db = getDb()
   liveQuery(() => db.pending_reports.count()).subscribe({
     next: (n) => { _pendingCount.value = n },
+    error: (err) => console.warn('[useOfflineQueue] liveQuery error', err),
   })
 }
 
 export function useOfflineQueue() {
   ensureInitialized()
-  const db = getDb()
   const pendingCount = _pendingCount
   const isFlushing = _isFlushing
   const lastResult = _lastResult
 
   async function enqueue(row: Omit<PendingReport, 'id' | 'created_at' | 'retries'>): Promise<number> {
-    return db.pending_reports.add({
+    if (!import.meta.client) throw new Error('enqueue called during SSR')
+    return getDb().pending_reports.add({
       ...row,
       created_at: Date.now(),
       retries: 0,
@@ -33,13 +34,14 @@ export function useOfflineQueue() {
   }
 
   async function flush(): Promise<DrainResult> {
+    if (!import.meta.client) return { drained: 0, failed: 0, remaining: 0, drainedIds: [] }
     _isFlushing.value = true
     try {
-      const result = await drainQueue(db)
+      const result = await drainQueue(getDb())
       _lastResult.value = result
       return result
     } catch (err: any) {
-      _lastResult.value = err.result ?? { drained: 0, failed: 1, remaining: _pendingCount.value }
+      _lastResult.value = err.result ?? { drained: 0, failed: 1, remaining: _pendingCount.value, drainedIds: [] }
       return _lastResult.value!
     } finally {
       _isFlushing.value = false

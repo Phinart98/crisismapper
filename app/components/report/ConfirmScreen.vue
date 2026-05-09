@@ -15,10 +15,10 @@ const emit = defineEmits<{ again: [] }>()
       {{ queued ? $t('syncTitle') : $t('confirmLabel') }}
     </div>
     <div class="font-serif text-2xl sm:text-3xl font-bold leading-tight mb-3">
-      {{ queued ? $t('syncSub') : $t('confirmTitle', { n: 47 }) }}
+      {{ queued ? $t('queuedTitle') : $t('confirmTitle', { n: 47 }) }}
     </div>
     <div class="text-sm text-ink-light mb-7 leading-relaxed max-w-xs">
-      {{ $t('confirmBody') }}
+      {{ queued ? $t('queuedBody') : $t('confirmBody') }}
     </div>
 
     <!-- Photo error banner -->
@@ -26,8 +26,9 @@ const emit = defineEmits<{ again: [] }>()
       ⚠ {{ $t('retryPhoto') }} — report is saved, photo can be re-uploaded later.
     </div>
 
-    <!-- Badge placeholder -->
-    <div class="bg-parchment-mid border border-parchment-deep rounded-md px-5 sm:px-6 py-4 mb-7 flex items-center gap-3.5 w-full max-w-xs">
+    <!-- Badge placeholder — only shown for fully-submitted reports.
+         Queued reports have not reached UNDP yet, so the reward would be premature. -->
+    <div v-if="!queued" class="bg-parchment-mid border border-parchment-deep rounded-md px-5 sm:px-6 py-4 mb-7 flex items-center gap-3.5 w-full max-w-xs">
       <span class="text-2xl sm:text-[28px] shrink-0">🚨</span>
       <div class="text-start min-w-0">
         <div class="label mb-0.5">{{ $t('confirmBadgeLabel') }}</div>
