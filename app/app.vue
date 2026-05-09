@@ -4,4 +4,5 @@ useHead({ title: 'CrisisMapper' })
 
 <template>
   <NuxtPage />
+  <OfflinePendingSyncTray />
 </template>
