@@ -32,3 +32,6 @@ desktop-*.png
 .env
 .env.*
 !.env.example
+
+# Phase 4 — AI validation dataset (xBD / Copernicus EMS photos, kept off git)
+data/damage-samples/

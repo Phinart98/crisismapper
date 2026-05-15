@@ -2,6 +2,8 @@ import { randomBytes } from 'node:crypto'
 import * as v from 'valibot'
 import { getDb } from '../../../utils/db'
 import { getSupabaseAdmin } from '../../../utils/supabaseAdmin'
+import { ALLOWED_IMAGE_MIMES, hasImageMagicBytes } from '../../../utils/imageMagic'
+import { stripExif } from '../../../utils/sharpStrip'
 
 export default defineEventHandler(async (event) => {
   const rawId = getRouterParam(event, 'id')
@@ -20,14 +22,19 @@ export default defineEventHandler(async (event) => {
   const hashPart = parts.find(p => p.name === 'photo_hash')
   if (!filePart?.data) throw createError({ statusCode: 400, message: 'No photo part' })
 
-  const allowedTypes = ['image/webp', 'image/jpeg', 'image/png']
   const mime = filePart.type ?? ''
-  if (!allowedTypes.includes(mime) || !hasImageMagicBytes(filePart.data, mime)) {
+  if (!ALLOWED_IMAGE_MIMES.includes(mime as typeof ALLOWED_IMAGE_MIMES[number]) || !hasImageMagicBytes(filePart.data, mime)) {
     throw createError({ statusCode: 415, message: 'Unsupported image type' })
   }
   if (filePart.data.length > 524288) {
     throw createError({ statusCode: 413, message: 'Photo exceeds 512 KB limit' })
   }
+
+  // Defense in depth: strip EXIF server-side even though browser-image-compression
+  // re-encodes to WebP on the client (which discards most metadata). The WhatsApp
+  // path in Phase 5/6 hits this same endpoint with Meta-sourced photos that DO
+  // carry EXIF GPS, so the strip here is the durable guarantee regardless of source.
+  const cleaned = await stripExif(filePart.data)
 
   // Per-request random suffix + upsert:false guarantees that a known reportId
   // can never overwrite an existing photo's bytes via a TOCTOU race against the
@@ -36,7 +43,7 @@ export default defineEventHandler(async (event) => {
   const path = `reports/${reportId}-${randomBytes(8).toString('hex')}.webp`
   const { error: uploadError } = await supabase.storage
     .from('damage-photos')
-    .upload(path, filePart.data, { contentType: 'image/webp', upsert: false })
+    .upload(path, cleaned, { contentType: 'image/webp', upsert: false })
 
   if (uploadError) {
     throw createError({ statusCode: 502, message: uploadError.message })
@@ -65,14 +72,3 @@ export default defineEventHandler(async (event) => {
 
   return { photo_url: publicUrl }
 })
-
-// Magic-byte check: don't trust client-supplied Content-Type alone.
-function hasImageMagicBytes(buf: Buffer, mime: string): boolean {
-  if (buf.length < 12) return false
-  if (mime === 'image/jpeg') return buf[0] === 0xff && buf[1] === 0xd8 && buf[2] === 0xff
-  if (mime === 'image/png') return buf[0] === 0x89 && buf[1] === 0x50 && buf[2] === 0x4e && buf[3] === 0x47
-  if (mime === 'image/webp') {
-    return buf.toString('ascii', 0, 4) === 'RIFF' && buf.toString('ascii', 8, 12) === 'WEBP'
-  }
-  return false
-}

@@ -20,6 +20,12 @@ const ReportSchema = v.object({
   health_status: v.optional(v.picklist(['operational', 'partial', 'down', 'unknown'])),
   community_needs: v.optional(v.string()),
   vulnerable_groups: v.optional(v.string()),
+
+  // All ai_* fields are optional: offline / degraded submissions omit them and the DB columns stay NULL.
+  ai_severity: v.optional(v.picklist(['negligible', 'moderate', 'severe', 'destroyed', 'unknown'])),
+  ai_confidence: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(1))),
+  ai_infrastructure_visible: v.optional(v.boolean()),
+  ai_raw_response: v.optional(v.record(v.string(), v.unknown())),
 })
 
 export default defineEventHandler(async (event) => {
@@ -39,14 +45,19 @@ export default defineEventHandler(async (event) => {
       crisis_id, channel, severity, infrastructure_type,
       location, location_method, plus_code,
       description, electricity_status, health_status,
-      community_needs, vulnerable_groups
+      community_needs, vulnerable_groups,
+      ai_severity, ai_confidence, ai_infrastructure_visible, ai_raw_response
     ) VALUES (
       ${d.crisis_id}, 'pwa', ${dbSeverity}, ${d.infrastructure_type},
       ST_SetSRID(ST_MakePoint(${lng}, ${lat}), 4326),
       ${d.location_method},
       ${d.plus_code ?? null},
       ${d.description ?? null}, ${d.electricity_status ?? null}, ${d.health_status ?? null},
-      ${d.community_needs ?? null}, ${d.vulnerable_groups ?? null}
+      ${d.community_needs ?? null}, ${d.vulnerable_groups ?? null},
+      ${d.ai_severity ?? null},
+      ${d.ai_confidence ?? null},
+      ${d.ai_infrastructure_visible ?? null},
+      ${d.ai_raw_response ? db.json(d.ai_raw_response) : null}
     )
     RETURNING id
   `

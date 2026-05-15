@@ -1,6 +1,11 @@
 import type { UiSeverity } from '~/utils/severity'
+import { dbToUi } from '~/utils/severity'
 import type { GpsResult } from '~/composables/useGeolocation'
 import type { PhotoResult } from '~/composables/usePhotoPipeline'
+import type { ClassifyResult } from '~/utils/aiClassify'
+import { isAiUsable } from '~/utils/aiClassify'
+import { classifyPhoto } from '~/utils/classifyPhoto'
+import { useOfflineQueue } from '~/composables/useOfflineQueue'
 
 export type InfraType = 'building' | 'road' | 'bridge' | 'hospital' | 'school' | 'utility' | 'other'
 export type SubmitPhase = 'idle' | 'metadata' | 'photo' | 'queued' | 'done' | 'error'
@@ -9,29 +14,19 @@ export function useReportForm() {
   const { public: { demoCrisisId } } = useRuntimeConfig()
   const queue = useOfflineQueue()
 
-  // Step state
   const step = ref(1)
-
-  // Step 1 — photo
   const photo = ref<PhotoResult | null>(null)
-
-  // Step 2 — severity (user confirms or overrides)
+  const aiResult = ref<ClassifyResult | null>(null)
+  const aiLoading = ref(false)
   const severity = ref<UiSeverity>('partial')
-
-  // Step 3 — location
   const location = ref<GpsResult | null>(null)
-
-  // Step 4 — infra
   const infraType = ref<InfraType | null>(null)
-
-  // Step 5 — extras
   const description = ref('')
   const electricityStatus = ref('')
   const healthStatus = ref('')
   const communityNeeds = ref('')
   const vulnerableGroups = ref('')
 
-  // Submit
   const submitPhase = ref<SubmitPhase>('idle')
   const reportId = ref<string | null>(null)
   const photoError = ref(false)
@@ -50,6 +45,14 @@ export function useReportForm() {
     submitPhase.value = 'metadata'
 
     const loc = location.value!
+    // Strip Vue reactivity. ai_raw_response is the most painful one: structured-clone
+    // (IndexedDB write inside Dexie) silently throws DataCloneError on a reactive Proxy,
+    // which surfaces as the generic "could not save on your device" error path here.
+    const aiRaw = aiResult.value ? JSON.parse(JSON.stringify(aiResult.value)) as ClassifyResult : null
+    // Degraded results (no provider answered) are dropped so we don't pollute audit
+    // data with synthetic 'unknown'/0 values from the fallback envelope.
+    const ai = isAiUsable(aiRaw) ? aiRaw : null
+
     const payload = {
       crisis_id: demoCrisisId,
       severity: severity.value,
@@ -62,6 +65,10 @@ export function useReportForm() {
       health_status: healthStatus.value || undefined,
       community_needs: communityNeeds.value || undefined,
       vulnerable_groups: vulnerableGroups.value || undefined,
+      ai_severity: ai?.severity,
+      ai_confidence: ai?.confidence,
+      ai_infrastructure_visible: ai?.infrastructure_visible,
+      ai_raw_response: ai as unknown as Record<string, unknown> | undefined,
     }
 
     let myId: number
@@ -93,9 +100,26 @@ export function useReportForm() {
     }
   }
 
+  async function runAiClassify(blob: Blob) {
+    aiLoading.value = true
+    aiResult.value = null
+    try {
+      const res = await classifyPhoto(blob)
+      aiResult.value = res
+      if (isAiUsable(res)) {
+        const mapped = dbToUi(res.severity)
+        if (mapped) severity.value = mapped
+      }
+    } finally {
+      aiLoading.value = false
+    }
+  }
+
   function reset() {
     if (photo.value?.previewUrl) URL.revokeObjectURL(photo.value.previewUrl)
     photo.value = null
+    aiResult.value = null
+    aiLoading.value = false
     step.value = 1
     severity.value = 'partial'
     location.value = null
@@ -112,9 +136,9 @@ export function useReportForm() {
   }
 
   return {
-    step, photo, severity, location, infraType,
+    step, photo, aiResult, aiLoading, severity, location, infraType,
     description, electricityStatus, healthStatus, communityNeeds, vulnerableGroups,
     submitPhase, reportId, photoError, errors,
-    submit, reset,
+    submit, reset, runAiClassify,
   }
 }

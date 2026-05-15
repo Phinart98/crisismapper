@@ -16,6 +16,10 @@ export interface PendingReport {
     health_status?: string
     community_needs?: string
     vulnerable_groups?: string
+    ai_severity?: string
+    ai_confidence?: number
+    ai_infrastructure_visible?: boolean
+    ai_raw_response?: Record<string, unknown>
   }
   photo?: Blob
   photo_hash?: string

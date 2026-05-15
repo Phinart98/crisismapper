@@ -44,6 +44,10 @@ export default defineNuxtConfig({
   runtimeConfig: {
     dbUrl: '',              // NUXT_DB_URL — Supavisor pooler, port 6543, ?prepareThreshold=0
     supabaseServiceKey: '', // NUXT_SUPABASE_SERVICE_KEY
+    groqApiKey: '',         // NUXT_GROQ_API_KEY — Phase 4 vision classification (primary)
+    groqVisionModel: 'meta-llama/llama-4-scout-17b-16e-instruct', // NUXT_GROQ_VISION_MODEL
+    geminiApiKey: '',       // NUXT_GEMINI_API_KEY — Phase 4 vision classification (fallback)
+    geminiVisionModel: 'gemini-2.5-flash', // NUXT_GEMINI_VISION_MODEL
     public: {
       supabaseUrl: '',      // NUXT_PUBLIC_SUPABASE_URL
       supabaseAnonKey: '',  // NUXT_PUBLIC_SUPABASE_ANON_KEY

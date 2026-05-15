@@ -8,10 +8,13 @@ const form = useReportForm()
 function onPhotoCaptured(result: PhotoResult) {
   form.photo.value = result
   form.step.value = 2
+  form.runAiClassify(result.webpBlob)
 }
 
 function onRetake() {
   form.photo.value = null
+  form.aiResult.value = null
+  form.aiLoading.value = false
   form.step.value = 1
 }
 
@@ -48,6 +51,8 @@ function onInfraSelected() {
         <ReportAiClassificationCard
           v-if="form.step.value >= 2"
           v-model="form.severity.value"
+          :ai-result="form.aiResult.value"
+          :ai-loading="form.aiLoading.value"
           @confirm="onAiAdvance"
           @correct="onAiAdvance"
         />
