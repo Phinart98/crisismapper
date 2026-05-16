@@ -48,6 +48,11 @@ export default defineNuxtConfig({
     groqVisionModel: 'meta-llama/llama-4-scout-17b-16e-instruct', // NUXT_GROQ_VISION_MODEL
     geminiApiKey: '',       // NUXT_GEMINI_API_KEY — Phase 4 vision classification (fallback)
     geminiVisionModel: 'gemini-2.5-flash', // NUXT_GEMINI_VISION_MODEL
+    metaAppSecret: '',      // NUXT_META_APP_SECRET — Meta App Dashboard → Settings → Basic; verifies X-Hub-Signature-256
+    metaVerifyToken: '',    // NUXT_META_VERIFY_TOKEN — chosen by us; entered into Meta Webhooks config
+    metaWabaToken: '',      // NUXT_META_WABA_TOKEN — long-lived system user token for Graph API calls
+    metaPhoneNumberId: '',  // NUXT_META_PHONE_NUMBER_ID — Meta WhatsApp test number ID (1080445738483303)
+    wabaHashSecret: '',     // NUXT_WABA_HASH_SECRET — random 32-byte secret for HMAC(wa_id) → wa_id_hash
     public: {
       supabaseUrl: '',      // NUXT_PUBLIC_SUPABASE_URL
       supabaseAnonKey: '',  // NUXT_PUBLIC_SUPABASE_ANON_KEY
