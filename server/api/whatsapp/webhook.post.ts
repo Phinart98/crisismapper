@@ -43,6 +43,14 @@ export default defineEventHandler(async (event) => {
         for (const msg of change.value?.messages ?? []) {
           await processMessage(msg, wabaHashSecret)
         }
+        // Phase 5 diagnostic: surface delivery status events so we can tell
+        // whether outbound messages actually land. Phase 6 will either keep
+        // this for monitoring or remove once delivery is proven stable.
+        const statuses = (change.value as { statuses?: Array<{ status?: string; recipient_id?: string; errors?: Array<{ code: number; title: string }> }> })?.statuses
+        for (const s of statuses ?? []) {
+          const err = s.errors?.[0]
+          console.log(`[waWebhook] status=${s.status} recipient=${s.recipient_id?.slice(0, 6)}***${err ? ` err=${err.code}:${err.title}` : ''}`)
+        }
       }
     }
   } catch (e) {
