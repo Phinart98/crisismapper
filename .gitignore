@@ -27,6 +27,8 @@ report-*.png
 landing-*.png
 mobile-*.png
 desktop-*.png
+test-*.png
+prod-*.png
 
 # Local env files
 .env

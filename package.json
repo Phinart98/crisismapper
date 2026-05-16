@@ -27,6 +27,7 @@
   "devDependencies": {
     "@tailwindcss/vite": "^4.2.4",
     "@vite-pwa/nuxt": "^1.1.1",
+    "playwright": "^1.60.0",
     "tailwindcss": "^4.2.4"
   }
 }

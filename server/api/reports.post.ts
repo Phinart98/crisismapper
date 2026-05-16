@@ -1,3 +1,4 @@
+import type postgres from 'postgres'
 import * as v from 'valibot'
 import { getDb } from '../utils/db'
 import { uiToDb } from '../utils/severity'
@@ -57,7 +58,7 @@ export default defineEventHandler(async (event) => {
       ${d.ai_severity ?? null},
       ${d.ai_confidence ?? null},
       ${d.ai_infrastructure_visible ?? null},
-      ${d.ai_raw_response ? db.json(d.ai_raw_response) : null}
+      ${d.ai_raw_response ? db.json(d.ai_raw_response as postgres.JSONValue) : null}
     )
     RETURNING id
   `

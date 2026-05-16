@@ -46,10 +46,11 @@ export default defineEventHandler(async (event) => {
         // Phase 5 diagnostic: surface delivery status events so we can tell
         // whether outbound messages actually land. Phase 6 will either keep
         // this for monitoring or remove once delivery is proven stable.
-        const statuses = (change.value as { statuses?: Array<{ status?: string; recipient_id?: string; errors?: Array<{ code: number; title: string }> }> })?.statuses
-        for (const s of statuses ?? []) {
+        // Deliberately does not log recipient_id — it's the raw E.164 phone
+        // number, and the privacy policy promises no raw numbers in logs.
+        for (const s of change.value?.statuses ?? []) {
           const err = s.errors?.[0]
-          console.log(`[waWebhook] status=${s.status} recipient=${s.recipient_id?.slice(0, 6)}***${err ? ` err=${err.code}:${err.title}` : ''}`)
+          console.log(`[waWebhook] status=${s.status}${err ? ` err=${err.code}:${err.title}` : ''}`)
         }
       }
     }
