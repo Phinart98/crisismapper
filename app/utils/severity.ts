@@ -3,6 +3,10 @@ export type UiSeverity = 'minimal' | 'partial' | 'complete'
 // 'destroyed' and 'unknown' come from the AI classifier (Phase 4) and WhatsApp staff path.
 export type DbSeverity = 'negligible' | 'moderate' | 'severe' | 'destroyed' | 'unknown'
 
+// Shared infrastructure type for both PWA + WhatsApp report channels.
+// Mirrored in the valibot picklist at server/api/reports.post.ts:9.
+export type InfraType = 'building' | 'road' | 'bridge' | 'hospital' | 'school' | 'utility' | 'other'
+
 export const uiToDb: Record<UiSeverity, DbSeverity> = {
   minimal: 'negligible',
   partial: 'moderate',

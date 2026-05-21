@@ -1,4 +1,4 @@
-import type { UiSeverity } from '~/utils/severity'
+import type { InfraType, UiSeverity } from '~/utils/severity'
 import { dbToUi } from '~/utils/severity'
 import type { GpsResult } from '~/composables/useGeolocation'
 import type { PhotoResult } from '~/composables/usePhotoPipeline'
@@ -7,7 +7,7 @@ import { isAiUsable } from '~/utils/aiClassify'
 import { classifyPhoto } from '~/utils/classifyPhoto'
 import { useOfflineQueue } from '~/composables/useOfflineQueue'
 
-export type InfraType = 'building' | 'road' | 'bridge' | 'hospital' | 'school' | 'utility' | 'other'
+export type { InfraType }
 export type SubmitPhase = 'idle' | 'metadata' | 'photo' | 'queued' | 'done' | 'error'
 
 export function useReportForm() {
