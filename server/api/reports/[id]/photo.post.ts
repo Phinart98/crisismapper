@@ -31,9 +31,9 @@ export default defineEventHandler(async (event) => {
   }
 
   // Defense in depth: strip EXIF server-side even though browser-image-compression
-  // re-encodes to WebP on the client (which discards most metadata). The WhatsApp
-  // path in Phase 5/6 hits this same endpoint with Meta-sourced photos that DO
-  // carry EXIF GPS, so the strip here is the durable guarantee regardless of source.
+  // re-encodes to WebP on the client (which discards most metadata). The server-side
+  // strip is the durable guarantee in case any client uploads an image that still
+  // carries EXIF GPS.
   const cleaned = await stripExif(filePart.data)
 
   // Per-request random suffix + upsert:false guarantees that a known reportId

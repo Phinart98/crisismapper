@@ -1,7 +1,7 @@
 <script setup lang="ts">
 useHead({
   title: 'Privacy Policy · CrisisMapper',
-  meta: [{ name: 'description', content: 'How CrisisMapper handles data — no PII, hashed identifiers, EXIF-stripped photos.' }],
+  meta: [{ name: 'description', content: 'How CrisisMapper handles data — anonymous reports, no PII, EXIF-stripped photos.' }],
 })
 </script>
 
@@ -21,23 +21,9 @@ useHead({
       <h2 class="font-serif font-semibold text-2xl sm:text-3xl mt-10 mb-4">What we collect</h2>
       <ul class="list-disc ps-6 space-y-2 text-base leading-relaxed">
         <li><strong>Damage photos</strong> — EXIF metadata (camera serial, GPS, timestamps) is stripped server-side before storage.</li>
-        <li><strong>Approximate location</strong> — GPS coordinates from the device, a Plus Code, or a landmark string. Stored at the report level only.</li>
+        <li><strong>Approximate location</strong> — GPS coordinates from the device or a Plus Code. Stored at the report level only.</li>
         <li><strong>Severity classification</strong> — produced by an AI vision model (Groq Llama 4 Scout, with Google Gemini as automatic fallback if Groq is unavailable) and optionally confirmed by the reporter. Only the photo bytes are sent to these providers — no identifiers travel with the request.</li>
         <li><strong>Free-text descriptions</strong> — optional notes you provide.</li>
-      </ul>
-
-      <h2 class="font-serif font-semibold text-2xl sm:text-3xl mt-10 mb-4">WhatsApp reports</h2>
-      <p class="text-base leading-relaxed mb-4">
-        When you message the CrisisMapper WhatsApp bot, we receive a payload from Meta
-        Cloud API that contains your WhatsApp ID (phone number), message contents, and
-        any attached media. We do the following:
-      </p>
-      <ul class="list-disc ps-6 space-y-2 text-base leading-relaxed">
-        <li>Your raw WhatsApp ID is <strong>HMAC-SHA256 hashed with a server-side secret before any storage</strong>. The raw number is never written to any database, log, or analytics system.</li>
-        <li>The hash is one-way — neither we nor any third party can recover your phone number from it.</li>
-        <li>We use this hash only to remember your conversation state (which step of the reporting flow you are on) and to count contribution badges.</li>
-        <li>Photos you send pass through the same EXIF-strip pipeline as web submissions before storage.</li>
-        <li>We do not send marketing messages, never share contact lists, never enrich your identity from third-party sources.</li>
       </ul>
 
       <h2 class="font-serif font-semibold text-2xl sm:text-3xl mt-10 mb-4">What we do NOT collect</h2>
@@ -58,11 +44,11 @@ useHead({
 
       <h2 class="font-serif font-semibold text-2xl sm:text-3xl mt-10 mb-4">Data deletion</h2>
       <p class="text-base leading-relaxed mb-4">
-        Because we do not store identifiable user information, individual-record deletion
-        is generally not possible (the hash cannot be reversed to find your records).
-        You can ask for all reports tied to a session you contributed from to be
-        deleted by emailing the address below with the hash value, which the bot can
-        echo back to you on request.
+        Web reports are submitted anonymously — we store no account, phone number, or
+        any identifier that links a report back to you, so there is nothing user-specific
+        to delete. Reports you queued offline but have not yet synced can be removed by
+        clearing your browser's site data for the app. See the
+        <NuxtLink to="/data-deletion" class="underline">data deletion</NuxtLink> page for details.
       </p>
 
       <h2 class="font-serif font-semibold text-2xl sm:text-3xl mt-10 mb-4">Contact</h2>

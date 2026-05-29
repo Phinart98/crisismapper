@@ -11,9 +11,8 @@ const ReportSchema = v.object({
     v.pipe(v.number(), v.minValue(-180), v.maxValue(180)), // lng
     v.pipe(v.number(), v.minValue(-90), v.maxValue(90)),   // lat
   ]),
-  // PWA channel only produces 'gps' and 'plus_code'. WhatsApp (Phase 5) submits
-  // through a separate webhook, not this endpoint, so accepting other methods here
-  // would just be unverified attacker input.
+  // PWA channel only produces 'gps' and 'plus_code'; accepting other location
+  // methods here would just be unverified attacker input.
   location_method: v.picklist(['gps', 'plus_code']),
   plus_code: v.optional(v.string()),
   description: v.optional(v.string()),

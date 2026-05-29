@@ -12,43 +12,27 @@ useHead({
       <h1 class="display text-4xl sm:text-5xl tracking-tight mt-3 mb-6">Data Deletion</h1>
 
       <p class="text-base sm:text-lg leading-relaxed mb-8">
-        CrisisMapper is built with privacy-by-design: we do not store personal information
-        that identifies you. Your WhatsApp ID is one-way HMAC-SHA256 hashed before any
-        write to disk, photo EXIF metadata is stripped server-side, and we never collect
-        names, addresses, advertising IDs, or browser fingerprints. As a result, there is
-        nothing to delete on a per-user basis in the conventional sense — we cannot
-        reverse a hash to find your records.
+        CrisisMapper is built with privacy-by-design: web reports are submitted
+        anonymously. We store no account, name, address, phone number, advertising ID,
+        or browser fingerprint, and photo EXIF metadata is stripped server-side before
+        storage. Because nothing identifies you, there is no personal profile to delete.
       </p>
 
-      <h2 class="font-serif font-semibold text-2xl sm:text-3xl mt-10 mb-4">If you still want your contributions removed</h2>
+      <h2 class="font-serif font-semibold text-2xl sm:text-3xl mt-10 mb-4">Reports queued offline (not yet synced)</h2>
       <p class="text-base leading-relaxed mb-4">
-        Email
-        <a href="mailto:phinart98@gmail.com?subject=Data%20deletion%20request" class="underline">phinart98@gmail.com</a>
-        with the subject line <strong>"Data deletion request"</strong> and the WhatsApp
-        number you used to send reports. We will:
-      </p>
-      <ol class="list-decimal ps-6 space-y-3 text-base leading-relaxed mb-6">
-        <li>
-          Compute the HMAC-SHA256 hash of your number in memory (the same one-way hash
-          used to identify your session) — your raw number is never written to disk or
-          logs during this process.
-        </li>
-        <li>
-          Delete all damage reports associated with that hash within 7 days.
-        </li>
-        <li>
-          Reply to your email to confirm the deletion is complete, then discard the
-          temporary in-memory hash.
-        </li>
-      </ol>
-
-      <h2 class="font-serif font-semibold text-2xl sm:text-3xl mt-10 mb-4">Bulk deletion</h2>
-      <p class="text-base leading-relaxed mb-4">
-        If you used the web reporter (not WhatsApp) and want offline-queued reports
-        removed before they sync, clear your browser's site data for
+        Reports you created offline live only in your browser until they sync. To remove
+        them before they are sent, clear your browser's site data for
         <code class="bg-ink/5 px-2 py-0.5 rounded text-sm">crisismapper.vercel.app</code>
-        in your browser settings. Any reports already submitted server-side require the
-        email request above.
+        in your browser settings.
+      </p>
+
+      <h2 class="font-serif font-semibold text-2xl sm:text-3xl mt-10 mb-4">A specific report you submitted</h2>
+      <p class="text-base leading-relaxed mb-4">
+        Because submitted reports carry no identifier, we cannot look them up by user. If a
+        report was posted in error or contains something that should not be public, email
+        <a href="mailto:phinart98@gmail.com?subject=Report%20removal%20request" class="underline">phinart98@gmail.com</a>
+        with the subject line <strong>"Report removal request"</strong> and the approximate
+        location and time of the report so we can identify and remove it.
       </p>
 
       <h2 class="font-serif font-semibold text-2xl sm:text-3xl mt-10 mb-4">Questions</h2>

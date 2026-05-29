@@ -1,9 +1,9 @@
 export type UiSeverity = 'minimal' | 'partial' | 'complete'
-// Full 4-tier internal model + 'unknown'. PWA reporters only produce the first three;
-// 'destroyed' and 'unknown' come from the AI classifier (Phase 4) and WhatsApp staff path.
+// Full 4-tier internal model + 'unknown'. Reporters only produce the first three;
+// 'destroyed' and 'unknown' come from the AI classifier (Phase 4).
 export type DbSeverity = 'negligible' | 'moderate' | 'severe' | 'destroyed' | 'unknown'
 
-// Shared infrastructure type for both PWA + WhatsApp report channels.
+// Infrastructure type for damage reports.
 // Mirrored in the valibot picklist at server/api/reports.post.ts:9.
 export type InfraType = 'building' | 'road' | 'bridge' | 'hospital' | 'school' | 'utility' | 'other'
 

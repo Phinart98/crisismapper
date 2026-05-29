@@ -110,9 +110,8 @@ twice before any persistence:
    WebP, which discards most metadata as a side effect of re-encoding.
 2. The server's `stripExif()` helper (Sharp) pipes the bytes through
    `.rotate().resize().webp()` once more before either classification or
-   Storage write. Defense in depth: the WhatsApp ingress path in Phase 5/6 will
-   route Meta-sourced photos through this same helper, and those photos *do*
-   carry EXIF GPS.
+   Storage write — defense in depth in case any client ever uploads an image
+   that still carries EXIF GPS.
 
 Sharp's default behavior on encode is to drop all metadata. `withMetadata()`,
 `keepExif()`, and `keepMetadata()` are not called anywhere in the pipeline.

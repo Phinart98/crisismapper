@@ -64,7 +64,7 @@ useHead({
           UNDP Crisis Mapping Challenge · 2026
         </div>
         <div class="text-xs text-ink-ghost leading-relaxed">
-          Open-source · 6 UN languages · WhatsApp + offline PWA
+          Open-source · 6 UN languages · Offline-first PWA
         </div>
       </div>
     </footer>
