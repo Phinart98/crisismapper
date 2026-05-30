@@ -183,6 +183,9 @@ select:focus-visible {
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--c-accent) 22%, transparent);
 }
 
+/* Range slider thumb/track tint (dashboard time-range, report sliders) */
+input[type="range"] { accent-color: var(--c-accent); }
+
 /* Divider */
 .rule {
   border: none;

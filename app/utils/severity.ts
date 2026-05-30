@@ -22,3 +22,25 @@ export function dbToUi(s: DbSeverity): UiSeverity | null {
   if (s === 'severe' || s === 'destroyed') return 'complete'
   return null
 }
+
+// ─── Dashboard data-layer display (Phase 7) ───
+// 4-tier marker/dot colors. WebGL paint expressions can't read CSS vars, so these
+// mirror the @theme --color-sev-* tokens, plus a sage green for negligible and grey
+// for unknown (which have no @theme equivalent — they're data-viz hues, not brand).
+export const SEVERITY_COLORS: Record<DbSeverity, string> = {
+  destroyed:  '#8B2E2A', // --color-sev-complete (red)
+  severe:     '#C9722C', // --color-sev-partial  (orange)
+  moderate:   '#D4A574', // --color-sev-minimal  (yellow/ochre)
+  negligible: '#6E8B6A', // sage green
+  unknown:    '#A8A08E', // --color-ink-ghost
+}
+
+export const SEVERITY_LABELS: Record<DbSeverity, string> = {
+  negligible: 'Negligible', moderate: 'Moderate', severe: 'Severe', destroyed: 'Destroyed', unknown: 'Unknown',
+}
+
+// Severity filter order in the left sidebar (worst → least).
+export const SEVERITY_FILTER_ORDER: DbSeverity[] = ['destroyed', 'severe', 'moderate', 'negligible']
+
+export const UI_LABELS: Record<UiSeverity, string> = { minimal: 'Minimal', partial: 'Partial', complete: 'Complete' }
+export const INFRA_TYPES: InfraType[] = ['building', 'road', 'bridge', 'hospital', 'school', 'utility', 'other']

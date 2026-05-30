@@ -1,6 +1,25 @@
 <script setup lang="ts">
-defineProps<{ photoError?: boolean; queued?: boolean }>()
+const props = defineProps<{
+  photoError?: boolean
+  queued?: boolean
+  crisisId?: string
+  crisisName?: string | null
+}>()
 const emit = defineEmits<{ again: [] }>()
+
+// Real "you are reporter #N" count — fetched from the crisis's live total once the
+// report has actually reached the backend (synced, not queued). Falls back to a plain
+// headline if the count can't be fetched (e.g. flaky connection).
+const rank = ref<number | null>(null)
+onMounted(async () => {
+  if (props.queued || !props.crisisId) return
+  try {
+    const s = await $fetch<{ total: number }>('/api/map/stats', { query: { crisis_id: props.crisisId } })
+    rank.value = s.total
+  } catch { /* leave null → generic headline */ }
+})
+
+const crisisLabel = computed(() => props.crisisName || 'crisis')
 </script>
 
 <template>
@@ -15,10 +34,12 @@ const emit = defineEmits<{ again: [] }>()
       {{ queued ? $t('syncTitle') : $t('confirmLabel') }}
     </div>
     <div class="font-serif text-2xl sm:text-3xl font-bold leading-tight mb-3">
-      {{ queued ? $t('queuedTitle') : $t('confirmTitle', { n: 47 }) }}
+      <template v-if="queued">{{ $t('queuedTitle') }}</template>
+      <template v-else-if="rank !== null">{{ $t('confirmTitle', { n: rank }) }}</template>
+      <template v-else>{{ $t('confirmLabel') }}</template>
     </div>
     <div class="text-sm text-ink-light mb-7 leading-relaxed max-w-xs">
-      {{ queued ? $t('queuedBody') : $t('confirmBody') }}
+      {{ queued ? $t('queuedBody') : $t('confirmBody', { crisis: crisisLabel }) }}
     </div>
 
     <!-- Photo error banner -->

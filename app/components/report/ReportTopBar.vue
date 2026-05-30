@@ -19,7 +19,7 @@ const LOCALES = ['en', 'es', 'fr', 'ar', 'ru', 'zh'] as const
         <line x1="0" y1="10" x2="20" y2="10" stroke="var(--color-accent)" stroke-width="1.5"/>
         <line x1="10" y1="0" x2="10" y2="20" stroke="var(--color-accent)" stroke-width="1.5"/>
       </svg>
-      <span class="truncate">{{ $t('title') }}</span>
+      <span class="truncate hidden sm:inline">{{ $t('title') }}</span>
     </NuxtLink>
 
     <div class="flex items-center gap-1.5 shrink-0">

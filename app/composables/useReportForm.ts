@@ -6,6 +6,7 @@ import type { ClassifyResult } from '~/utils/aiClassify'
 import { isAiUsable } from '~/utils/aiClassify'
 import { classifyPhoto } from '~/utils/classifyPhoto'
 import { useOfflineQueue } from '~/composables/useOfflineQueue'
+import { useActiveCrises } from '~/composables/useActiveCrises'
 
 export type { InfraType }
 export type SubmitPhase = 'idle' | 'metadata' | 'photo' | 'queued' | 'done' | 'error'
@@ -13,6 +14,8 @@ export type SubmitPhase = 'idle' | 'metadata' | 'photo' | 'queued' | 'done' | 'e
 export function useReportForm() {
   const { public: { demoCrisisId } } = useRuntimeConfig()
   const queue = useOfflineQueue()
+  const { crises, load: loadCrises, resolveCrisis } = useActiveCrises()
+  onMounted(loadCrises)
 
   const step = ref(1)
   const photo = ref<PhotoResult | null>(null)
@@ -21,6 +24,27 @@ export function useReportForm() {
   const severity = ref<UiSeverity>('partial')
   const location = ref<GpsResult | null>(null)
   const infraType = ref<InfraType | null>(null)
+
+  // Which crisis this report belongs to. Auto-resolved from the reporter's GPS
+  // (they're physically at the damage site); env demo crisis is the fallback so a
+  // report never blocks. `crisisManual` marks an explicit picker override.
+  const crisisId = ref<string>(demoCrisisId)
+  const crisisManual = ref(false)
+  // location set but GPS falls outside every active crisis zone → surface a picker.
+  const crisisOutsideZones = ref(false)
+
+  watch(location, (loc) => {
+    if (!loc || crisisManual.value) return
+    const match = resolveCrisis(loc.lat, loc.lng)
+    if (match) {
+      crisisId.value = match.id
+      crisisOutsideZones.value = false
+    } else {
+      crisisOutsideZones.value = crises.value.length > 0
+    }
+  })
+
+  const selectedCrisisName = computed(() => crises.value.find(c => c.id === crisisId.value)?.name ?? null)
   const description = ref('')
   const electricityStatus = ref('')
   const healthStatus = ref('')
@@ -54,7 +78,7 @@ export function useReportForm() {
     const ai = isAiUsable(aiRaw) ? aiRaw : null
 
     const payload = {
-      crisis_id: demoCrisisId,
+      crisis_id: crisisId.value,
       severity: severity.value,
       infrastructure_type: infraType.value!,
       location: [loc.lng, loc.lat] as [number, number],
@@ -115,6 +139,12 @@ export function useReportForm() {
     }
   }
 
+  function setCrisis(id: string) {
+    crisisId.value = id
+    crisisManual.value = true
+    crisisOutsideZones.value = false
+  }
+
   function reset() {
     if (photo.value?.previewUrl) URL.revokeObjectURL(photo.value.previewUrl)
     photo.value = null
@@ -124,6 +154,9 @@ export function useReportForm() {
     severity.value = 'partial'
     location.value = null
     infraType.value = null
+    crisisId.value = demoCrisisId
+    crisisManual.value = false
+    crisisOutsideZones.value = false
     description.value = ''
     electricityStatus.value = ''
     healthStatus.value = ''
@@ -139,6 +172,7 @@ export function useReportForm() {
     step, photo, aiResult, aiLoading, severity, location, infraType,
     description, electricityStatus, healthStatus, communityNeeds, vulnerableGroups,
     submitPhase, reportId, photoError, errors,
+    crises, crisisId, crisisManual, crisisOutsideZones, selectedCrisisName, setCrisis,
     submit, reset, runAiClassify,
   }
 }

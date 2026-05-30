@@ -69,7 +69,7 @@
   "infraOther": "Other",
   "confirmLabel": "Report submitted",
   "confirmTitle": "Reporter #{n} in this area",
-  "confirmBody": "Your report has been submitted to the UNDP Myanmar Earthquake response team. It will be reviewed and verified within 4 hours.",
+  "confirmBody": "Your report has been submitted to the UNDP {crisis} response team. It will be reviewed and verified within 4 hours.",
   "confirmBadgeLabel": "Badge earned",
   "confirmBadgeName": "First Responder",
   "confirmBadgeSub": "Submitted within first 24h of a new crisis",

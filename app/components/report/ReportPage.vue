@@ -40,6 +40,8 @@ function onInfraSelected() {
       v-if="form.submitPhase.value === 'done' || form.submitPhase.value === 'queued'"
       :photo-error="form.photoError.value"
       :queued="form.submitPhase.value === 'queued'"
+      :crisis-id="form.crisisId.value"
+      :crisis-name="form.selectedCrisisName.value"
       @again="form.reset"
     />
 
@@ -63,6 +65,17 @@ function onInfraSelected() {
           v-if="form.step.value >= 3"
           :has-error="form.errors.location"
           @resolved="onLocationResolved"
+        />
+      </Transition>
+
+      <Transition name="slide-up">
+        <ReportCrisisBadge
+          v-if="form.step.value >= 4"
+          :crises="form.crises.value"
+          :model-value="form.crisisId.value"
+          :outside-zones="form.crisisOutsideZones.value"
+          :manual="form.crisisManual.value"
+          @select="form.setCrisis"
         />
       </Transition>
 

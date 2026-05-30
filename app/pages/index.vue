@@ -38,13 +38,9 @@ useHead({
           <NuxtLink to="/report" class="btn btn-primary min-h-[48px] text-base">
             Open Reporter
           </NuxtLink>
-          <button
-            class="btn btn-ghost min-h-[48px] text-base opacity-60 cursor-not-allowed"
-            disabled
-            aria-label="Dashboard coming in Phase 7"
-          >
-            Dashboard · soon
-          </button>
+          <NuxtLink to="/dashboard" class="btn btn-ghost min-h-[48px] text-base">
+            Open Dashboard
+          </NuxtLink>
         </div>
 
         <!-- Severity legend -->
