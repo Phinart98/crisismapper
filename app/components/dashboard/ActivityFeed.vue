@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import type { DbSeverity } from '~/utils/severity'
-import { dbToUi, UI_LABELS, SEVERITY_COLORS } from '~/utils/severity'
+import { dbToUi, SEVERITY_COLORS } from '~/utils/severity'
+
+const { t } = useI18n()
+const { uiSev, infra } = useLabels()
 
 interface FeedItem {
   id: string
@@ -19,16 +22,16 @@ const emit = defineEmits<{ select: [id: string] }>()
 
 function timeAgo(iso: string): string {
   const s = Math.max(0, Math.floor((Date.now() - new Date(iso).getTime()) / 1000))
-  if (s < 60) return 'just now'
-  if (s < 3600) return `${Math.floor(s / 60)} min ago`
-  if (s < 86400) return `${Math.floor(s / 3600)} hr ago`
-  return `${Math.floor(s / 86400)} d ago`
+  if (s < 60) return t('feedJustNow')
+  if (s < 3600) return t('feedMinAgo', { n: Math.floor(s / 60) })
+  if (s < 86400) return t('feedHrAgo', { n: Math.floor(s / 3600) })
+  return t('feedDayAgo', { n: Math.floor(s / 86400) })
 }
 const sevClass = (s: DbSeverity) => dbToUi(s) ?? 'partial'
-const sevLabel = (s: DbSeverity) => { const u = dbToUi(s); return u ? UI_LABELS[u] : 'Unknown' }
+const sevLabel = (s: DbSeverity) => { const u = dbToUi(s); return u ? uiSev(u) : t('sevUnknown') }
 
 const statusColor = { connecting: 'var(--c-ink-ghost)', realtime: 'var(--c-accent)', polling: 'var(--c-sev-partial)' }
-const statusText = { connecting: 'Connecting…', realtime: 'Live activity feed', polling: 'Polling (10s)' }
+const STATUS_KEY = { connecting: 'feedConnecting', realtime: 'feedLive', polling: 'feedPolling' } as const
 </script>
 
 <template>
@@ -39,12 +42,12 @@ const statusText = { connecting: 'Connecting…', realtime: 'Live activity feed'
         :class="connectionMode === 'realtime' ? 'animate-pulse' : ''"
         :style="{ background: statusColor[connectionMode] }"
       />
-      <span class="label">{{ statusText[connectionMode] }}</span>
+      <span class="label">{{ $t(STATUS_KEY[connectionMode]) }}</span>
     </div>
 
     <div class="flex-1 overflow-auto">
       <p v-if="!feed.length" class="px-[18px] py-8 text-[12px] text-ink-ghost text-center">
-        No reports yet. New submissions appear here in real time.
+        {{ $t('feedEmpty') }}
       </p>
 
       <button
@@ -70,11 +73,11 @@ const statusText = { connecting: 'Connecting…', realtime: 'Live activity feed'
               <span class="sev-chip" :class="sevClass(r.severity)">{{ sevLabel(r.severity) }}</span>
               <span class="font-mono text-[9px] text-ink-ghost shrink-0 ms-2">{{ timeAgo(r.submitted_at) }}</span>
             </div>
-            <div class="text-[12px] font-medium leading-snug text-ink capitalize truncate">{{ r.infrastructure_type ?? 'Unspecified' }}</div>
+            <div class="text-[12px] font-medium leading-snug text-ink capitalize truncate">{{ infra(r.infrastructure_type) }}</div>
             <div class="font-mono text-[9px] text-ink-ghost mt-0.5 tabular-nums">{{ r.lat.toFixed(4) }}, {{ r.lng.toFixed(4) }}</div>
           </div>
         </div>
-        <div class="font-mono text-[9px] text-accent">View on map →</div>
+        <div class="font-mono text-[9px] text-accent">{{ $t('feedViewOnMap') }} <span class="rtl-flip">→</span></div>
       </button>
     </div>
   </aside>

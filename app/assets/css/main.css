@@ -1,5 +1,6 @@
 /* Google Fonts — Source Serif 4 (display) + IBM Plex Sans (body) + IBM Plex Mono (labels/chips) */
-/* Full Arabic / Cyrillic / CJK coverage built into these families */
+/* Latin + Cyrillic covered by the families above; Arabic + CJK glyphs come from the */
+/* Noto stacks below (self-hosted by @nuxt/fonts, fetched only when :lang() matches). */
 /* Loaded via <link> in nuxt.config.ts head to avoid CSS @import ordering issues */
 
 @import "tailwindcss";
@@ -75,6 +76,27 @@
   /* RTL support — wired from day 1 for Phase 8 Arabic */
   [dir="rtl"] { direction: rtl; text-align: right; }
 }
+
+/* ─── Per-locale typography (Phase 8) ─────────────────────────────────────────
+   Override the font tokens for scripts the Latin families don't cover. Using
+   html:lang() (specificity 0,1,1) to beat the @theme :root tokens (0,1,0). The
+   literal `font-family` declarations double as discovery anchors so @nuxt/fonts
+   self-hosts each woff2; the browser only downloads it when the locale is active. */
+html:lang(ar) {
+  --font-sans:  'Noto Sans Arabic', 'IBM Plex Sans', sans-serif;
+  --font-serif: 'Noto Naskh Arabic', 'Source Serif 4', Georgia, serif;
+  --font-mono:  'Noto Sans Arabic', 'IBM Plex Mono', monospace;
+}
+html:lang(zh) {
+  --font-sans:  'Noto Sans SC', 'IBM Plex Sans', sans-serif;
+  --font-serif: 'Noto Serif SC', 'Source Serif 4', Georgia, serif;
+  --font-mono:  'Noto Sans SC', 'IBM Plex Mono', monospace;
+}
+html:lang(ar) body { font-family: 'Noto Sans Arabic', 'Noto Naskh Arabic', sans-serif; }
+html:lang(zh) body { font-family: 'Noto Sans SC', 'Noto Serif SC', sans-serif; }
+
+/* Mirror directional glyphs (← → arrows) when the document flips to RTL. */
+[dir="rtl"] .rtl-flip { display: inline-block; transform: scaleX(-1); }
 
 /* ─── Reusable utilities (lifted verbatim from shared.css) ─── */
 

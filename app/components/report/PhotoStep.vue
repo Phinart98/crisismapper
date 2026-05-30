@@ -81,7 +81,7 @@ function retake() {
         class="w-full aspect-[4/3] sm:aspect-[16/10] rounded border border-parchment-deep relative overflow-hidden"
         style="background: linear-gradient(135deg, #B5A898 0%, #8A7A6A 50%, #C4B08A 100%)"
       >
-        <img :src="photo.previewUrl" class="w-full h-full object-cover" alt="damage photo" />
+        <img :src="photo.previewUrl" class="w-full h-full object-cover" :alt="$t('photoAlt')" />
         <!-- Crosshair overlay -->
         <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
           <svg width="40" height="40" viewBox="0 0 40 40" class="opacity-20">

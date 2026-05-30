@@ -15,7 +15,7 @@ const feedOpen = defineModel<boolean>('feedOpen', { required: true })
     <NuxtLink to="/" class="flex items-center gap-2 shrink-0 text-ink no-underline">
       <span class="relative block w-[22px] h-[22px] rounded-full border-2 border-accent shrink-0">
         <span class="absolute top-1/2 inset-x-0 h-[1.5px] -translate-y-1/2 bg-accent" />
-        <span class="absolute left-1/2 inset-y-0 w-[1.5px] -translate-x-1/2 bg-accent" />
+        <span class="absolute start-1/2 inset-y-0 w-[1.5px] -translate-x-1/2 bg-accent" />
       </span>
       <span class="font-serif font-semibold text-base hidden sm:inline">CrisisMapper</span>
     </NuxtLink>
@@ -25,7 +25,7 @@ const feedOpen = defineModel<boolean>('feedOpen', { required: true })
     <!-- Total reports -->
     <div class="flex items-baseline gap-1.5 min-w-0">
       <span class="font-serif font-bold text-2xl sm:text-[28px] leading-none tabular-nums">{{ stats.total.toLocaleString() }}</span>
-      <span class="label truncate"><span class="hidden sm:inline">total </span>reports</span>
+      <span class="label truncate"><span class="hidden sm:inline">{{ $t('dashReports') }}</span><span class="sm:hidden">{{ $t('dashReportsShort') }}</span></span>
     </div>
 
     <span class="w-px h-6 bg-parchment-deep shrink-0 hidden md:block" />
@@ -35,17 +35,19 @@ const feedOpen = defineModel<boolean>('feedOpen', { required: true })
       <span class="font-serif font-bold text-2xl sm:text-[28px] leading-none tabular-nums">
         {{ stats.coverage_pct }}<span class="text-base">%</span>
       </span>
-      <span class="label">crisis zone mapped</span>
+      <span class="label">{{ $t('dashCoverage') }}</span>
     </div>
 
     <!-- Sparkline -->
     <div class="hidden lg:flex flex-col gap-0.5 justify-center shrink-0">
-      <span class="label">Report rate · 24h</span>
+      <span class="label">{{ $t('dashReportRate') }}</span>
       <DashboardSparkline :data="stats.hourly" />
     </div>
 
     <!-- Right cluster -->
     <div class="ms-auto flex items-center gap-2 sm:gap-3 shrink-0">
+      <LanguageSwitcher class="hidden sm:flex" />
+
       <button
         type="button"
         class="focus-ring flex items-center gap-1.5 px-3 min-h-[44px] rounded-sm border-[1.5px] font-mono text-[10px] tracking-[0.08em] cursor-pointer transition-colors"
@@ -58,14 +60,14 @@ const feedOpen = defineModel<boolean>('feedOpen', { required: true })
         <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor">
           <circle cx="6" cy="6" r="4" opacity="0.4" /><circle cx="6" cy="6" r="2" opacity="0.7" /><circle cx="6" cy="6" r="1" />
         </svg>
-        HEATMAP
+        {{ $t('dashHeatmap') }}
       </button>
 
       <NuxtLink
         to="/report"
         class="flex items-center gap-1.5 px-3 sm:px-3.5 min-h-[44px] bg-accent text-white rounded-sm no-underline text-[13px] font-medium hover:bg-accent-hover transition-colors"
       >
-        ← Field view
+        <span class="rtl-flip">←</span> {{ $t('dashFieldView') }}
       </NuxtLink>
 
       <button
@@ -73,7 +75,7 @@ const feedOpen = defineModel<boolean>('feedOpen', { required: true })
         class="focus-ring px-2.5 min-h-[44px] rounded-sm border-[1.5px] border-parchment-deep bg-transparent text-ink-light font-mono text-[10px] tracking-[0.06em] cursor-pointer hidden lg:block"
         @click="feedOpen = !feedOpen"
       >
-        {{ feedOpen ? 'HIDE FEED' : 'SHOW FEED' }}
+        {{ feedOpen ? $t('dashHideFeed') : $t('dashShowFeed') }}
       </button>
     </div>
   </header>

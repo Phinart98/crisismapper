@@ -270,10 +270,9 @@ watch(() => props.buildingsUrl, (url) => {
     <!-- WebGL2 fallback -->
     <div v-if="webglUnsupported" class="absolute inset-0 flex items-center justify-center p-8 bg-parchment-mid">
       <div class="max-w-sm text-center">
-        <div class="label mb-3">Map unavailable</div>
+        <div class="label mb-3">{{ $t('mapUnavailable') }}</div>
         <p class="text-sm text-ink-mid leading-relaxed">
-          Your browser doesn’t support WebGL2, which this map requires. Please update to a recent
-          version of Chrome, Safari, Firefox, or Edge.
+          {{ $t('mapWebglMsg') }}
         </p>
       </div>
     </div>
@@ -301,7 +300,7 @@ watch(() => props.buildingsUrl, (url) => {
       </div>
 
       <div v-if="tileError" class="absolute bottom-4 start-4 font-mono text-[9px] text-ink-ghost pointer-events-none">
-        Offline basemap · footprints only
+        {{ $t('mapOfflineBasemap') }}
       </div>
     </template>
   </div>

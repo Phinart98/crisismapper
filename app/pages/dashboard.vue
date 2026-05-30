@@ -4,6 +4,7 @@ import type { CrisisRow } from '~/composables/useActiveCrises'
 
 useHead({ title: 'CrisisMapper — Dashboard' })
 
+const { t } = useI18n()
 const { public: { demoCrisisId } } = useRuntimeConfig()
 
 // Active crises drive the selector + the map extent. SSR-fetched so the first paint
@@ -25,7 +26,7 @@ const selectedId = ref<string | null>(null)
 
 const activeCrisis = computed(() => crises.value.find(c => c.id === crisisId.value) ?? null)
 const activeBbox = computed<[number, number, number, number]>(() => activeCrisis.value?.bbox ?? DEFAULT_BBOX)
-const regionLabel = computed(() => activeCrisis.value?.name ?? 'Crisis zone')
+const regionLabel = computed(() => activeCrisis.value?.name ?? t('regionFallback'))
 const buildingsUrl = computed(() => `/api/buildings?crisis_id=${crisisId.value}`)
 
 // Switching the selector tears down + re-subscribes realtime for the new crisis.
@@ -71,7 +72,7 @@ onBeforeUnmount(() => reports.dispose())
           />
           <template #fallback>
             <div class="absolute inset-0 flex items-center justify-center bg-parchment-mid">
-              <span class="label">Loading map…</span>
+              <span class="label">{{ $t('mapLoading') }}</span>
             </div>
           </template>
         </ClientOnly>
@@ -82,7 +83,7 @@ onBeforeUnmount(() => reports.dispose())
           class="focus-ring lg:hidden absolute top-4 start-4 px-3 min-h-[44px] rounded-sm border-[1.5px] border-parchment-deep bg-parchment/90 backdrop-blur text-ink-mid font-mono text-[10px] tracking-[0.06em] cursor-pointer"
           @click="filtersOpen = true"
         >
-          FILTERS
+          {{ $t('dashFiltersToggle') }}
         </button>
         <button
           type="button"
@@ -90,7 +91,7 @@ onBeforeUnmount(() => reports.dispose())
           @click="mobileFeedOpen = true"
         >
           <span class="w-[6px] h-[6px] rounded-full" :style="{ background: 'var(--c-accent)' }" />
-          FEED
+          {{ $t('dashFeedToggle') }}
         </button>
 
         <!-- Showing X of Y -->
@@ -98,8 +99,8 @@ onBeforeUnmount(() => reports.dispose())
           v-if="filtersActive"
           class="absolute bottom-4 start-4 bg-parchment/90 backdrop-blur border border-parchment-deep rounded-sm px-3 py-2 font-mono text-[10px] tracking-[0.06em] text-ink-mid"
         >
-          Showing {{ reports.filteredCount.value.toLocaleString() }} of {{ reports.totalCount.value.toLocaleString() }}
-          <button type="button" class="ms-2.5 text-accent cursor-pointer" @click="clearFilters">Clear ×</button>
+          {{ $t('dashShowing', { shown: reports.filteredCount.value.toLocaleString(), total: reports.totalCount.value.toLocaleString() }) }}
+          <button type="button" class="ms-2.5 text-accent cursor-pointer" @click="clearFilters">{{ $t('dashClear') }} ×</button>
         </div>
 
         <!-- Updating pill (viewport refetch in flight) -->
@@ -107,7 +108,7 @@ onBeforeUnmount(() => reports.dispose())
           v-if="reports.viewportLoading.value"
           class="absolute top-4 start-1/2 -translate-x-1/2 lg:translate-x-0 lg:start-auto lg:end-4 flex items-center gap-1.5 bg-parchment/90 backdrop-blur border border-parchment-deep rounded-full px-3 py-1.5 font-mono text-[10px] tracking-[0.06em] text-ink-light"
         >
-          <span class="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" /> Updating…
+          <span class="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" /> {{ $t('dashUpdating') }}
         </div>
 
         <!-- Empty state: viewport settled with no reports in view -->
@@ -116,8 +117,8 @@ onBeforeUnmount(() => reports.dispose())
           class="absolute inset-0 flex items-center justify-center pointer-events-none"
         >
           <div class="bg-parchment/85 backdrop-blur border border-parchment-deep rounded-md px-5 py-4 text-center max-w-xs">
-            <div class="label mb-1">No reports in view</div>
-            <p class="text-xs text-ink-light leading-relaxed">Pan or zoom out, widen the time range, or clear filters to see more.</p>
+            <div class="label mb-1">{{ $t('dashEmptyTitle') }}</div>
+            <p class="text-xs text-ink-light leading-relaxed">{{ $t('dashEmptyBody') }}</p>
           </div>
         </div>
       </div>
@@ -139,7 +140,7 @@ onBeforeUnmount(() => reports.dispose())
         <div class="absolute inset-x-0 bottom-0 h-[75vh] bg-parchment rounded-t-xl overflow-hidden shadow-2xl flex flex-col">
           <div class="relative shrink-0">
             <div class="flex justify-center pt-2 pb-1"><span class="w-10 h-1 rounded-full bg-parchment-deep" /></div>
-            <button type="button" class="focus-ring absolute top-1.5 end-2 text-ink-light text-lg w-9 h-9" aria-label="Close" @click="mobileFeedOpen = false">×</button>
+            <button type="button" class="focus-ring absolute top-1.5 end-2 text-ink-light text-lg w-9 h-9" :aria-label="$t('modalClose')" @click="mobileFeedOpen = false">×</button>
           </div>
           <DashboardActivityFeed
             :feed="reports.feed.value"
@@ -157,8 +158,8 @@ onBeforeUnmount(() => reports.dispose())
       <div v-if="filtersOpen" class="lg:hidden fixed inset-0 z-[150] bg-black/40" @click.self="filtersOpen = false">
         <div class="absolute inset-y-0 start-0 w-[300px] max-w-[85vw] bg-parchment overflow-auto py-5 shadow-2xl">
           <div class="flex justify-between items-center px-5 mb-2">
-            <span class="label">Filters</span>
-            <button type="button" class="focus-ring text-ink-light text-lg w-9 h-9" aria-label="Close" @click="filtersOpen = false">×</button>
+            <span class="label">{{ $t('dashFiltersTitle') }}</span>
+            <button type="button" class="focus-ring text-ink-light text-lg w-9 h-9" :aria-label="$t('modalClose')" @click="filtersOpen = false">×</button>
           </div>
           <DashboardFilterSidebar
             v-model:crisis-id="crisisId"

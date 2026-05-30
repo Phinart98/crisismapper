@@ -21,19 +21,21 @@
 
     <!-- Active crisis -->
     <div class="px-5 lg:px-6 py-4 border-b border-parchment-deep shrink-0">
-      <div class="label text-ink-ghost mb-2.5">Active Crisis</div>
+      <div class="label text-ink-ghost mb-2.5">{{ $t('sidebarActiveCrisis') }}</div>
+      <!-- Crisis name + region are hardcoded placeholders (tracked: wire to active crisis
+           in a later phase). Names are proper-noun data we deliberately don't translate. -->
       <div class="font-serif font-semibold text-base lg:text-lg leading-snug text-ink mb-1.5">
         Myanmar Earthquake 2026
       </div>
       <div class="flex items-center gap-1.5">
         <span class="w-1.5 h-1.5 rounded-full bg-accent shrink-0 animate-pulse" />
-        <span class="text-xs text-ink-mid leading-none">Live · Mandalay Region</span>
+        <span class="text-xs text-ink-mid leading-none">{{ $t('sidebarLive') }} · Mandalay Region</span>
       </div>
     </div>
 
     <!-- Photo tips -->
     <div class="px-5 lg:px-6 py-4 border-b border-parchment-deep shrink-0">
-      <div class="label text-ink-ghost mb-3">Photo tips</div>
+      <div class="label text-ink-ghost mb-3">{{ $t('sidebarPhotoTips') }}</div>
       <div class="flex flex-col gap-2.5">
         <div
           v-for="(key, i) in ['tip1', 'tip2', 'tip3']"
@@ -48,19 +50,19 @@
 
     <!-- Severity guide -->
     <div class="px-5 lg:px-6 py-4 border-b border-parchment-deep shrink-0">
-      <div class="label text-ink-ghost mb-3">Damage severity</div>
+      <div class="label text-ink-ghost mb-3">{{ $t('sidebarSeverity') }}</div>
       <div class="flex flex-col gap-2">
         <div class="flex items-center gap-2.5">
           <span class="sev-chip minimal shrink-0">{{ $t('sevMinimal') }}</span>
-          <span class="text-xs text-ink-ghost leading-snug">Structural integrity intact</span>
+          <span class="text-xs text-ink-ghost leading-snug">{{ $t('sidebarSevMinimalDesc') }}</span>
         </div>
         <div class="flex items-center gap-2.5">
           <span class="sev-chip partial shrink-0">{{ $t('sevPartial') }}</span>
-          <span class="text-xs text-ink-ghost leading-snug">Significant damage</span>
+          <span class="text-xs text-ink-ghost leading-snug">{{ $t('sidebarSevPartialDesc') }}</span>
         </div>
         <div class="flex items-center gap-2.5">
           <span class="sev-chip complete shrink-0">{{ $t('sevComplete') }}</span>
-          <span class="text-xs text-ink-ghost leading-snug">Total loss / collapsed</span>
+          <span class="text-xs text-ink-ghost leading-snug">{{ $t('sidebarSevCompleteDesc') }}</span>
         </div>
       </div>
     </div>
@@ -91,8 +93,7 @@
     <!-- Footer -->
     <div class="px-5 lg:px-6 py-4 border-t border-parchment-deep shrink-0">
       <div class="label text-ink-ghost leading-[1.9]">
-        Phase 2 · Reporter Form<br>
-        Open source · Built for resilience
+        {{ $t('sidebarTagline') }}
       </div>
     </div>
 

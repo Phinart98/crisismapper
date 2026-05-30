@@ -6,7 +6,7 @@ const dismissed = ref(false)
 <template>
   <div
     v-if="$pwa?.needRefresh && !dismissed"
-    class="fixed bottom-4 left-4 right-4 z-40 mx-auto max-w-sm rounded border border-ink/15 bg-parchment p-3 shadow-md sm:left-auto sm:right-4"
+    class="fixed bottom-4 start-4 end-4 z-40 mx-auto max-w-sm rounded border border-ink/15 bg-parchment p-3 shadow-md sm:start-auto sm:end-4"
     role="status"
   >
     <div class="label">{{ $t('updateTitle') }}</div>

@@ -1,8 +1,5 @@
 <script setup lang="ts">
-const { locale, setLocale } = useI18n()
 const { pendingCount, flush, isFlushing } = useOfflineQueue()
-
-const LOCALES = ['en', 'es', 'fr', 'ar', 'ru', 'zh'] as const
 </script>
 
 <template>
@@ -24,18 +21,7 @@ const LOCALES = ['en', 'es', 'fr', 'ar', 'ru', 'zh'] as const
 
     <div class="flex items-center gap-1.5 shrink-0">
       <!-- Locale switcher — chips kept tight (32×28px hit zone) so the bar fits at 480px column -->
-      <div class="flex gap-0.5">
-        <button
-          v-for="code in LOCALES"
-          :key="code"
-          class="label min-h-[32px] min-w-[28px] px-1.5 rounded-sm border-none cursor-pointer transition-colors duration-[120ms] focus-ring"
-          :class="locale === code
-            ? 'bg-ink text-parchment'
-            : 'bg-transparent text-ink-light hover:text-ink hover:bg-parchment-mid'"
-          :aria-label="`${$t('locale')} (${code.toUpperCase()})`"
-          @click="setLocale(code)"
-        >{{ code.toUpperCase() }}</button>
-      </div>
+      <LanguageSwitcher />
 
       <!-- Pending sync badge — clicking flushes immediately when count > 0 -->
       <button

@@ -1,21 +1,28 @@
 <script setup lang="ts">
 import type { DbSeverity, InfraType } from '~/utils/severity'
-import { SEVERITY_COLORS, SEVERITY_LABELS, SEVERITY_FILTER_ORDER, INFRA_TYPES } from '~/utils/severity'
+import { SEVERITY_COLORS, SEVERITY_FILTER_ORDER, INFRA_TYPES } from '~/utils/severity'
 import type { Filters } from '~/composables/useCrisisReports'
 import { HOURS_MIN, HOURS_MAX, HOURS_STEP } from '~/composables/useCrisisReports'
 
 const props = defineProps<{
-  crises: { id: string; name: string }[]
+  crises: { id: string; name: string; crisis_type: string }[]
   filters: Filters
   severityCounts: Record<DbSeverity, number>
 }>()
 const crisisId = defineModel<string>('crisisId', { required: true })
 
+const { dbSev, infra, hazard } = useLabels()
+
+// Hazard type of the active crisis — makes the system's context-agnostic reach (Q25)
+// visible: the chip flips earthquake → flood → cyclone as crises are switched.
+const activeHazardType = computed(() => props.crises.find(c => c.id === crisisId.value)?.crisis_type)
+
 const EXPORT_FORMATS = ['GeoJSON', 'CSV', 'GPKG', 'Shapefile']
+// Labels/descriptions carry i18n keys (translated in template); colour stays literal.
 const TRUST_LEGEND = [
-  { tier: 'Unverified',   col: 'var(--c-ink-ghost)',    desc: 'New reporter, no history' },
-  { tier: 'Contributing', col: 'var(--c-sev-minimal)',  desc: '5+ accepted reports' },
-  { tier: 'Trusted',      col: 'var(--c-sev-partial)',  desc: 'Verified ID + 20+ reports' },
+  { tierKey: 'trustUnverified',   descKey: 'trustUnverifiedDesc',   col: 'var(--c-ink-ghost)' },
+  { tierKey: 'trustContributing', descKey: 'trustContributingDesc', col: 'var(--c-sev-minimal)' },
+  { tierKey: 'trustTrusted',      descKey: 'trustTrustedDesc',      col: 'var(--c-sev-partial)' },
 ]
 
 function toggleSev(s: DbSeverity) {
@@ -42,7 +49,7 @@ const hoursLabel = computed(() =>
   <div class="flex flex-col">
     <!-- Crisis selector -->
     <section class="px-5 pb-5 border-b border-parchment-deep">
-      <div class="label mb-2">Active crisis</div>
+      <div class="label mb-2">{{ $t('filterActiveCrisis') }}</div>
       <select
         v-model="crisisId"
         class="focus-ring w-full px-3 py-2.5 min-h-[44px] bg-white border border-parchment-deep rounded-sm font-sans text-[13px] text-ink cursor-pointer appearance-none bg-no-repeat"
@@ -50,11 +57,23 @@ const hoursLabel = computed(() =>
       >
         <option v-for="c in crises" :key="c.id" :value="c.id">{{ c.name }}</option>
       </select>
+
+      <!-- Localized hazard-type chip — surfaces the crisis's hazard category (the part we
+           own + can translate; the name stays as proper-noun data). -->
+      <span
+        v-if="activeHazardType"
+        class="mt-2.5 inline-flex items-center gap-1.5 px-2 py-1 rounded-sm bg-parchment-mid border border-parchment-deep font-mono text-[10px] tracking-[0.08em] uppercase text-ink-mid"
+      >
+        <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.2" class="shrink-0">
+          <path d="M6 1.2 11 10.5H1L6 1.2Z" stroke-linejoin="round" /><path d="M6 5v2.4" stroke-linecap="round" /><circle cx="6" cy="9" r="0.5" fill="currentColor" stroke="none" />
+        </svg>
+        {{ hazard(activeHazardType) }}
+      </span>
     </section>
 
     <!-- Severity -->
     <section class="px-5 py-4 border-b border-parchment-deep">
-      <div class="label mb-2.5">Severity</div>
+      <div class="label mb-2.5">{{ $t('filterSeverity') }}</div>
       <div class="flex flex-col gap-1.5">
         <button
           v-for="s in SEVERITY_FILTER_ORDER"
@@ -67,7 +86,7 @@ const hoursLabel = computed(() =>
           @click="toggleSev(s)"
         >
           <span class="w-2.5 h-2.5 rounded-full shrink-0" :style="{ background: SEVERITY_COLORS[s] }" />
-          <span class="font-mono text-[10px] tracking-[0.08em] uppercase" :style="{ color: SEVERITY_COLORS[s] }">{{ SEVERITY_LABELS[s] }}</span>
+          <span class="font-mono text-[10px] tracking-[0.08em] uppercase" :style="{ color: SEVERITY_COLORS[s] }">{{ dbSev(s) }}</span>
           <span class="ms-auto font-mono text-[10px] text-ink-ghost tabular-nums">{{ (severityCounts[s] ?? 0).toLocaleString() }}</span>
         </button>
       </div>
@@ -75,7 +94,7 @@ const hoursLabel = computed(() =>
 
     <!-- Infrastructure -->
     <section class="px-5 py-4 border-b border-parchment-deep">
-      <div class="label mb-2.5">Infrastructure</div>
+      <div class="label mb-2.5">{{ $t('filterInfrastructure') }}</div>
       <div class="flex flex-wrap gap-1.5">
         <button
           v-for="t in INFRA_TYPES"
@@ -88,7 +107,7 @@ const hoursLabel = computed(() =>
           :aria-pressed="filters.infra.includes(t)"
           @click="toggleInfra(t)"
         >
-          {{ t }}
+          {{ infra(t) }}
         </button>
       </div>
     </section>
@@ -96,28 +115,28 @@ const hoursLabel = computed(() =>
     <!-- Time range -->
     <section class="px-5 py-4 border-b border-parchment-deep">
       <div class="flex justify-between items-center mb-2.5">
-        <div class="label">Time range</div>
-        <div class="font-mono text-[10px] text-accent">Last {{ hoursLabel }}</div>
+        <div class="label">{{ $t('filterTimeRange') }}</div>
+        <div class="font-mono text-[10px] text-accent">{{ $t('filterLast', { range: hoursLabel }) }}</div>
       </div>
       <div class="flex items-center gap-2">
         <button
           type="button"
           class="focus-ring shrink-0 w-8 h-8 rounded-sm border border-parchment-deep bg-white text-ink-mid text-lg leading-none flex items-center justify-center cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed hover:bg-parchment-mid"
           :disabled="filters.hours <= HOURS_MIN"
-          aria-label="Decrease time range"
+          :aria-label="$t('filterDecreaseRange')"
           @click="stepHours(-HOURS_STEP)"
         >−</button>
         <input
           v-model.number="filters.hours"
           type="range" :min="HOURS_MIN" :max="HOURS_MAX" :step="HOURS_STEP"
           class="flex-1 min-w-0"
-          aria-label="Time range in hours"
+          :aria-label="$t('filterRangeAria')"
         >
         <button
           type="button"
           class="focus-ring shrink-0 w-8 h-8 rounded-sm border border-parchment-deep bg-white text-ink-mid text-lg leading-none flex items-center justify-center cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed hover:bg-parchment-mid"
           :disabled="filters.hours >= HOURS_MAX"
-          aria-label="Increase time range"
+          :aria-label="$t('filterIncreaseRange')"
           @click="stepHours(HOURS_STEP)"
         >+</button>
       </div>
@@ -130,8 +149,8 @@ const hoursLabel = computed(() =>
     <!-- Export (Phase 9) -->
     <section class="px-5 py-4 border-b border-parchment-deep">
       <div class="flex items-center justify-between mb-2.5">
-        <div class="label">Export data</div>
-        <span class="font-mono text-[9px] text-ink-ghost tracking-[0.06em]">PHASE 9</span>
+        <div class="label">{{ $t('filterExportData') }}</div>
+        <span class="font-mono text-[9px] text-ink-ghost tracking-[0.06em]">{{ $t('filterPhase9') }}</span>
       </div>
       <div class="grid grid-cols-2 gap-1.5">
         <button
@@ -139,7 +158,7 @@ const hoursLabel = computed(() =>
           :key="fmt"
           type="button"
           disabled
-          :title="`${fmt} export — available in Phase 9`"
+          :title="$t('filterExportTitle', { fmt })"
           class="py-2 min-h-[36px] rounded-sm border-[1.5px] border-parchment-deep bg-white text-ink-ghost font-mono text-[10px] tracking-[0.06em] cursor-not-allowed opacity-60"
         >
           {{ fmt }}
@@ -149,12 +168,12 @@ const hoursLabel = computed(() =>
 
     <!-- Trust legend -->
     <section class="px-5 py-4">
-      <div class="label mb-2.5">Trust score legend</div>
-      <div v-for="t in TRUST_LEGEND" :key="t.tier" class="flex items-start gap-2 mb-2">
+      <div class="label mb-2.5">{{ $t('filterTrustLegend') }}</div>
+      <div v-for="t in TRUST_LEGEND" :key="t.tierKey" class="flex items-start gap-2 mb-2">
         <span class="w-2 h-2 rounded-full shrink-0 mt-1" :style="{ background: t.col }" />
         <div>
-          <div class="font-mono text-[10px] tracking-[0.06em] text-ink uppercase">{{ t.tier }}</div>
-          <div class="text-[11px] text-ink-ghost">{{ t.desc }}</div>
+          <div class="font-mono text-[10px] tracking-[0.06em] text-ink uppercase">{{ $t(t.tierKey) }}</div>
+          <div class="text-[11px] text-ink-ghost">{{ $t(t.descKey) }}</div>
         </div>
       </div>
     </section>

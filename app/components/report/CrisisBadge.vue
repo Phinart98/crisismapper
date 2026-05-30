@@ -24,8 +24,8 @@ function onSelect(e: Event) {
   <!-- Only meaningful once we have active crises to attribute the report to. -->
   <section v-if="crises.length" class="mb-10 sm:mb-12">
     <div class="mb-3">
-      <div class="label mb-1.5">Crisis event</div>
-      <div class="font-serif text-xl sm:text-2xl font-semibold leading-tight">Which crisis is this?</div>
+      <div class="label mb-1.5">{{ $t('crisisBadgeLabel') }}</div>
+      <div class="font-serif text-xl sm:text-2xl font-semibold leading-tight">{{ $t('crisisBadgeQuestion') }}</div>
     </div>
 
     <!-- Auto-resolved: show the detected crisis with a change affordance. -->
@@ -37,20 +37,20 @@ function onSelect(e: Event) {
         <path d="M21 10c0 7-9 12-9 12s-9-5-9-12a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" />
       </svg>
       <div class="flex-1 min-w-0">
-        <div class="text-sm font-medium text-ink truncate">{{ current?.name ?? 'Detected from your location' }}</div>
-        <div class="font-mono text-[10px] tracking-[0.06em] uppercase text-ink-light">Detected from your location</div>
+        <div class="text-sm font-medium text-ink truncate">{{ current?.name ?? $t('crisisBadgeDetected') }}</div>
+        <div class="font-mono text-[10px] tracking-[0.06em] uppercase text-ink-light">{{ $t('crisisBadgeDetected') }}</div>
       </div>
       <button
         type="button"
         class="focus-ring text-[13px] font-medium text-accent min-h-[44px] px-2 cursor-pointer"
         @click="picking = true"
-      >Change</button>
+      >{{ $t('crisisBadgeChange') }}</button>
     </div>
 
     <!-- Manual picker: outside any zone, or user chose to change. -->
     <div v-else>
       <p v-if="outsideZones" class="text-[13px] text-ink-light leading-relaxed mb-2">
-        Your location isn’t inside a known crisis zone. Please choose the event you’re reporting for.
+        {{ $t('crisisBadgeOutside') }}
       </p>
       <select
         class="focus-ring w-full px-4 min-h-[48px] bg-white border border-parchment-deep rounded-md text-base text-ink cursor-pointer appearance-none bg-no-repeat"

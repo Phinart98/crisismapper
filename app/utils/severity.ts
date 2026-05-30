@@ -35,12 +35,10 @@ export const SEVERITY_COLORS: Record<DbSeverity, string> = {
   unknown:    '#A8A08E', // --color-ink-ghost
 }
 
-export const SEVERITY_LABELS: Record<DbSeverity, string> = {
-  negligible: 'Negligible', moderate: 'Moderate', severe: 'Severe', destroyed: 'Destroyed', unknown: 'Unknown',
-}
+// Display labels (Negligible/Minimal/…) now live in useLabels() so they go through i18n —
+// the raw English constants were removed. This file keeps only color/order/enum data.
 
 // Severity filter order in the left sidebar (worst → least).
 export const SEVERITY_FILTER_ORDER: DbSeverity[] = ['destroyed', 'severe', 'moderate', 'negligible']
 
-export const UI_LABELS: Record<UiSeverity, string> = { minimal: 'Minimal', partial: 'Partial', complete: 'Complete' }
 export const INFRA_TYPES: InfraType[] = ['building', 'road', 'bridge', 'hospital', 'school', 'utility', 'other']
