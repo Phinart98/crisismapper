@@ -5,14 +5,12 @@ const props = defineProps<{
   crises: CrisisRow[]
   modelValue: string
   outsideZones: boolean   // GPS resolved outside every active zone → force the picker
-  manual: boolean         // user already overrode the auto-resolution
 }>()
 const emit = defineEmits<{ select: [id: string] }>()
 
-// Start in picker mode when we couldn't auto-place the report.
-const picking = ref(props.outsideZones)
-watch(() => props.outsideZones, v => { if (v) picking.value = true })
-
+// Picker shows when GPS couldn't place the report (outsideZones) OR the user tapped
+// "Change". `picking` only needs to track that user intent — outsideZones is folded in.
+const picking = ref(false)
 const current = computed(() => props.crises.find(c => c.id === props.modelValue) ?? null)
 const showPicker = computed(() => picking.value || props.outsideZones)
 

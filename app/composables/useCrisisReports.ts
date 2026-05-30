@@ -43,13 +43,24 @@ export interface Filters {
 
 type ConnectionMode = 'connecting' | 'realtime' | 'polling'
 
+// Time-range filter bounds (hours). Shared with the dashboard + sidebar so the
+// "max = no time filter" sentinel lives in one place.
+export const HOURS_MIN = 6
+export const HOURS_MAX = 168
+export const HOURS_STEP = 6
+const FEED_LIMIT = 30
+
+export type FeedItem = ReportProps & { lng: number; lat: number }
+
 const empty = (): ReportCollection => ({ type: 'FeatureCollection', features: [] })
+const toFeedItem = (f: ReportFeature): FeedItem =>
+  ({ ...f.properties, lng: f.geometry.coordinates[0], lat: f.geometry.coordinates[1] })
 
 export function useCrisisReports(initialCrisisId: string) {
   let activeId = initialCrisisId
   const geojson = ref<ReportCollection>(empty())
   const stats = ref<Stats>({ total: 0, coverage_pct: 0, hourly: [] })
-  const feed = ref<Array<ReportProps & { lng: number; lat: number }>>([])
+  const feed = ref<FeedItem[]>([])
   const filters = reactive<Filters>({ sev: [], infra: [], hours: 72 })
   const connectionMode = ref<ConnectionMode>('connecting')
   const viewportLoading = ref(false)
@@ -67,15 +78,23 @@ export function useCrisisReports(initialCrisisId: string) {
     return true
   }
 
+  // Rebuild geojson from a fresh server payload (initial load or viewport refetch):
+  // reset the dedup set and re-track each feature.
+  function rebuild(fc: ReportCollection): ReportCollection {
+    const fresh = empty()
+    seenIds.clear()
+    for (const f of fc.features) if (track(f)) fresh.features.push(f)
+    return fresh
+  }
+
   function addFeature(f: ReportFeature, prependFeed = true) {
     if (!track(f)) return
     geojson.value.features.push(f)
-    const item = { ...f.properties, lng: f.geometry.coordinates[0], lat: f.geometry.coordinates[1] }
     if (prependFeed) {
-      feed.value = [item, ...feed.value].slice(0, 30)
+      feed.value = [toFeedItem(f), ...feed.value].slice(0, FEED_LIMIT)
       stats.value = { ...stats.value, total: stats.value.total + 1 }
     } else {
-      feed.value.push(item)
+      feed.value.push(toFeedItem(f))
     }
   }
 
@@ -99,6 +118,14 @@ export function useCrisisReports(initialCrisisId: string) {
   const filteredCount = computed(() => filteredFeatures.value.length)
   const totalCount = computed(() => geojson.value.features.length)
 
+  // Per-severity tally of the loaded set (drives the sidebar counts). Kept here so
+  // the raw `geojson` stays encapsulated in the composable.
+  const severityCounts = computed(() => {
+    const counts: Record<DbSeverity, number> = { negligible: 0, moderate: 0, severe: 0, destroyed: 0, unknown: 0 }
+    for (const f of geojson.value.features) counts[f.properties.severity]++
+    return counts
+  })
+
   let currentBbox: string | undefined
 
   async function loadInitial() {
@@ -106,16 +133,12 @@ export function useCrisisReports(initialCrisisId: string) {
       $fetch<ReportCollection>('/api/map/reports', { query: { crisis_id: activeId } }),
       $fetch<Stats>('/api/map/stats', { query: { crisis_id: activeId } }),
     ])
-    const fresh = empty()
-    seenIds.clear()
-    for (const f of fc.features) {
-      if (track(f)) fresh.features.push(f)
-    }
+    const fresh = rebuild(fc)
     // Newest first for the feed, capped.
     feed.value = [...fresh.features]
       .sort((a, b) => (a.properties.submitted_at < b.properties.submitted_at ? 1 : -1))
-      .slice(0, 30)
-      .map(f => ({ ...f.properties, lng: f.geometry.coordinates[0], lat: f.geometry.coordinates[1] }))
+      .slice(0, FEED_LIMIT)
+      .map(toFeedItem)
     geojson.value = fresh
     stats.value = s
   }
@@ -133,10 +156,7 @@ export function useCrisisReports(initialCrisisId: string) {
     try {
       const fc = await $fetch<ReportCollection>('/api/map/reports', { query: { crisis_id: activeId, bbox } })
       if (token !== viewportToken) return // a newer pan superseded this fetch
-      const fresh = empty()
-      seenIds.clear()
-      for (const f of fc.features) if (track(f)) fresh.features.push(f)
-      geojson.value = fresh
+      geojson.value = rebuild(fc)
     } finally {
       if (token === viewportToken) viewportLoading.value = false
     }
@@ -240,8 +260,8 @@ export function useCrisisReports(initialCrisisId: string) {
   }
 
   return {
-    geojson, stats, feed, filters, connectionMode, viewportLoading,
-    filteredGeojson, filteredCount, totalCount,
+    stats, feed, filters, connectionMode, viewportLoading,
+    filteredGeojson, filteredCount, totalCount, severityCounts,
     init, dispose, loadViewport, switchCrisis,
   }
 }

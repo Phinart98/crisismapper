@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Map as MaplibreMap, StyleSpecification, ExpressionSpecification } from 'maplibre-gl'
+import type { Map as MaplibreMap, StyleSpecification, ExpressionSpecification, GeoJSONSource } from 'maplibre-gl'
 import { SEVERITY_COLORS } from '~/utils/severity'
 import type { ReportCollection } from '~/composables/useCrisisReports'
 
@@ -84,7 +84,7 @@ function addDataLayers(m: MaplibreMap) {
   // Damage reports — CLUSTERED (non-negotiable at 500K). Drives cluster bubbles + markers.
   m.addSource(REPORTS_SRC, {
     type: 'geojson',
-    data: props.geojson as never,
+    data: props.geojson,
     cluster: true,
     clusterMaxZoom: 14,
     clusterRadius: 50,
@@ -93,7 +93,7 @@ function addDataLayers(m: MaplibreMap) {
   // Same reports, UN-clustered — the heatmap must see the real point distribution
   // (a clustered source collapses points to a handful of centroids, which renders
   // as blobs/halos around clusters instead of a density field).
-  m.addSource(HEAT_SRC, { type: 'geojson', data: props.geojson as never })
+  m.addSource(HEAT_SRC, { type: 'geojson', data: props.geojson })
 
   // Heatmap density surface, weighted by severity so destroyed/severe damage burns
   // hotter. Hidden until toggled; when on, the marker layers hide (real mode switch).
@@ -166,10 +166,11 @@ function addDataLayers(m: MaplibreMap) {
     const f = e.features?.[0]
     const clusterId = f?.properties?.cluster_id
     if (clusterId == null) return
-    const src = m.getSource(REPORTS_SRC) as never as { getClusterExpansionZoom: (id: number) => Promise<number> }
+    const src = m.getSource(REPORTS_SRC) as GeoJSONSource
     try {
       const z = await src.getClusterExpansionZoom(clusterId)
-      m.easeTo({ center: (f!.geometry as unknown as { coordinates: [number, number] }).coordinates, zoom: z })
+      const [lng, lat] = (f!.geometry as GeoJSON.Point).coordinates as [number, number]
+      m.easeTo({ center: [lng, lat], zoom: z })
     } catch { /* noop */ }
   })
   for (const layer of ['unclustered-point', 'clusters']) {
@@ -246,21 +247,21 @@ watch(() => props.bbox, (b) => {
 
 watch(() => props.geojson, (g) => {
   if (!loaded || !map) return
-  for (const id of [REPORTS_SRC, HEAT_SRC]) {
-    const src = map.getSource(id) as never as { setData: (d: unknown) => void } | undefined
-    src?.setData(g)
-  }
+  ;(map.getSource(REPORTS_SRC) as GeoJSONSource | undefined)?.setData(g)
+  // The heat source renders only in heatmap mode; skip pushing the full collection
+  // into it while markers are showing. The heatmap watch refreshes it on toggle-on.
+  if (props.heatmap) (map.getSource(HEAT_SRC) as GeoJSONSource | undefined)?.setData(g)
 }, { deep: false })
 
 watch(() => props.heatmap, (on) => {
   if (!loaded || !map) return
+  if (on) (map.getSource(HEAT_SRC) as GeoJSONSource | undefined)?.setData(props.geojson) // catch up while it was off
   applyHeatmapMode(map, on)
 })
 
 watch(() => props.buildingsUrl, (url) => {
   if (!loaded || !map) return
-  const src = map.getSource(BUILDINGS_SRC) as never as { setData: (d: unknown) => void } | undefined
-  src?.setData(url)
+  ;(map.getSource(BUILDINGS_SRC) as GeoJSONSource | undefined)?.setData(url)
 })
 </script>
 

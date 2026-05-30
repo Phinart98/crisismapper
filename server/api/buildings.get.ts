@@ -1,5 +1,6 @@
 import * as v from 'valibot'
 import { getDb } from '../utils/db'
+import { BBOX_REGEX, parseBbox } from '../utils/bbox'
 
 // Building-footprint polygons for a crisis, as a GeoJSON FeatureCollection.
 // Sourced from the PostGIS `buildings` table (loaded from Overture Maps per
@@ -7,7 +8,7 @@ import { getDb } from '../utils/db'
 // as the signature geographic overlay beneath the damage markers.
 const QuerySchema = v.object({
   crisis_id: v.pipe(v.string(), v.uuid()),
-  bbox: v.optional(v.pipe(v.string(), v.regex(/^-?\d+(\.\d+)?(,-?\d+(\.\d+)?){3}$/))),
+  bbox: v.optional(v.pipe(v.string(), v.regex(BBOX_REGEX))),
 })
 
 const MAX_FEATURES = 60000
@@ -19,12 +20,7 @@ export default defineEventHandler(async (event) => {
   }
   const { crisis_id, bbox } = result.output
 
-  const bboxEnv = bbox
-    ? (() => {
-        const [w, s, e, n] = bbox.split(',').map(Number) as [number, number, number, number]
-        return { w, s, e, n }
-      })()
-    : null
+  const bboxEnv = bbox ? parseBbox(bbox) : null
 
   const db = getDb()
   const [row] = await db<{ fc: unknown }[]>`

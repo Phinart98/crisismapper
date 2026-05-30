@@ -18,43 +18,45 @@ export default defineEventHandler(async (event) => {
   const { crisis_id } = result.output
   const db = getDb()
 
-  const [totals] = await db<{ total: number; coverage_pct: number }[]>`
-    WITH c AS (
-      SELECT bbox FROM crises WHERE id = ${crisis_id}
-    ),
-    cells AS (
-      SELECT GREATEST(1, ceil((ST_XMax(bbox) - ST_XMin(bbox)) / ${GRID})
-                       * ceil((ST_YMax(bbox) - ST_YMin(bbox)) / ${GRID}))::int AS total_cells
-      FROM c
-    ),
-    covered AS (
-      SELECT count(DISTINCT ST_SnapToGrid(location, ${GRID}))::int AS n
-      FROM damage_reports
-      WHERE crisis_id = ${crisis_id} AND is_duplicate = false
-    )
-    SELECT
-      (SELECT count(*)::int FROM damage_reports WHERE crisis_id = ${crisis_id} AND is_duplicate = false) AS total,
-      LEAST(100, round(100.0 * covered.n / cells.total_cells))::int AS coverage_pct
-    FROM cells, covered
-  `
-
-  const hourly = await db<{ n: number }[]>`
-    WITH hours AS (
-      SELECT generate_series(
-        date_trunc('hour', now()) - interval '23 hours',
-        date_trunc('hour', now()),
-        interval '1 hour'
-      ) AS h
-    )
-    SELECT count(r.id)::int AS n
-    FROM hours
-    LEFT JOIN damage_reports r
-      ON r.crisis_id = ${crisis_id}
-      AND r.is_duplicate = false
-      AND date_trunc('hour', r.submitted_at) = hours.h
-    GROUP BY hours.h
-    ORDER BY hours.h
-  `
+  // Independent queries — run concurrently to halve the endpoint's round-trip latency.
+  const [[totals], hourly] = await Promise.all([
+    db<{ total: number; coverage_pct: number }[]>`
+      WITH c AS (
+        SELECT bbox FROM crises WHERE id = ${crisis_id}
+      ),
+      cells AS (
+        SELECT GREATEST(1, ceil((ST_XMax(bbox) - ST_XMin(bbox)) / ${GRID})
+                         * ceil((ST_YMax(bbox) - ST_YMin(bbox)) / ${GRID}))::int AS total_cells
+        FROM c
+      ),
+      covered AS (
+        SELECT count(DISTINCT ST_SnapToGrid(location, ${GRID}))::int AS n
+        FROM damage_reports
+        WHERE crisis_id = ${crisis_id} AND is_duplicate = false
+      )
+      SELECT
+        (SELECT count(*)::int FROM damage_reports WHERE crisis_id = ${crisis_id} AND is_duplicate = false) AS total,
+        LEAST(100, round(100.0 * covered.n / cells.total_cells))::int AS coverage_pct
+      FROM cells, covered
+    `,
+    db<{ n: number }[]>`
+      WITH hours AS (
+        SELECT generate_series(
+          date_trunc('hour', now()) - interval '23 hours',
+          date_trunc('hour', now()),
+          interval '1 hour'
+        ) AS h
+      )
+      SELECT count(r.id)::int AS n
+      FROM hours
+      LEFT JOIN damage_reports r
+        ON r.crisis_id = ${crisis_id}
+        AND r.is_duplicate = false
+        AND date_trunc('hour', r.submitted_at) = hours.h
+      GROUP BY hours.h
+      ORDER BY hours.h
+    `,
+  ])
 
   return {
     total: totals?.total ?? 0,

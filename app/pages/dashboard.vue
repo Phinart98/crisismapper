@@ -1,12 +1,10 @@
 <script setup lang="ts">
-import type { DbSeverity } from '~/utils/severity'
-import { useCrisisReports } from '~/composables/useCrisisReports'
+import { useCrisisReports, HOURS_MAX } from '~/composables/useCrisisReports'
+import type { CrisisRow } from '~/composables/useActiveCrises'
 
 useHead({ title: 'CrisisMapper — Dashboard' })
 
 const { public: { demoCrisisId } } = useRuntimeConfig()
-
-interface CrisisRow { id: string; name: string; crisis_type: string; bbox: [number, number, number, number] | null }
 
 // Active crises drive the selector + the map extent. SSR-fetched so the first paint
 // already has the list; falls back to the demo crisis id if the call fails.
@@ -33,17 +31,11 @@ const buildingsUrl = computed(() => `/api/buildings?crisis_id=${crisisId.value}`
 // Switching the selector tears down + re-subscribes realtime for the new crisis.
 watch(crisisId, id => reports.switchCrisis(id))
 
-const severityCounts = computed(() => {
-  const counts: Record<DbSeverity, number> = { negligible: 0, moderate: 0, severe: 0, destroyed: 0, unknown: 0 }
-  for (const f of reports.geojson.value.features) counts[f.properties.severity]++
-  return counts
-})
-
-const filtersActive = computed(() => reports.filters.sev.length > 0 || reports.filters.infra.length > 0 || reports.filters.hours < 168)
+const filtersActive = computed(() => reports.filters.sev.length > 0 || reports.filters.infra.length > 0 || reports.filters.hours < HOURS_MAX)
 function clearFilters() {
   reports.filters.sev = []
   reports.filters.infra = []
-  reports.filters.hours = 168
+  reports.filters.hours = HOURS_MAX
 }
 
 onMounted(() => reports.init())
@@ -61,7 +53,7 @@ onBeforeUnmount(() => reports.dispose())
           v-model:crisis-id="crisisId"
           :crises="crises"
           :filters="reports.filters"
-          :severity-counts="severityCounts"
+          :severity-counts="reports.severityCounts.value"
         />
       </aside>
 
@@ -172,7 +164,7 @@ onBeforeUnmount(() => reports.dispose())
             v-model:crisis-id="crisisId"
             :crises="crises"
             :filters="reports.filters"
-            :severity-counts="severityCounts"
+            :severity-counts="reports.severityCounts.value"
           />
         </div>
       </div>

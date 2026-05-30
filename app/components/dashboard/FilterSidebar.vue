@@ -2,6 +2,7 @@
 import type { DbSeverity, InfraType } from '~/utils/severity'
 import { SEVERITY_COLORS, SEVERITY_LABELS, SEVERITY_FILTER_ORDER, INFRA_TYPES } from '~/utils/severity'
 import type { Filters } from '~/composables/useCrisisReports'
+import { HOURS_MIN, HOURS_MAX, HOURS_STEP } from '~/composables/useCrisisReports'
 
 const props = defineProps<{
   crises: { id: string; name: string }[]
@@ -28,9 +29,6 @@ function toggleInfra(t: InfraType) {
   else props.filters.infra.splice(i, 1)
 }
 
-const HOURS_MIN = 6
-const HOURS_MAX = 168
-const HOURS_STEP = 6
 function stepHours(delta: number) {
   props.filters.hours = Math.min(HOURS_MAX, Math.max(HOURS_MIN, props.filters.hours + delta))
 }

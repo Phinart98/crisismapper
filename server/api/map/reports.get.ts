@@ -1,5 +1,6 @@
 import * as v from 'valibot'
 import { getDb } from '../../utils/db'
+import { BBOX_REGEX, parseBbox } from '../../utils/bbox'
 
 // GeoJSON FeatureCollection of damage-report points for the dashboard map.
 // Minimal properties only — the map colors by `severity` and the feed needs
@@ -15,8 +16,7 @@ import { getDb } from '../../utils/db'
 const QuerySchema = v.object({
   crisis_id: v.pipe(v.string(), v.uuid()),
   since: v.optional(v.pipe(v.string(), v.isoTimestamp())),
-  // "minLng,minLat,maxLng,maxLat"
-  bbox: v.optional(v.pipe(v.string(), v.regex(/^-?\d+(\.\d+)?(,-?\d+(\.\d+)?){3}$/))),
+  bbox: v.optional(v.pipe(v.string(), v.regex(BBOX_REGEX))),
 })
 
 const MAX_FEATURES = 25000
@@ -28,12 +28,7 @@ export default defineEventHandler(async (event) => {
   }
   const { crisis_id, since, bbox } = result.output
 
-  const bboxEnv = bbox
-    ? (() => {
-        const [w, s, e, n] = bbox.split(',').map(Number) as [number, number, number, number]
-        return { w, s, e, n }
-      })()
-    : null
+  const bboxEnv = bbox ? parseBbox(bbox) : null
 
   const db = getDb()
   // Build the FeatureCollection in Postgres — ST_AsGeoJSON encodes geometry

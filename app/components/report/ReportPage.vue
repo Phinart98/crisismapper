@@ -74,7 +74,6 @@ function onInfraSelected() {
           :crises="form.crises.value"
           :model-value="form.crisisId.value"
           :outside-zones="form.crisisOutsideZones.value"
-          :manual="form.crisisManual.value"
           @select="form.setCrisis"
         />
       </Transition>
