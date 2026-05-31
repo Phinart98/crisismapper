@@ -1,4 +1,4 @@
-import type { DbSeverity, UiSeverity, InfraType } from '~/utils/severity'
+import type { DbSeverity, UiSeverity, InfraType, TrustTier } from '~/utils/severity'
 
 // Severity/infra enums live in utils/severity.ts (source of truth for color/order);
 // this composable owns their *translated display* so the i18n seam is in one place.
@@ -35,6 +35,11 @@ const HAZARD_KEY: Record<string, string> = {
   hurricane: 'hazardHurricane',
   other: 'hazardOther',
 }
+const TRUST_KEY: Record<TrustTier, string> = {
+  unverified: 'trustUnverified',
+  contributing: 'trustContributing',
+  trusted: 'trustTrusted',
+}
 
 export function useLabels() {
   const { t } = useI18n()
@@ -46,5 +51,7 @@ export function useLabels() {
       return key ? t(key) : t('modalUnspecified')
     },
     hazard: (type?: string | null) => t(type && HAZARD_KEY[type] ? HAZARD_KEY[type] : 'hazardOther'),
+    // null for anonymous reports (no reporter row) → caller hides the badge.
+    trust: (tier?: string | null) => (tier && TRUST_KEY[tier as TrustTier] ? t(TRUST_KEY[tier as TrustTier]) : null),
   }
 }

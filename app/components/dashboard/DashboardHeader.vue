@@ -1,9 +1,14 @@
 <script setup lang="ts">
 import type { Stats } from '~/composables/useCrisisReports'
 
-defineProps<{ stats: Stats }>()
+const props = defineProps<{ stats: Stats }>()
 const heatmap = defineModel<boolean>('heatmap', { required: true })
 const feedOpen = defineModel<boolean>('feedOpen', { required: true })
+
+const { t } = useI18n()
+// Locale-formatted once, reused for both the visible text and its tooltip.
+const duplicatesLabel = computed(() =>
+  t('dashDuplicates', { n: props.stats.duplicate_count.toLocaleString() }))
 </script>
 
 <template>
@@ -22,10 +27,15 @@ const feedOpen = defineModel<boolean>('feedOpen', { required: true })
 
     <span class="w-px h-6 bg-parchment-deep shrink-0 hidden sm:block" />
 
-    <!-- Total reports -->
+    <!-- Total reports (+ probable-duplicate count when any are flagged) -->
     <div class="flex items-baseline gap-1.5 min-w-0">
       <span class="font-serif font-bold text-2xl sm:text-[28px] leading-none tabular-nums">{{ stats.total.toLocaleString() }}</span>
       <span class="label truncate"><span class="hidden sm:inline">{{ $t('dashReports') }}</span><span class="sm:hidden">{{ $t('dashReportsShort') }}</span></span>
+      <span
+        v-if="stats.duplicate_count > 0"
+        class="hidden md:inline label text-ink-ghost truncate"
+        :title="duplicatesLabel"
+      >· {{ duplicatesLabel }}</span>
     </div>
 
     <span class="w-px h-6 bg-parchment-deep shrink-0 hidden md:block" />

@@ -7,6 +7,16 @@ export type DbSeverity = 'negligible' | 'moderate' | 'severe' | 'destroyed' | 'u
 // Mirrored in the valibot picklist at server/api/reports.post.ts:9.
 export type InfraType = 'building' | 'road' | 'bridge' | 'hospital' | 'school' | 'utility' | 'other'
 
+// Reporter behavioral trust tier (Phase 9). Mirrors the reporters.trust_tier generated
+// column (score < 0.3 / < 0.7 / else). Dot colors mirror FilterSidebar's TRUST_LEGEND;
+// CSS vars are fine here (DOM, not WebGL paint).
+export type TrustTier = 'unverified' | 'contributing' | 'trusted'
+export const TRUST_COLORS: Record<TrustTier, string> = {
+  unverified: 'var(--c-ink-ghost)',
+  contributing: 'var(--c-sev-minimal)',
+  trusted: 'var(--c-sev-partial)',
+}
+
 export const uiToDb: Record<UiSeverity, DbSeverity> = {
   minimal: 'negligible',
   partial: 'moderate',

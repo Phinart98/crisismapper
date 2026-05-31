@@ -1,11 +1,5 @@
-import { timingSafeEqual } from 'node:crypto'
 import * as v from 'valibot'
-
-function safeEqual(a: string, b: string) {
-  const ab = Buffer.from(a)
-  const bb = Buffer.from(b)
-  return ab.length === bb.length && timingSafeEqual(ab, bb)
-}
+import { requireAdmin } from '../utils/requireAdmin'
 
 // Custom Language Pack pathway (Phase 8 / Q3). Proxies missing i18n keys to a
 // self-hostable LibreTranslate instance (Apache-2.0, offline-capable) so an
@@ -41,19 +35,9 @@ function unmask(s: string, found: string[]) {
 }
 
 export default defineEventHandler(async (event) => {
+  // Gate the MT proxy — an unauthenticated translate endpoint is a cost/abuse vector.
+  requireAdmin(event)
   const cfg = useRuntimeConfig(event)
-
-  // Deny by default — an unauthenticated translate proxy is an abuse/cost vector
-  // against the MT engine. In production the admin key MUST be configured; local
-  // dev (the localhost demo) is exempt so the operator can run the pathway with no
-  // extra setup. Real deployments should additionally wire /admin/* behind staff auth.
-  if (!cfg.adminKey) {
-    if (!import.meta.dev) {
-      throw createError({ statusCode: 503, message: 'Translation endpoint disabled — set NUXT_ADMIN_KEY.' })
-    }
-  } else if (!safeEqual(getHeader(event, 'x-admin-key') ?? '', cfg.adminKey)) {
-    throw createError({ statusCode: 401, message: 'Unauthorized' })
-  }
 
   const parsed = v.safeParse(Schema, await readBody(event))
   if (!parsed.success) {

@@ -56,7 +56,8 @@ export default defineNuxtConfig({
     geminiVisionModel: 'gemini-2.5-flash', // NUXT_GEMINI_VISION_MODEL
     libreTranslateUrl: 'http://localhost:5000', // NUXT_LIBRE_TRANSLATE_URL — Phase 8 Custom Language Pack MT engine (self-host)
     libreTranslateApiKey: '', // NUXT_LIBRE_TRANSLATE_API_KEY — optional, for hosted/keyed instances
-    adminKey: '',           // NUXT_ADMIN_KEY — shared-secret gate for /admin/* + translate endpoint (demo-scoped)
+    adminKey: '',           // NUXT_ADMIN_KEY — shared-secret gate for /admin/* + translate + export endpoints (demo-scoped)
+    reporterSalt: '',       // NUXT_REPORTER_SALT — HMAC salt for pseudonymous reporter ids (Phase 9); dev has a fallback
     public: {
       supabaseUrl: '',      // NUXT_PUBLIC_SUPABASE_URL
       supabaseAnonKey: '',  // NUXT_PUBLIC_SUPABASE_ANON_KEY

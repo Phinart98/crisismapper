@@ -31,6 +31,7 @@ interface BroadcastReport {
 
 export interface Stats {
   total: number
+  duplicate_count: number
   coverage_pct: number
   hourly: number[]
 }
@@ -59,7 +60,7 @@ const toFeedItem = (f: ReportFeature): FeedItem =>
 export function useCrisisReports(initialCrisisId: string) {
   let activeId = initialCrisisId
   const geojson = ref<ReportCollection>(empty())
-  const stats = ref<Stats>({ total: 0, coverage_pct: 0, hourly: [] })
+  const stats = ref<Stats>({ total: 0, duplicate_count: 0, coverage_pct: 0, hourly: [] })
   const feed = ref<FeedItem[]>([])
   const filters = reactive<Filters>({ sev: [], infra: [], hours: 72 })
   const connectionMode = ref<ConnectionMode>('connecting')
@@ -255,7 +256,7 @@ export function useCrisisReports(initialCrisisId: string) {
     connectionMode.value = 'connecting'
     geojson.value = empty()
     feed.value = []
-    stats.value = { total: 0, coverage_pct: 0, hourly: [] }
+    stats.value = { total: 0, duplicate_count: 0, coverage_pct: 0, hourly: [] }
     await init()
   }
 

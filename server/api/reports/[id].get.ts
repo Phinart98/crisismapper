@@ -19,7 +19,7 @@ export default defineEventHandler(async (event) => {
   const db = getDb()
   const [row] = await db<Record<string, unknown>[]>`
     SELECT
-      id,
+      damage_reports.id,
       severity,
       damage_classification,
       infrastructure_type,
@@ -30,10 +30,12 @@ export default defineEventHandler(async (event) => {
       ai_raw_response->>'reasoning'          AS ai_reasoning,
       ai_raw_response->'damage_indicators'   AS ai_damage_indicators,
       (ai_raw_response->>'damage_percentage')::numeric AS ai_damage_percentage,
+      rep.trust_tier AS reporter_trust_tier,
       ST_Y(location) AS lat,
       ST_X(location) AS lng
     FROM damage_reports
-    WHERE id = ${idResult.output}
+    LEFT JOIN reporters rep ON rep.id = damage_reports.reporter_id
+    WHERE damage_reports.id = ${idResult.output}
   `
   if (!row) {
     throw createError({ statusCode: 404, message: 'Report not found' })

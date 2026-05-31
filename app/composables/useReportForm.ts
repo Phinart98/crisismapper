@@ -79,6 +79,9 @@ export function useReportForm() {
 
     const payload = {
       crisis_id: crisisId.value,
+      // Pseudonymous reporter id — rides inside the queued payload so it survives the
+      // offline queue and is replayed verbatim on sync (trust accrues to this device).
+      device_id: useDeviceId() ?? undefined,
       severity: severity.value,
       infrastructure_type: infraType.value!,
       location: [loc.lng, loc.lat] as [number, number],

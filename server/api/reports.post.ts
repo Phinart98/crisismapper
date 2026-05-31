@@ -1,10 +1,13 @@
 import type postgres from 'postgres'
 import * as v from 'valibot'
 import { getDb } from '../utils/db'
+import { resolveReporter } from '../utils/resolveReporter'
 import { uiToDb } from '../utils/severity'
 
 const ReportSchema = v.object({
   crisis_id: v.pipe(v.string(), v.uuid()),
+  // Pseudonymous reporter identity (Phase 9). Optional — absent → anonymous report.
+  device_id: v.optional(v.pipe(v.string(), v.uuid())),
   severity: v.picklist(['minimal', 'partial', 'complete']),
   infrastructure_type: v.picklist(['building', 'road', 'bridge', 'hospital', 'school', 'utility', 'other']),
   location: v.tuple([
@@ -40,15 +43,16 @@ export default defineEventHandler(async (event) => {
   const [lng, lat] = d.location
 
   const db = getDb()
+  const reporterId = d.device_id ? await resolveReporter(db, d.device_id) : null
   const [row] = await db<{ id: string }[]>`
     INSERT INTO damage_reports (
-      crisis_id, channel, severity, infrastructure_type,
+      crisis_id, reporter_id, channel, severity, infrastructure_type,
       location, location_method, plus_code,
       description, electricity_status, health_status,
       community_needs, vulnerable_groups,
       ai_severity, ai_confidence, ai_infrastructure_visible, ai_raw_response
     ) VALUES (
-      ${d.crisis_id}, 'pwa', ${dbSeverity}, ${d.infrastructure_type},
+      ${d.crisis_id}, ${reporterId}, 'pwa', ${dbSeverity}, ${d.infrastructure_type},
       ST_SetSRID(ST_MakePoint(${lng}, ${lat}), 4326),
       ${d.location_method},
       ${d.plus_code ?? null},

@@ -20,7 +20,7 @@ export default defineEventHandler(async (event) => {
 
   // Independent queries — run concurrently to halve the endpoint's round-trip latency.
   const [[totals], hourly] = await Promise.all([
-    db<{ total: number; coverage_pct: number }[]>`
+    db<{ total: number; coverage_pct: number; duplicate_count: number }[]>`
       WITH c AS (
         SELECT bbox FROM crises WHERE id = ${crisis_id}
       ),
@@ -33,11 +33,20 @@ export default defineEventHandler(async (event) => {
         SELECT count(DISTINCT ST_SnapToGrid(location, ${GRID}))::int AS n
         FROM damage_reports
         WHERE crisis_id = ${crisis_id} AND is_duplicate = false
+      ),
+      counts AS (
+        -- Single pass over the crisis's reports: non-dupe total + dupe count via FILTER,
+        -- instead of two separate full COUNT subqueries.
+        SELECT
+          count(*) FILTER (WHERE NOT is_duplicate)::int AS total,
+          count(*) FILTER (WHERE is_duplicate)::int     AS duplicate_count
+        FROM damage_reports WHERE crisis_id = ${crisis_id}
       )
       SELECT
-        (SELECT count(*)::int FROM damage_reports WHERE crisis_id = ${crisis_id} AND is_duplicate = false) AS total,
+        counts.total,
+        counts.duplicate_count,
         LEAST(100, round(100.0 * covered.n / cells.total_cells))::int AS coverage_pct
-      FROM cells, covered
+      FROM cells, covered, counts
     `,
     db<{ n: number }[]>`
       WITH hours AS (
@@ -60,6 +69,7 @@ export default defineEventHandler(async (event) => {
 
   return {
     total: totals?.total ?? 0,
+    duplicate_count: totals?.duplicate_count ?? 0,
     coverage_pct: totals?.coverage_pct ?? 0,
     hourly: hourly.map(r => r.n),
   }

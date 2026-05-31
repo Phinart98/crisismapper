@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import type { UiSeverity } from '~/utils/severity'
+import type { UiSeverity, TrustTier } from '~/utils/severity'
+import { TRUST_COLORS } from '~/utils/severity'
 
 const { t, locale } = useI18n()
-const { uiSev, infra } = useLabels()
+const { uiSev, infra, trust } = useLabels()
 
 interface ReportDetail {
   id: string
@@ -16,6 +17,7 @@ interface ReportDetail {
   ai_reasoning: string | null
   ai_damage_indicators: string[] | null
   ai_damage_percentage: number | null
+  reporter_trust_tier: TrustTier | null
   lat: number
   lng: number
 }
@@ -86,7 +88,17 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
         <p v-else-if="error" class="font-mono text-[11px] text-accent">{{ $t('modalError') }}</p>
 
         <template v-else-if="detail">
-          <div class="font-mono text-[10px] text-ink-ghost mb-1">{{ detail.id.slice(0, 8) }} · {{ fmtDate(detail.submitted_at) }}</div>
+          <div class="flex items-center gap-2 mb-1">
+            <div class="font-mono text-[10px] text-ink-ghost">{{ detail.id.slice(0, 8) }} · {{ fmtDate(detail.submitted_at) }}</div>
+            <!-- Reporter trust tier — label only (no score, no identity; data minimization). -->
+            <span
+              v-if="detail.reporter_trust_tier"
+              class="inline-flex items-center gap-1 font-mono text-[9px] tracking-[0.06em] uppercase text-ink-mid"
+            >
+              <span class="w-1.5 h-1.5 rounded-full shrink-0" :style="{ background: TRUST_COLORS[detail.reporter_trust_tier] }" />
+              {{ trust(detail.reporter_trust_tier) }}
+            </span>
+          </div>
           <div class="font-serif text-lg font-semibold mb-1.5 capitalize">{{ $t('modalInfraHeading', { type: infra(detail.infrastructure_type) }) }}</div>
           <p v-if="detail.description" class="text-[13px] text-ink-mid leading-relaxed mb-3.5">{{ detail.description }}</p>
 
