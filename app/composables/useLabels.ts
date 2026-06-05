@@ -1,4 +1,4 @@
-import type { DbSeverity, UiSeverity, InfraType, TrustTier } from '~/utils/severity'
+import type { DbSeverity, UiSeverity, InfraType, TrustTier, HazardType } from '~/utils/severity'
 
 // Severity/infra enums live in utils/severity.ts (source of truth for color/order);
 // this composable owns their *translated display* so the i18n seam is in one place.
@@ -25,9 +25,10 @@ const INFRA_KEY: Record<InfraType, string> = {
   utility: 'infraUtility',
   other: 'infraOther',
 }
-// crisis_type is a TEXT column with a documented convention, not a hard enum — unknown
-// values fall back to hazardOther.
-const HAZARD_KEY: Record<string, string> = {
+// crisis_type is a free TEXT column (unknown values fall back to hazardOther), but the
+// known set is typed Record<HazardType,…> so adding a hazard to HAZARD_TYPES without a
+// label here is a compile error (same drift-guard as INFRA_KEY).
+const HAZARD_KEY: Record<HazardType, string> = {
   earthquake: 'hazardEarthquake',
   flood: 'hazardFlood',
   conflict: 'hazardConflict',
@@ -50,7 +51,10 @@ export function useLabels() {
       const key = type ? INFRA_KEY[type as InfraType] : undefined
       return key ? t(key) : t('modalUnspecified')
     },
-    hazard: (type?: string | null) => t(type && HAZARD_KEY[type] ? HAZARD_KEY[type] : 'hazardOther'),
+    hazard: (type?: string | null) => {
+      const key = type ? HAZARD_KEY[type as HazardType] : undefined
+      return t(key ?? 'hazardOther')
+    },
     // null for anonymous reports (no reporter row) → caller hides the badge.
     trust: (tier?: string | null) => (tier && TRUST_KEY[tier as TrustTier] ? t(TRUST_KEY[tier as TrustTier]) : null),
   }

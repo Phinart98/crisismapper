@@ -7,6 +7,14 @@ export type DbSeverity = 'negligible' | 'moderate' | 'severe' | 'destroyed' | 'u
 // Mirrored in the valibot picklist at server/api/reports.post.ts:9.
 export type InfraType = 'building' | 'road' | 'bridge' | 'hospital' | 'school' | 'utility' | 'other'
 
+// Crisis hazard vocabulary (Q25 context-agnostic set). `crisis_type` is a free TEXT
+// column with no DB enum, so this array is the single source of truth keeping created
+// crises validatable + labelable: the admin valibot picklists, the /admin/crises form
+// <select>, and useLabels' HAZARD_KEY all derive from it. Add a hazard here once and the
+// Record<HazardType,…> in useLabels turns a missing label into a compile error.
+export type HazardType = 'earthquake' | 'flood' | 'conflict' | 'cyclone' | 'hurricane' | 'other'
+export const HAZARD_TYPES: readonly HazardType[] = ['earthquake', 'flood', 'conflict', 'cyclone', 'hurricane', 'other']
+
 // Reporter behavioral trust tier (Phase 9). Mirrors the reporters.trust_tier generated
 // column (score < 0.3 / < 0.7 / else). Dot colors mirror FilterSidebar's TRUST_LEGEND;
 // CSS vars are fine here (DOM, not WebGL paint).

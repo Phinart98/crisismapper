@@ -117,7 +117,6 @@
   "filterExportData": "تصدير البيانات",
   "filterExportTitle": "تنزيل تصدير {fmt}",
   "exportDownloading": "جارٍ التحضير…",
-  "exportKeyPlaceholder": "مفتاح وصول الموظفين",
   "exportFailed": "فشل التصدير — تحقق من مفتاح الوصول",
   "filterDecreaseRange": "تقليل النطاق الزمني",
   "filterIncreaseRange": "زيادة النطاق الزمني",

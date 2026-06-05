@@ -8,7 +8,7 @@ import * as v from 'valibot'
 import { GeoPackageAPI } from '@ngageoint/geopackage'
 import { createConvertStream } from 'geojson2shp'
 import { getDb } from '../utils/db'
-import { requireAdmin } from '../utils/requireAdmin'
+import { requireStaff } from '../utils/requireStaff'
 import { exportCursor, titleClass, type RawExportRow } from '../utils/exporters/query'
 
 // GIS-interoperable export of a crisis's ground-truth (Webinar Q&A #14). Mandatory fields:
@@ -155,7 +155,7 @@ function streamTempFile(event: H3Event, path: string, contentType: string, filen
 }
 
 export default defineEventHandler(async (event) => {
-  requireAdmin(event)
+  await requireStaff(event)
 
   const parsed = v.safeParse(QuerySchema, getQuery(event))
   if (!parsed.success) {

@@ -117,7 +117,6 @@
   "filterExportData": "Exportar datos",
   "filterExportTitle": "Descargar exportación {fmt}",
   "exportDownloading": "Preparando…",
-  "exportKeyPlaceholder": "Clave de acceso del personal",
   "exportFailed": "Error de exportación — verifica la clave de acceso",
   "filterDecreaseRange": "Reducir el intervalo de tiempo",
   "filterIncreaseRange": "Aumentar el intervalo de tiempo",

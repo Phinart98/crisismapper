@@ -117,7 +117,6 @@
   "filterExportData": "Export data",
   "filterExportTitle": "Download {fmt} export",
   "exportDownloading": "Preparing…",
-  "exportKeyPlaceholder": "Staff access key",
   "exportFailed": "Export failed — check access key",
   "filterDecreaseRange": "Decrease time range",
   "filterIncreaseRange": "Increase time range",

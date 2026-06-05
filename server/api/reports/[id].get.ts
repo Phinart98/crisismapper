@@ -5,11 +5,12 @@ import { getDb } from '../../utils/db'
 //
 // Returns photo_url + AI reasoning + exact lat/lng. The anon Postgres view
 // (crisis_reports_public) drops photo_url, so this server route — reading via dbUrl —
-// is how the modal gets it. NOTE: this endpoint is intentionally UNAUTHENTICATED in
-// Phase 7 (the whole dashboard is open; no auth system yet). Exposure is bounded:
-// photos are EXIF-stripped on upload (no GPS leak) and the map already exposes exact
-// coordinates via /api/map/reports. Phase 10 adds staff auth + ST_SnapToGrid public
-// aggregation; gate this route then. Path is by-UUID (unguessable), not enumerable.
+// is how the modal gets it. NOTE: still intentionally UNAUTHENTICATED. Phase 10 built
+// staff auth + the crisis_reports_authenticated view, but DELIBERATELY left the anon
+// read path unchanged; gating this route (exact data → staff only) + the ST_SnapToGrid
+// public aggregation is deferred to Phase 11 (see snoopy-dazzling-tide.md Phase 11
+// notes). Exposure is bounded meanwhile: photos are EXIF-stripped (no GPS leak) and the
+// map already exposes exact coords via /api/map/reports. Path is by-UUID, not enumerable.
 export default defineEventHandler(async (event) => {
   const idResult = v.safeParse(v.pipe(v.string(), v.uuid()), getRouterParam(event, 'id'))
   if (!idResult.success) {
@@ -27,6 +28,7 @@ export default defineEventHandler(async (event) => {
       submitted_at,
       photo_url,
       ai_confidence,
+      is_verified,
       ai_raw_response->>'reasoning'          AS ai_reasoning,
       ai_raw_response->'damage_indicators'   AS ai_damage_indicators,
       (ai_raw_response->>'damage_percentage')::numeric AS ai_damage_percentage,

@@ -18,6 +18,7 @@ interface ReportDetail {
   ai_damage_indicators: string[] | null
   ai_damage_percentage: number | null
   reporter_trust_tier: TrustTier | null
+  is_verified: boolean
   lat: number
   lng: number
 }
@@ -25,9 +26,27 @@ interface ReportDetail {
 const props = defineProps<{ reportId: string | null }>()
 const emit = defineEmits<{ close: [] }>()
 
+// Staff session gates the Verify/Flag actions; refresh() populates it from /api/auth/me.
+const { isStaff, refresh: refreshStaff } = useStaff()
+const moderating = ref(false)
+
 const detail = ref<ReportDetail | null>(null)
 const loading = ref(false)
 const error = ref(false)
+
+async function moderate(action: 'verify' | 'unverify') {
+  if (!detail.value || moderating.value) return
+  moderating.value = true
+  try {
+    const res = await $fetch<{ id: string; is_verified: boolean }>(
+      `/api/admin/reports/${detail.value.id}/moderate`,
+      { method: 'POST', body: { action } },
+    )
+    detail.value.is_verified = res.is_verified
+  } catch { /* leave state unchanged on failure */ } finally {
+    moderating.value = false
+  }
+}
 
 watch(() => props.reportId, async (id) => {
   detail.value = null
@@ -48,7 +67,10 @@ const chipLabel = computed(() => detail.value?.damage_classification ? uiSev(det
 const fmtDate = (iso: string) => new Date(iso).toLocaleString(locale.value, { dateStyle: 'medium', timeStyle: 'short' })
 
 function onKey(e: KeyboardEvent) { if (e.key === 'Escape') emit('close') }
-onMounted(() => window.addEventListener('keydown', onKey))
+onMounted(() => {
+  window.addEventListener('keydown', onKey)
+  refreshStaff()
+})
 onUnmounted(() => window.removeEventListener('keydown', onKey))
 </script>
 
@@ -126,12 +148,33 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
             </div>
           </div>
 
-          <!-- Staff actions — visual-only in Phase 7 (no auth/moderation backend yet) -->
-          <div class="flex gap-2.5">
-            <button type="button" disabled class="btn flex-1 bg-ink text-parchment opacity-60 cursor-not-allowed text-[13px] min-h-[44px]">✓ {{ $t('modalVerify') }}</button>
-            <button type="button" disabled class="btn flex-1 bg-white text-ink border-[1.5px] border-parchment-deep opacity-60 cursor-not-allowed text-[13px] min-h-[44px]">{{ $t('modalFlag') }}</button>
-          </div>
-          <p class="font-mono text-[9px] text-ink-ghost text-center mt-2">{{ $t('modalModerationNote') }}</p>
+          <!-- Staff moderation (Phase 10): live for an authenticated staff session;
+               disabled visual for anon dashboard viewers. -->
+          <template v-if="isStaff">
+            <div class="flex gap-2.5">
+              <button
+                type="button"
+                :disabled="moderating || detail.is_verified"
+                class="btn flex-1 text-[13px] min-h-[44px]"
+                :class="detail.is_verified ? 'bg-ink/70 text-parchment cursor-default' : 'bg-ink text-parchment'"
+                @click="moderate('verify')"
+              >✓ {{ $t('modalVerify') }}</button>
+              <button
+                type="button"
+                :disabled="moderating || !detail.is_verified"
+                class="btn flex-1 bg-white text-ink border-[1.5px] border-parchment-deep text-[13px] min-h-[44px] disabled:opacity-50"
+                @click="moderate('unverify')"
+              >{{ $t('modalFlag') }}</button>
+            </div>
+            <p v-if="detail.is_verified" class="font-mono text-[9px] text-ink-light text-center mt-2">✓ {{ $t('modalVerify') }}</p>
+          </template>
+          <template v-else>
+            <div class="flex gap-2.5">
+              <button type="button" disabled class="btn flex-1 bg-ink text-parchment opacity-60 cursor-not-allowed text-[13px] min-h-[44px]">✓ {{ $t('modalVerify') }}</button>
+              <button type="button" disabled class="btn flex-1 bg-white text-ink border-[1.5px] border-parchment-deep opacity-60 cursor-not-allowed text-[13px] min-h-[44px]">{{ $t('modalFlag') }}</button>
+            </div>
+            <p class="font-mono text-[9px] text-ink-ghost text-center mt-2">{{ $t('modalModerationNote') }}</p>
+          </template>
         </template>
       </div>
     </div>

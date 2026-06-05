@@ -7,6 +7,7 @@
 // compiled vue-i18n AST objects, not strings) — we need the literal master text.
 import enRaw from '@@/i18n/locales/en.json?raw'
 
+definePageMeta({ middleware: 'staff' })
 useHead({
   title: 'Custom Language Pack — CrisisMapper',
   meta: [{ name: 'robots', content: 'noindex' }],
@@ -21,7 +22,6 @@ interface TranslateResponse {
 const EN = JSON.parse(enRaw) as Record<string, string>
 const EN_KEYS = Object.keys(EN).filter((k) => k !== 'dir')
 
-const adminKey = ref('')
 const target = ref('')
 const targetName = ref('')
 const dir = ref<'ltr' | 'rtl'>('ltr')
@@ -73,7 +73,6 @@ async function generate() {
     if (Object.keys(subset).length) {
       const res = await $fetch<TranslateResponse>('/api/translate', {
         method: 'POST',
-        headers: adminKey.value ? { 'x-admin-key': adminKey.value } : {},
         body: { target: target.value, keys: subset },
       })
       Object.assign(machine, res.translations)
@@ -128,6 +127,7 @@ function download() {
 
 <template>
   <main class="min-h-screen bg-parchment text-ink">
+    <AdminNav />
     <header class="border-b border-parchment-deep px-5 sm:px-8 py-5">
       <div class="max-w-5xl mx-auto">
         <span class="label">Phase 8 · Extensibility</span>
@@ -142,7 +142,7 @@ function download() {
 
     <section class="max-w-5xl mx-auto px-5 sm:px-8 py-6">
       <!-- Setup form -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <label class="flex flex-col gap-1.5">
           <span class="label">Language code</span>
           <input
@@ -166,13 +166,6 @@ function download() {
             <option value="ltr">LTR</option>
             <option value="rtl">RTL</option>
           </select>
-        </label>
-        <label class="flex flex-col gap-1.5">
-          <span class="label">Admin key (if set)</span>
-          <input
-            v-model="adminKey" type="password" placeholder="optional"
-            class="focus-ring px-3 min-h-[44px] bg-white border border-parchment-deep rounded-sm text-base"
-          >
         </label>
       </div>
 

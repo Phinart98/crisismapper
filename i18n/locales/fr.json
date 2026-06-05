@@ -117,7 +117,6 @@
   "filterExportData": "Exporter les données",
   "filterExportTitle": "Télécharger l'export {fmt}",
   "exportDownloading": "Préparation…",
-  "exportKeyPlaceholder": "Clé d'accès du personnel",
   "exportFailed": "Échec de l'export — vérifiez la clé d'accès",
   "filterDecreaseRange": "Réduire la plage temporelle",
   "filterIncreaseRange": "Augmenter la plage temporelle",

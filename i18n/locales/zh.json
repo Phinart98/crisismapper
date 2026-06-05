@@ -117,7 +117,6 @@
   "filterExportData": "导出数据",
   "filterExportTitle": "下载 {fmt} 导出",
   "exportDownloading": "正在准备…",
-  "exportKeyPlaceholder": "工作人员访问密钥",
   "exportFailed": "导出失败 — 请检查访问密钥",
   "filterDecreaseRange": "缩小时间范围",
   "filterIncreaseRange": "扩大时间范围",

@@ -117,7 +117,6 @@
   "filterExportData": "Экспорт данных",
   "filterExportTitle": "Скачать экспорт {fmt}",
   "exportDownloading": "Подготовка…",
-  "exportKeyPlaceholder": "Ключ доступа персонала",
   "exportFailed": "Ошибка экспорта — проверьте ключ доступа",
   "filterDecreaseRange": "Уменьшить временной диапазон",
   "filterIncreaseRange": "Увеличить временной диапазон",

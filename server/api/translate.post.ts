@@ -1,5 +1,5 @@
 import * as v from 'valibot'
-import { requireAdmin } from '../utils/requireAdmin'
+import { requireStaff } from '../utils/requireStaff'
 
 // Custom Language Pack pathway (Phase 8 / Q3). Proxies missing i18n keys to a
 // self-hostable LibreTranslate instance (Apache-2.0, offline-capable) so an
@@ -36,7 +36,7 @@ function unmask(s: string, found: string[]) {
 
 export default defineEventHandler(async (event) => {
   // Gate the MT proxy — an unauthenticated translate endpoint is a cost/abuse vector.
-  requireAdmin(event)
+  await requireStaff(event)
   const cfg = useRuntimeConfig(event)
 
   const parsed = v.safeParse(Schema, await readBody(event))

@@ -12,7 +12,7 @@ const props = defineProps<{
 const crisisId = defineModel<string>('crisisId', { required: true })
 
 const { dbSev, infra, hazard, trust } = useLabels()
-const { adminKey, busy: exportBusy, error: exportError, download: downloadExport } = useExport(crisisId)
+const { busy: exportBusy, error: exportError, download: downloadExport } = useExport(crisisId)
 
 // Hazard type of the active crisis — makes the system's context-agnostic reach (Q25)
 // visible: the chip flips earthquake → flood → cyclone as crises are switched.
@@ -164,13 +164,8 @@ const hoursLabel = computed(() =>
           {{ exportBusy === fmt ? $t('exportDownloading') : fmt }}
         </button>
       </div>
-      <!-- Staff-only secret (Q&A #18): exact coordinates are privileged. Phase 10 → staff auth. -->
-      <input
-        v-model="adminKey"
-        type="password"
-        :placeholder="$t('exportKeyPlaceholder')"
-        class="focus-ring mt-2 w-full px-2.5 py-2 min-h-[36px] bg-white border border-parchment-deep rounded-sm font-mono text-[11px] text-ink"
-      >
+      <!-- Exact coordinates are staff data (Q&A #18); /api/export is gated by the Supabase
+           staff session now (Phase 10) — same-origin cookie, no key entry here. -->
       <p v-if="exportError" class="mt-1.5 font-mono text-[10px] text-accent">{{ $t('exportFailed') }}</p>
     </section>
 
