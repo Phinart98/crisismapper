@@ -60,22 +60,31 @@ onBeforeUnmount(() => reports.dispose())
 
       <!-- Map -->
       <div class="flex-1 relative">
-        <ClientOnly>
-          <DashboardMapCanvas
-            :geojson="reports.filteredGeojson.value"
-            :buildings-url="buildingsUrl"
-            :bbox="activeBbox"
-            :heatmap="heatmap"
-            :region-label="regionLabel"
-            @select="selectedId = $event"
-            @boundschange="reports.loadViewport($event)"
-          />
-          <template #fallback>
-            <div class="absolute inset-0 flex items-center justify-center bg-parchment-mid">
-              <span class="label">{{ $t('mapLoading') }}</span>
+        <NuxtErrorBoundary>
+          <ClientOnly>
+            <DashboardMapCanvas
+              :geojson="reports.filteredGeojson.value"
+              :buildings-url="buildingsUrl"
+              :bbox="activeBbox"
+              :heatmap="heatmap"
+              :region-label="regionLabel"
+              @select="selectedId = $event"
+              @boundschange="reports.loadViewport($event)"
+            />
+            <template #fallback>
+              <div class="absolute inset-0 flex items-center justify-center bg-parchment-mid">
+                <span class="label">{{ $t('mapLoading') }}</span>
+              </div>
+            </template>
+          </ClientOnly>
+          <!-- Recoverable in-page map failure (WebGL crash, style fetch, etc.) -->
+          <template #error="{ clearError }">
+            <div class="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-parchment-mid p-6 text-center">
+              <span class="label">{{ $t('mapUnavailable') }}</span>
+              <button type="button" class="btn btn-ghost min-h-[44px]" @click="clearError">{{ $t('errorRetry') }}</button>
             </div>
           </template>
-        </ClientOnly>
+        </NuxtErrorBoundary>
 
         <!-- Mobile toggles (lg:hidden) — Filters drawer + Feed bottom sheet -->
         <button
@@ -129,6 +138,7 @@ onBeforeUnmount(() => reports.dispose())
         :feed="reports.feed.value"
         :connection-mode="reports.connectionMode.value"
         :selected-id="selectedId"
+        :hourly="reports.stats.value.hourly"
         class="hidden lg:flex"
         @select="selectedId = $event"
       />
@@ -146,6 +156,7 @@ onBeforeUnmount(() => reports.dispose())
             :feed="reports.feed.value"
             :connection-mode="reports.connectionMode.value"
             :selected-id="selectedId"
+            :hourly="reports.stats.value.hourly"
             class="flex flex-1 min-h-0 !w-full !border-s-0"
             @select="(id) => { selectedId = id; mobileFeedOpen = false }"
           />

@@ -1,4 +1,8 @@
 <script setup lang="ts">
+import { useDeviceId } from '~/composables/useDeviceId'
+import { BADGES } from '~/utils/badges'
+import type { ReporterProfile } from '~/composables/useReporterProfile'
+
 const props = defineProps<{
   photoError?: boolean
   queued?: boolean
@@ -7,19 +11,34 @@ const props = defineProps<{
 }>()
 const emit = defineEmits<{ again: [] }>()
 
+const { km2: fmtKm2 } = useFormatters()
+
 // Real "you are reporter #N" count — fetched from the crisis's live total once the
 // report has actually reached the backend (synced, not queued). Falls back to a plain
 // headline if the count can't be fetched (e.g. flaky connection).
 const rank = ref<number | null>(null)
+// Real earned badges + impact for this device (Phase 11) — replaces the old hardcoded
+// "First Responder" placeholder. The badge AFTER INSERT trigger has already run by the
+// time /api/me is queried, so the freshly-earned badge shows immediately.
+const profile = ref<ReporterProfile | null>(null)
+
 onMounted(async () => {
   if (props.queued || !props.crisisId) return
-  try {
-    const s = await $fetch<{ total: number }>('/api/map/stats', { query: { crisis_id: props.crisisId } })
-    rank.value = s.total
-  } catch { /* leave null → generic headline */ }
+  const deviceId = useDeviceId()
+  const [stats, me] = await Promise.allSettled([
+    $fetch<{ total: number }>('/api/map/stats', { query: { crisis_id: props.crisisId } }),
+    deviceId ? $fetch<ReporterProfile>('/api/me', { method: 'POST', body: { device_id: deviceId } }) : Promise.resolve(null),
+  ])
+  if (stats.status === 'fulfilled') rank.value = stats.value.total
+  if (me.status === 'fulfilled' && me.value) profile.value = me.value
 })
 
 const crisisLabel = computed(() => props.crisisName || 'crisis')
+const earnedBadges = computed(() => {
+  const codes = profile.value?.badges ?? []
+  return BADGES.filter(b => codes.includes(b.code))
+})
+const impactKm2 = computed(() => profile.value?.impact_km2 ?? 0)
 </script>
 
 <template>
@@ -47,19 +66,30 @@ const crisisLabel = computed(() => props.crisisName || 'crisis')
       ⚠ {{ $t('retryPhoto') }} — report is saved, photo can be re-uploaded later.
     </div>
 
-    <!-- Badge placeholder — only shown for fully-submitted reports.
-         Queued reports have not reached UNDP yet, so the reward would be premature. -->
-    <div v-if="!queued" class="bg-parchment-mid border border-parchment-deep rounded-md px-5 sm:px-6 py-4 mb-7 flex items-center gap-3.5 w-full max-w-xs">
-      <span class="text-2xl sm:text-[28px] shrink-0">🚨</span>
-      <div class="text-start min-w-0">
-        <div class="label mb-0.5">{{ $t('confirmBadgeLabel') }}</div>
-        <div class="font-serif text-base font-semibold">{{ $t('confirmBadgeName') }}</div>
-        <div class="text-xs text-ink-light mt-0.5">{{ $t('confirmBadgeSub') }}</div>
+    <!-- Impact + earned badges — synced reports only (queued haven't reached UNDP yet). -->
+    <template v-if="!queued">
+      <!-- Impact -->
+      <div v-if="profile?.found" class="w-full max-w-xs mb-4 px-4 py-3 bg-parchment-mid border border-parchment-deep rounded-md text-start">
+        <div class="label mb-0.5">{{ $t('meImpactLabel') }}</div>
+        <div class="text-[13px] text-ink leading-relaxed">{{ $t('confirmImpact', { km2: fmtKm2(impactKm2) }) }}</div>
       </div>
-    </div>
+
+      <!-- Earned badge highlight -->
+      <div v-if="earnedBadges.length" class="bg-parchment-mid border border-parchment-deep rounded-md px-5 sm:px-6 py-4 mb-4 flex items-center gap-3.5 w-full max-w-xs">
+        <span class="text-2xl sm:text-[28px] shrink-0">{{ earnedBadges[0]!.emoji }}</span>
+        <div class="text-start min-w-0">
+          <div class="label mb-0.5">{{ $t('confirmBadgeLabel') }}</div>
+          <div class="font-serif text-base font-semibold">{{ $t(earnedBadges[0]!.name) }}</div>
+          <div class="text-xs text-ink-light mt-0.5">
+            {{ earnedBadges.length > 1 ? $t('confirmBadgeMore', { n: earnedBadges.length - 1 }) : $t(earnedBadges[0]!.desc) }}
+          </div>
+        </div>
+      </div>
+    </template>
 
     <div class="flex flex-col gap-2.5 w-full max-w-xs">
       <button class="btn btn-primary btn-full min-h-[48px]" @click="emit('again')">{{ $t('confirmAnother') }}</button>
+      <NuxtLink v-if="!queued && profile?.found" to="/me" class="btn btn-ghost btn-full min-h-[48px]">{{ $t('confirmViewProfile') }}</NuxtLink>
     </div>
   </div>
 </template>

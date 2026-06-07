@@ -31,17 +31,39 @@ export async function isStaffEmail(email: string): Promise<boolean> {
 // Vercel) + the JWKS for the token's kid; the first call per instance fetches the JWKS
 // once, then it's cached. Without asymmetric keys / crypto.subtle, getClaims falls back to
 // a getUser-style round-trip — still correct, just not local. Both paths are secure.
-export async function requireStaff(event: H3Event): Promise<StaffUser> {
+type StaffResult =
+  | { ok: true; user: StaffUser }
+  | { ok: false; reason: 'unauthenticated' | 'not_staff' }
+
+// The shared verification path: getClaims() local-JWKS check + allowlist assertion. Returns
+// a discriminated result so requireStaff (throws 401/403) and getStaffUser (returns null)
+// don't duplicate the claim extraction / lowercasing / allowlist logic.
+async function resolveStaff(event: H3Event): Promise<StaffResult> {
   const supabase = getSupabaseServerClient(event)
   const { data, error } = await supabase.auth.getClaims()
   const claims = data?.claims
   const claimEmail = typeof claims?.email === 'string' ? claims.email : null
-  if (error || !claims || !claimEmail) {
-    throw createError({ statusCode: 401, message: 'Not authenticated' })
-  }
+  if (error || !claims || !claimEmail) return { ok: false, reason: 'unauthenticated' }
   const email = claimEmail.toLowerCase()
-  if (!(await isStaffEmail(email))) {
-    throw createError({ statusCode: 403, message: 'Not authorized — staff only' })
+  if (!(await isStaffEmail(email))) return { ok: false, reason: 'not_staff' }
+  return { ok: true, user: { id: String(claims.sub), email } }
+}
+
+export async function requireStaff(event: H3Event): Promise<StaffUser> {
+  const r = await resolveStaff(event)
+  if (!r.ok) {
+    throw r.reason === 'unauthenticated'
+      ? createError({ statusCode: 401, message: 'Not authenticated' })
+      : createError({ statusCode: 403, message: 'Not authorized — staff only' })
   }
-  return { id: String(claims.sub), email }
+  return r.user
+}
+
+// Non-throwing variant for endpoints that serve BOTH anon and staff (the public/exact
+// dashboard split, Phase 11). Returns the staff user when a valid allowlisted session is
+// present, else null — so callers branch (exact data for staff, aggregated for anon)
+// instead of rejecting.
+export async function getStaffUser(event: H3Event): Promise<StaffUser | null> {
+  const r = await resolveStaff(event)
+  return r.ok ? r.user : null
 }

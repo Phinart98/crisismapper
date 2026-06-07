@@ -4,6 +4,7 @@ import { dbToUi, SEVERITY_COLORS } from '~/utils/severity'
 
 const { t } = useI18n()
 const { uiSev, infra } = useLabels()
+const { relativeTime } = useFormatters()
 
 interface FeedItem {
   id: string
@@ -17,16 +18,10 @@ defineProps<{
   feed: FeedItem[]
   connectionMode: 'connecting' | 'realtime' | 'polling'
   selectedId: string | null
+  hourly?: number[]
 }>()
 const emit = defineEmits<{ select: [id: string] }>()
 
-function timeAgo(iso: string): string {
-  const s = Math.max(0, Math.floor((Date.now() - new Date(iso).getTime()) / 1000))
-  if (s < 60) return t('feedJustNow')
-  if (s < 3600) return t('feedMinAgo', { n: Math.floor(s / 60) })
-  if (s < 86400) return t('feedHrAgo', { n: Math.floor(s / 3600) })
-  return t('feedDayAgo', { n: Math.floor(s / 86400) })
-}
 const sevClass = (s: DbSeverity) => dbToUi(s) ?? 'partial'
 const sevLabel = (s: DbSeverity) => { const u = dbToUi(s); return u ? uiSev(u) : t('sevUnknown') }
 
@@ -44,6 +39,9 @@ const STATUS_KEY = { connecting: 'feedConnecting', realtime: 'feedLive', polling
       />
       <span class="label">{{ $t(STATUS_KEY[connectionMode]) }}</span>
     </div>
+
+    <!-- 24h reports-over-time trend (chart.js, dashboard-only client bundle) -->
+    <DashboardTrendChart v-if="hourly?.length" :hourly="hourly" />
 
     <div class="flex-1 overflow-auto">
       <p v-if="!feed.length" class="px-[18px] py-8 text-[12px] text-ink-ghost text-center">
@@ -71,7 +69,7 @@ const STATUS_KEY = { connecting: 'feedConnecting', realtime: 'feedLive', polling
           <div class="flex-1 min-w-0">
             <div class="flex items-center justify-between mb-0.5">
               <span class="sev-chip" :class="sevClass(r.severity)">{{ sevLabel(r.severity) }}</span>
-              <span class="font-mono text-[9px] text-ink-ghost shrink-0 ms-2">{{ timeAgo(r.submitted_at) }}</span>
+              <span class="font-mono text-[9px] text-ink-ghost shrink-0 ms-2">{{ relativeTime(r.submitted_at) }}</span>
             </div>
             <div class="text-[12px] font-medium leading-snug text-ink capitalize truncate">{{ infra(r.infrastructure_type) }}</div>
             <div class="font-mono text-[9px] text-ink-ghost mt-0.5 tabular-nums">{{ r.lat.toFixed(4) }}, {{ r.lng.toFixed(4) }}</div>

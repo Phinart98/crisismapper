@@ -18,17 +18,6 @@ export interface ReportCollection {
   features: ReportFeature[]
 }
 
-// Broadcast payload emitted by the notify_new_report() DB trigger.
-interface BroadcastReport {
-  id: string
-  severity: DbSeverity
-  lat: number
-  lng: number
-  infrastructure_type: InfraType | null
-  crisis_id: string
-  submitted_at: string
-}
-
 export interface Stats {
   total: number
   duplicate_count: number
@@ -88,8 +77,8 @@ export function useCrisisReports(initialCrisisId: string) {
     return fresh
   }
 
-  function addFeature(f: ReportFeature, prependFeed = true) {
-    if (!track(f)) return
+  function addFeature(f: ReportFeature, prependFeed = true): boolean {
+    if (!track(f)) return false
     geojson.value.features.push(f)
     if (prependFeed) {
       feed.value = [toFeedItem(f), ...feed.value].slice(0, FEED_LIMIT)
@@ -97,6 +86,7 @@ export function useCrisisReports(initialCrisisId: string) {
     } else {
       feed.value.push(toFeedItem(f))
     }
+    return true
   }
 
   // Filtered set drives both the map (setData → clusters + points honor filters,
@@ -163,37 +153,39 @@ export function useCrisisReports(initialCrisisId: string) {
     }
   }
 
-  function broadcastToFeature(p: BroadcastReport): ReportFeature {
-    return {
-      type: 'Feature',
-      geometry: { type: 'Point', coordinates: [p.lng, p.lat] },
-      properties: {
-        id: p.id,
-        severity: p.severity,
-        infrastructure_type: p.infrastructure_type,
-        submitted_at: p.submitted_at,
-      },
-    }
+  // Fetch reports newer than the last one we've seen and append them. Shared by the
+  // realtime path (broadcast = "go fetch") and the polling fallback. Privacy split
+  // (Phase 11): the broadcast payload now carries SNAPPED coordinates for everyone, so
+  // we ignore its geometry and pull the delta instead — /api/map/reports returns exact
+  // coords to a staff session and aggregated coords to anon, so each viewer's markers
+  // land at the precision they're entitled to. Returns whether anything was added.
+  async function fetchDelta(): Promise<boolean> {
+    if (!lastTs) return false
+    const fc = await $fetch<ReportCollection>('/api/map/reports', {
+      query: { crisis_id: activeId, since: lastTs },
+    })
+    let added = false
+    for (const f of fc.features) if (addFeature(f)) added = true
+    if (added) geojson.value = { ...geojson.value }
+    return added
+  }
+
+  // Coalesce a burst of broadcasts into a single delta fetch.
+  let deltaTimer: ReturnType<typeof setTimeout> | null = null
+  function scheduleDelta() {
+    if (deltaTimer) return
+    deltaTimer = setTimeout(() => {
+      deltaTimer = null
+      fetchDelta().catch(() => { /* transient — next broadcast/poll retries */ })
+    }, 500)
   }
 
   // ── Polling fallback ──────────────────────────────────────────────────────
   function startPolling() {
     if (pollTimer) return
     connectionMode.value = 'polling'
-    pollTimer = setInterval(async () => {
-      if (!lastTs) return
-      try {
-        const fc = await $fetch<ReportCollection>('/api/map/reports', {
-          query: { crisis_id: activeId, since: lastTs },
-        })
-        let added = false
-        for (const f of fc.features) {
-          const before = geojson.value.features.length
-          addFeature(f)
-          if (geojson.value.features.length > before) added = true
-        }
-        if (added) geojson.value = { ...geojson.value }
-      } catch { /* transient — try again next tick */ }
+    pollTimer = setInterval(() => {
+      fetchDelta().catch(() => { /* transient — try again next tick */ })
     }, 10_000)
   }
 
@@ -213,9 +205,8 @@ export function useCrisisReports(initialCrisisId: string) {
     const supabase = useSupabaseClient()
     channel = supabase
       .channel(`crisis:${activeId}`)
-      .on('broadcast', { event: 'reports' }, ({ payload }) => {
-        addFeature(broadcastToFeature(payload as BroadcastReport))
-        geojson.value = { ...geojson.value } // trigger map setData
+      .on('broadcast', { event: 'reports' }, () => {
+        scheduleDelta() // payload is snapped for all; pull the session-correct delta
       })
       .subscribe((status) => {
         if (status === 'SUBSCRIBED') {
@@ -236,6 +227,8 @@ export function useCrisisReports(initialCrisisId: string) {
     channel = null
     if (pollTimer) clearInterval(pollTimer)
     pollTimer = null
+    if (deltaTimer) clearTimeout(deltaTimer)
+    deltaTimer = null
   }
 
   // Switch the active crisis: tear down the current subscription/poll, reset all

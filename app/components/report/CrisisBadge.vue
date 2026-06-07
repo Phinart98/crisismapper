@@ -18,6 +18,19 @@ function onSelect(e: Event) {
   emit('select', (e.target as HTMLSelectElement).value)
   picking.value = false
 }
+
+// Live "X% of crisis zone mapped" progress — reuses the dashboard's coverage_pct (share
+// of ~1km grid cells with ≥1 report) so reporters see their collective impact and are
+// nudged to keep mapping (Phase 11 gamification). Refetched whenever the crisis changes.
+const coveragePct = ref<number | null>(null)
+watch(() => props.modelValue, async (id) => {
+  coveragePct.value = null
+  if (!id) return
+  try {
+    const s = await $fetch<{ coverage_pct: number }>('/api/map/stats', { query: { crisis_id: id } })
+    coveragePct.value = s.coverage_pct
+  } catch { /* leave hidden on failure */ }
+}, { immediate: true })
 </script>
 
 <template>
@@ -61,5 +74,18 @@ function onSelect(e: Event) {
         <option v-for="c in crises" :key="c.id" :value="c.id">{{ c.name }}</option>
       </select>
     </div>
+
+    <!-- Coverage progress — collective "% of crisis zone mapped". -->
+    <div v-if="coveragePct !== null" class="mt-3">
+      <div class="flex justify-between items-center mb-1.5">
+        <span class="label">{{ $t('reportCoverageLabel') }}</span>
+        <span class="font-mono text-[11px] text-ink-mid">{{ coveragePct }}%</span>
+      </div>
+      <div class="h-1.5 rounded-full bg-parchment-deep overflow-hidden">
+        <div class="h-full bg-accent rounded-full transition-all duration-500" :style="{ width: `${coveragePct}%` }" />
+      </div>
+      <p class="text-[11px] text-ink-light leading-snug mt-1.5">{{ $t('reportCoverageHint') }}</p>
+    </div>
   </section>
 </template>
+
