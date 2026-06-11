@@ -21,6 +21,11 @@ logs
 # Vercel
 .vercel
 
+# Playwright e2e artifacts
+test-results/
+playwright-report/
+tests/e2e/.auth/
+
 # Playwright MCP screenshots / artifacts (local debug only)
 .playwright-mcp/
 report-*.png
