@@ -72,6 +72,7 @@
   "landingFeat3": "Bundle JavaScript — fonctionne sur les connexions 2G en zone de crise",
   "landingFeat4": "Langues de l’ONU plus le swahili, avec prise en charge RTL complète",
   "landingFooterPrivacy": "Politique des données",
+  "landingFooterTerms": "Conditions d’utilisation",
   "errorTitle": "Une erreur est survenue",
   "errorBody": "Une erreur inattendue s’est produite. Vous pouvez revenir à l’accueil et réessayer.",
   "error404Title": "Page introuvable",
@@ -181,7 +182,6 @@
   "landingOpenReporter": "Ouvrir le signaleur",
   "landingOpenDashboard": "Ouvrir le tableau de bord",
   "landingFooterOrg": "Défi de cartographie de crise du PNUD · 2026",
-  "landingFooterMeta": "Open source · 6 langues de l'ONU · PWA privilégiant le hors ligne",
 
   "dashReports": "signalements au total",
   "dashReportsShort": "signalements",
@@ -189,7 +189,7 @@
   "dashCoverage": "zone de crise cartographiée",
   "dashReportRate": "Taux de signalements · 24 h",
   "dashHeatmap": "CARTE DE CHALEUR",
-  "dashFieldView": "Vue de terrain",
+  "dashReportCta": "Signaler des dégâts",
   "dashShowFeed": "AFFICHER LE FLUX",
   "dashHideFeed": "MASQUER LE FLUX",
 

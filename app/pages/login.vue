@@ -57,6 +57,12 @@ async function signIn() {
 <template>
   <main class="min-h-[100dvh] bg-parchment text-ink flex items-center justify-center px-5 sm:px-8 py-10">
     <div class="w-full max-w-sm">
+      <NuxtLink
+        to="/"
+        class="inline-flex items-center min-h-[44px] font-mono text-xs text-ink-light no-underline hover:text-ink transition-colors focus-ring rounded-sm"
+      >
+        <span class="rtl-flip">←</span>&nbsp;Back to home
+      </NuxtLink>
       <div class="text-center mb-8">
         <span class="label">CrisisMapper</span>
         <h1 class="font-serif font-bold text-2xl sm:text-3xl mt-1">Staff sign in</h1>

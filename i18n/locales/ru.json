@@ -72,6 +72,7 @@
   "landingFeat3": "JavaScript-бандл — работает на соединениях 2G в зонах кризиса",
   "landingFeat4": "Языки ООН плюс суахили, с полной поддержкой RTL",
   "landingFooterPrivacy": "Политика данных",
+  "landingFooterTerms": "Условия использования",
   "errorTitle": "Что-то пошло не так",
   "errorBody": "Произошла непредвиденная ошибка. Вы можете вернуться на главную и повторить попытку.",
   "error404Title": "Страница не найдена",
@@ -181,7 +182,6 @@
   "landingOpenReporter": "Открыть отправитель",
   "landingOpenDashboard": "Открыть панель",
   "landingFooterOrg": "Конкурс ПРООН по картированию кризисов · 2026",
-  "landingFooterMeta": "Открытый код · 6 языков ООН · PWA с приоритетом офлайн",
 
   "dashReports": "всего сообщений",
   "dashReportsShort": "сообщений",
@@ -189,7 +189,7 @@
   "dashCoverage": "зона кризиса нанесена на карту",
   "dashReportRate": "Частота сообщений · 24 ч",
   "dashHeatmap": "ТЕПЛОВАЯ КАРТА",
-  "dashFieldView": "Полевой вид",
+  "dashReportCta": "Сообщить о повреждениях",
   "dashShowFeed": "ПОКАЗАТЬ ЛЕНТУ",
   "dashHideFeed": "СКРЫТЬ ЛЕНТУ",
 

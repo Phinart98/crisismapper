@@ -72,6 +72,7 @@
   "landingFeat3": "JavaScript bundle — works on 2G connections in crisis zones",
   "landingFeat4": "UN languages plus Swahili, with full RTL support",
   "landingFooterPrivacy": "Data Policy",
+  "landingFooterTerms": "Terms of Use",
   "errorTitle": "Something went wrong",
   "errorBody": "An unexpected error occurred. You can return home and try again.",
   "error404Title": "Page not found",
@@ -181,7 +182,6 @@
   "landingOpenReporter": "Open Reporter",
   "landingOpenDashboard": "Open Dashboard",
   "landingFooterOrg": "UNDP Crisis Mapping Challenge · 2026",
-  "landingFooterMeta": "Open-source · 6 UN languages · Offline-first PWA",
 
   "dashReports": "total reports",
   "dashReportsShort": "reports",
@@ -189,7 +189,7 @@
   "dashCoverage": "crisis zone mapped",
   "dashReportRate": "Report rate · 24h",
   "dashHeatmap": "HEATMAP",
-  "dashFieldView": "Field view",
+  "dashReportCta": "Report damage",
   "dashShowFeed": "SHOW FEED",
   "dashHideFeed": "HIDE FEED",
 

@@ -72,6 +72,7 @@
   "landingFeat3": "JavaScript 包——可在危机区的 2G 网络下运行",
   "landingFeat4": "联合国语言加斯瓦希里语，完整支持从右至左",
   "landingFooterPrivacy": "数据政策",
+  "landingFooterTerms": "使用条款",
   "errorTitle": "出了点问题",
   "errorBody": "发生了意外错误。你可以返回首页并重试。",
   "error404Title": "页面未找到",
@@ -181,7 +182,6 @@
   "landingOpenReporter": "打开上报端",
   "landingOpenDashboard": "打开仪表板",
   "landingFooterOrg": "联合国开发计划署危机制图挑战赛 · 2026",
-  "landingFooterMeta": "开源 · 6 种联合国语言 · 离线优先 PWA",
 
   "dashReports": "上报总数",
   "dashReportsShort": "份上报",
@@ -189,7 +189,7 @@
   "dashCoverage": "已绘制危机区域",
   "dashReportRate": "上报速率 · 24 小时",
   "dashHeatmap": "热力图",
-  "dashFieldView": "现场视图",
+  "dashReportCta": "报告损毁",
   "dashShowFeed": "显示动态",
   "dashHideFeed": "隐藏动态",
 

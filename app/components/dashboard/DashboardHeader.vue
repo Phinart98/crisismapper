@@ -56,7 +56,7 @@ const duplicatesLabel = computed(() =>
 
     <!-- Right cluster -->
     <div class="ms-auto flex items-center gap-2 sm:gap-3 shrink-0">
-      <LanguageSwitcher class="hidden sm:flex" />
+      <LanguageSwitcher />
 
       <button
         type="button"
@@ -65,19 +65,21 @@ const duplicatesLabel = computed(() =>
           ? 'border-accent text-accent bg-[color-mix(in_srgb,var(--c-accent)_10%,var(--c-parchment))]'
           : 'border-parchment-deep text-ink-light bg-transparent'"
         :aria-pressed="heatmap"
+        :aria-label="$t('dashHeatmap')"
         @click="heatmap = !heatmap"
       >
         <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor">
           <circle cx="6" cy="6" r="4" opacity="0.4" /><circle cx="6" cy="6" r="2" opacity="0.7" /><circle cx="6" cy="6" r="1" />
         </svg>
-        {{ $t('dashHeatmap') }}
+        <span class="hidden sm:inline">{{ $t('dashHeatmap') }}</span>
       </button>
 
       <NuxtLink
         to="/report"
         class="flex items-center gap-1.5 px-3 sm:px-3.5 min-h-[44px] bg-accent text-white rounded-sm no-underline text-[13px] font-medium hover:bg-accent-hover transition-colors"
       >
-        <span class="rtl-flip">←</span> {{ $t('dashFieldView') }}
+        <svg width="12" height="12" viewBox="0 0 16 16" fill="none" class="shrink-0"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.5" /><circle cx="8" cy="8" r="3" fill="currentColor" /></svg>
+        {{ $t('dashReportCta') }}
       </NuxtLink>
 
       <button

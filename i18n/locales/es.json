@@ -72,6 +72,7 @@
   "landingFeat3": "Paquete de JavaScript: funciona con conexiones 2G en zonas de crisis",
   "landingFeat4": "Idiomas de la ONU más suajili, con soporte RTL completo",
   "landingFooterPrivacy": "Política de datos",
+  "landingFooterTerms": "Condiciones de uso",
   "errorTitle": "Algo salió mal",
   "errorBody": "Ocurrió un error inesperado. Puedes volver al inicio e intentarlo de nuevo.",
   "error404Title": "Página no encontrada",
@@ -181,7 +182,6 @@
   "landingOpenReporter": "Abrir el reportero",
   "landingOpenDashboard": "Abrir el panel",
   "landingFooterOrg": "Desafío de Mapeo de Crisis del PNUD · 2026",
-  "landingFooterMeta": "Código abierto · 6 idiomas de la ONU · PWA con prioridad sin conexión",
 
   "dashReports": "reportes totales",
   "dashReportsShort": "reportes",
@@ -189,7 +189,7 @@
   "dashCoverage": "zona de crisis mapeada",
   "dashReportRate": "Tasa de reportes · 24 h",
   "dashHeatmap": "MAPA DE CALOR",
-  "dashFieldView": "Vista de campo",
+  "dashReportCta": "Reportar daños",
   "dashShowFeed": "MOSTRAR FLUJO",
   "dashHideFeed": "OCULTAR FLUJO",
 

@@ -20,7 +20,7 @@ const { pendingCount, flush, isFlushing } = useOfflineQueue()
     </NuxtLink>
 
     <div class="flex items-center gap-1.5 shrink-0">
-      <!-- Locale switcher — chips kept tight (32×28px hit zone) so the bar fits at 480px column -->
+      <!-- Locale switcher — compact native-select dropdown, fits the 480px column -->
       <LanguageSwitcher />
 
       <!-- Pending sync badge — clicking flushes immediately when count > 0 -->

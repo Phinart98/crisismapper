@@ -72,6 +72,7 @@
   "landingFeat3": "Kifurushi cha JavaScript — hufanya kazi kwenye miunganisho ya 2G katika maeneo ya dharura",
   "landingFeat4": "Lugha za UN pamoja na Kiswahili, zenye usaidizi kamili wa kuandika kulia-kushoto",
   "landingFooterPrivacy": "Sera ya Data",
+  "landingFooterTerms": "Masharti ya matumizi",
   "errorTitle": "Hitilafu imetokea",
   "errorBody": "Hitilafu isiyotarajiwa imetokea. Unaweza kurudi mwanzo na kujaribu tena.",
   "error404Title": "Ukurasa haukupatikana",
@@ -181,7 +182,6 @@
   "landingOpenReporter": "Fungua Mtoa Ripoti",
   "landingOpenDashboard": "Fungua Dashibodi",
   "landingFooterOrg": "Shindano la Uchoraji Ramani za Majanga la UNDP · 2026",
-  "landingFooterMeta": "Chanzo huria · Lugha 6 za UN · PWA inayotanguliza nje ya mtandao",
 
   "dashReports": "jumla ya ripoti",
   "dashReportsShort": "ripoti",
@@ -189,7 +189,7 @@
   "dashCoverage": "eneo la janga limechorwa",
   "dashReportRate": "Kasi ya ripoti · saa 24",
   "dashHeatmap": "RAMANI YA JOTO",
-  "dashFieldView": "Mwonekano wa Uwandani",
+  "dashReportCta": "Ripoti uharibifu",
   "dashShowFeed": "ONYESHA MLISHO",
   "dashHideFeed": "FICHA MLISHO",
 

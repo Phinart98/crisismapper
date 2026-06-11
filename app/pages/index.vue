@@ -70,14 +70,13 @@ const tickerText = computed(() => tickerItems.value[tickerIdx.value] ?? t('landi
           <span class="crosshair !opacity-100" style="--size: 28px" />
           <span class="crosshair-ring !opacity-100 !border-accent" style="--size: 28px" />
         </span>
-        CrisisMapper
+        <span class="hidden sm:inline">CrisisMapper</span>
       </NuxtLink>
-      <div class="hidden sm:flex items-center gap-6">
-        <NuxtLink to="/dashboard" class="text-[13px] text-ink-light no-underline hover:text-ink transition-colors">{{ $t('landingNavDashboard') }}</NuxtLink>
-        <NuxtLink to="/leaderboard" class="text-[13px] text-ink-light no-underline hover:text-ink transition-colors">{{ $t('leaderboardTitle') }}</NuxtLink>
+      <div class="flex items-center gap-3 sm:gap-6">
+        <NuxtLink to="/dashboard" class="flex items-center min-h-[44px] text-[13px] text-ink-light no-underline hover:text-ink transition-colors">{{ $t('landingNavDashboard') }}</NuxtLink>
+        <NuxtLink to="/leaderboard" class="flex items-center min-h-[44px] text-[13px] text-ink-light no-underline hover:text-ink transition-colors">{{ $t('leaderboardTitle') }}</NuxtLink>
         <LanguageSwitcher />
       </div>
-      <div class="sm:hidden"><LanguageSwitcher /></div>
     </nav>
 
     <!-- HERO -->
@@ -181,10 +180,11 @@ const tickerText = computed(() => tickerItems.value[tickerIdx.value] ?? t('landi
     <footer class="border-t border-parchment-deep px-5 sm:px-12 py-5 sm:py-6 flex flex-col sm:flex-row items-center justify-between gap-3">
       <div class="flex items-center gap-4">
         <span class="font-sans text-[11px] font-semibold tracking-[0.12em] uppercase text-[#006EB6] border-[1.5px] border-[#006EB6] px-2 py-1 rounded-[2px]">UNDP</span>
-        <span class="text-xs text-ink-ghost">{{ $t('landingFooterMeta') }}</span>
+        <span class="text-xs text-ink-ghost">{{ $t('landingMeta') }}</span>
       </div>
       <div class="flex gap-5">
         <NuxtLink to="/leaderboard" class="text-xs text-ink-light no-underline hover:text-ink transition-colors">{{ $t('leaderboardTitle') }}</NuxtLink>
+        <NuxtLink to="/terms" class="text-xs text-ink-light no-underline hover:text-ink transition-colors">{{ $t('landingFooterTerms') }}</NuxtLink>
         <NuxtLink to="/privacy" class="text-xs text-ink-light no-underline hover:text-ink transition-colors">{{ $t('landingFooterPrivacy') }}</NuxtLink>
       </div>
     </footer>
