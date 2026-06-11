@@ -127,9 +127,10 @@ export function useReportForm() {
       submitPhase.value = 'done'
     } else {
       // Foreground drain failed; register Android Background Sync so the OS
-      // retries on next connectivity. Skipping the register when the row
-      // already drained avoids the SW double-POSTing the same row later.
-      await queue.registerBackgroundSync()
+      // retries on next connectivity. Fire-and-forget: serviceWorker.ready
+      // never settles when no SW is available (private mode, SW disabled),
+      // so awaiting it would hang the queued confirmation forever.
+      queue.registerBackgroundSync()
       submitPhase.value = 'queued'
     }
   }
