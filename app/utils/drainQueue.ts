@@ -9,6 +9,9 @@ export interface DrainResult {
   failed: number
   remaining: number
   drainedIds: number[]
+  // Rows whose metadata landed but whose photo upload failed — the report is
+  // safe server-side, only the photo was lost. Surfaced so the UI can warn.
+  photoFailedIds: number[]
 }
 
 export function drainQueue(db: CrisisDB): Promise<DrainResult> {
@@ -24,12 +27,14 @@ async function runDrain(db: CrisisDB): Promise<DrainResult> {
     .toArray()
 
   const drainedIds: number[] = []
+  const photoFailedIds: number[] = []
   let failed = 0
 
   for (const row of pending) {
     try {
-      await drainOne(db, row)
+      const photoOk = await drainOne(db, row)
       drainedIds.push(row.id!)
+      if (!photoOk) photoFailedIds.push(row.id!)
     } catch {
       await db.pending_reports
         .where('id').equals(row.id!)
@@ -39,16 +44,16 @@ async function runDrain(db: CrisisDB): Promise<DrainResult> {
       // SW Background Sync keeps the registration alive for OS-driven retry.
       const remaining = await db.pending_reports.count()
       const err = new Error('drain_failed')
-      ;(err as any).result = { drained: drainedIds.length, failed, remaining, drainedIds }
+      ;(err as any).result = { drained: drainedIds.length, failed, remaining, drainedIds, photoFailedIds }
       throw err
     }
   }
 
   const remaining = await db.pending_reports.count()
-  return { drained: drainedIds.length, failed, remaining, drainedIds }
+  return { drained: drainedIds.length, failed, remaining, drainedIds, photoFailedIds }
 }
 
-async function drainOne(db: CrisisDB, row: PendingReport): Promise<void> {
+async function drainOne(db: CrisisDB, row: PendingReport): Promise<boolean> {
   const metaRes = await fetch('/api/reports', {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
@@ -57,6 +62,7 @@ async function drainOne(db: CrisisDB, row: PendingReport): Promise<void> {
   if (!metaRes.ok) throw new Error(`metadata ${metaRes.status}`)
   const { id } = await metaRes.json() as { id: string }
 
+  let photoOk = true
   if (row.photo) {
     const fd = new FormData()
     fd.append('photo', row.photo, 'photo.webp')
@@ -65,12 +71,14 @@ async function drainOne(db: CrisisDB, row: PendingReport): Promise<void> {
       method: 'POST',
       body: fd,
     })
-    // Photo failure ≠ row failure: metadata already landed. Drop the row;
-    // user can retry via the existing retryPhoto UI on the confirm screen.
+    // Photo failure ≠ row failure: metadata already landed, so the row is
+    // dropped either way — but report it so the confirm screen can warn.
     if (!photoRes.ok && photoRes.status !== 404) {
       console.warn('[drainQueue] photo upload failed', photoRes.status)
+      photoOk = false
     }
   }
 
   await db.pending_reports.delete(row.id!)
+  return photoOk
 }

@@ -34,14 +34,14 @@ export function useOfflineQueue() {
   }
 
   async function flush(): Promise<DrainResult> {
-    if (!import.meta.client) return { drained: 0, failed: 0, remaining: 0, drainedIds: [] }
+    if (!import.meta.client) return { drained: 0, failed: 0, remaining: 0, drainedIds: [], photoFailedIds: [] }
     _isFlushing.value = true
     try {
       const result = await drainQueue(getDb())
       _lastResult.value = result
       return result
     } catch (err: any) {
-      _lastResult.value = err.result ?? { drained: 0, failed: 1, remaining: _pendingCount.value, drainedIds: [] }
+      _lastResult.value = err.result ?? { drained: 0, failed: 1, remaining: _pendingCount.value, drainedIds: [], photoFailedIds: [] }
       return _lastResult.value!
     } finally {
       _isFlushing.value = false

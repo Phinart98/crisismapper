@@ -6,6 +6,7 @@ export interface PendingReport {
   retries: number
   payload: {
     crisis_id: string
+    device_id?: string
     severity: string
     infrastructure_type: string
     location: [number, number]
@@ -14,8 +15,9 @@ export interface PendingReport {
     description?: string
     electricity_status?: string
     health_status?: string
-    community_needs?: string
-    vulnerable_groups?: string
+    community_needs?: string[]
+    vulnerable_groups?: string[]
+    affected_population?: string
     ai_severity?: string
     ai_confidence?: number
     ai_infrastructure_visible?: boolean

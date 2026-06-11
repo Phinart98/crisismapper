@@ -63,7 +63,7 @@ const impactKm2 = computed(() => profile.value?.impact_km2 ?? 0)
 
     <!-- Photo error banner -->
     <div v-if="photoError" class="w-full max-w-xs mb-4 px-3 py-2 bg-sev-partial/10 border border-sev-partial rounded text-sm text-sev-partial text-start leading-snug">
-      ⚠ {{ $t('retryPhoto') }} — report is saved, photo can be re-uploaded later.
+      ⚠ {{ $t('photoFailedNote') }}
     </div>
 
     <!-- Impact + earned badges — synced reports only (queued haven't reached UNDP yet). -->

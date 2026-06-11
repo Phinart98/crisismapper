@@ -17,12 +17,15 @@ const ReportSchema = v.object({
   // PWA channel only produces 'gps' and 'plus_code'; accepting other location
   // methods here would just be unverified attacker input.
   location_method: v.picklist(['gps', 'plus_code']),
-  plus_code: v.optional(v.string()),
-  description: v.optional(v.string()),
+  plus_code: v.optional(v.pipe(v.string(), v.maxLength(120))),
+  description: v.optional(v.pipe(v.string(), v.maxLength(2000))),
   electricity_status: v.optional(v.picklist(['functional', 'partial', 'non-functional', 'unknown'])),
   health_status: v.optional(v.picklist(['operational', 'partial', 'down', 'unknown'])),
-  community_needs: v.optional(v.string()),
-  vulnerable_groups: v.optional(v.string()),
+  // Structured Core Questions (Q&A #14): canonical tags from the wizard chips,
+  // joined to TEXT for storage/export.
+  community_needs: v.optional(v.pipe(v.array(v.picklist(['water', 'food', 'shelter', 'medical', 'search'])), v.maxLength(5))),
+  vulnerable_groups: v.optional(v.pipe(v.array(v.picklist(['elderly', 'children', 'disabled', 'pregnant', 'injured'])), v.maxLength(5))),
+  affected_population: v.optional(v.picklist(['<50', '50-200', '200-1000', '1000+'])),
 
   // All ai_* fields are optional: offline / degraded submissions omit them and the DB columns stay NULL.
   ai_severity: v.optional(v.picklist(['negligible', 'moderate', 'severe', 'destroyed', 'unknown'])),
@@ -49,7 +52,7 @@ export default defineEventHandler(async (event) => {
       crisis_id, reporter_id, channel, severity, infrastructure_type,
       location, location_method, plus_code,
       description, electricity_status, health_status,
-      community_needs, vulnerable_groups,
+      community_needs, vulnerable_groups, affected_population,
       ai_severity, ai_confidence, ai_infrastructure_visible, ai_raw_response
     ) VALUES (
       ${d.crisis_id}, ${reporterId}, 'pwa', ${dbSeverity}, ${d.infrastructure_type},
@@ -57,7 +60,8 @@ export default defineEventHandler(async (event) => {
       ${d.location_method},
       ${d.plus_code ?? null},
       ${d.description ?? null}, ${d.electricity_status ?? null}, ${d.health_status ?? null},
-      ${d.community_needs ?? null}, ${d.vulnerable_groups ?? null},
+      ${d.community_needs?.join('; ') ?? null}, ${d.vulnerable_groups?.join('; ') ?? null},
+      ${d.affected_population ?? null},
       ${d.ai_severity ?? null},
       ${d.ai_confidence ?? null},
       ${d.ai_infrastructure_visible ?? null},

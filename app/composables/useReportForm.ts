@@ -45,11 +45,17 @@ export function useReportForm() {
   })
 
   const selectedCrisisName = computed(() => crises.value.find(c => c.id === crisisId.value)?.name ?? null)
+  // Shared so chrome outside this component tree (the desktop sidebar) can show
+  // the crisis the report will actually be attributed to.
+  const sharedCrisisName = useState<string | null>('cm_report_crisis_name', () => null)
+  watchEffect(() => { sharedCrisisName.value = selectedCrisisName.value })
+
   const description = ref('')
   const electricityStatus = ref('')
   const healthStatus = ref('')
-  const communityNeeds = ref('')
-  const vulnerableGroups = ref('')
+  const communityNeeds = ref<string[]>([])
+  const vulnerableGroups = ref<string[]>([])
+  const affectedPopulation = ref('')
 
   const submitPhase = ref<SubmitPhase>('idle')
   const reportId = ref<string | null>(null)
@@ -90,8 +96,9 @@ export function useReportForm() {
       description: description.value || undefined,
       electricity_status: electricityStatus.value || undefined,
       health_status: healthStatus.value || undefined,
-      community_needs: communityNeeds.value || undefined,
-      vulnerable_groups: vulnerableGroups.value || undefined,
+      community_needs: communityNeeds.value.length ? [...communityNeeds.value] : undefined,
+      vulnerable_groups: vulnerableGroups.value.length ? [...vulnerableGroups.value] : undefined,
+      affected_population: affectedPopulation.value || undefined,
       ai_severity: ai?.severity,
       ai_confidence: ai?.confidence,
       ai_infrastructure_visible: ai?.infrastructure_visible,
@@ -117,6 +124,7 @@ export function useReportForm() {
     const result = await queue.flush()
 
     if (result.drainedIds.includes(myId)) {
+      photoError.value = result.photoFailedIds.includes(myId)
       submitPhase.value = 'done'
     } else {
       // Foreground drain failed; register Android Background Sync so the OS
@@ -163,8 +171,9 @@ export function useReportForm() {
     description.value = ''
     electricityStatus.value = ''
     healthStatus.value = ''
-    communityNeeds.value = ''
-    vulnerableGroups.value = ''
+    communityNeeds.value = []
+    vulnerableGroups.value = []
+    affectedPopulation.value = ''
     submitPhase.value = 'idle'
     reportId.value = null
     photoError.value = false
@@ -173,7 +182,7 @@ export function useReportForm() {
 
   return {
     step, photo, aiResult, aiLoading, severity, location, infraType,
-    description, electricityStatus, healthStatus, communityNeeds, vulnerableGroups,
+    description, electricityStatus, healthStatus, communityNeeds, vulnerableGroups, affectedPopulation,
     submitPhase, reportId, photoError, errors,
     crises, crisisId, crisisManual, crisisOutsideZones, selectedCrisisName, setCrisis,
     submit, reset, runAiClassify,

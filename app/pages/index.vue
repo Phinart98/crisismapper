@@ -157,20 +157,20 @@ const tickerText = computed(() => tickerItems.value[tickerIdx.value] ?? t('landi
     </section>
 
     <!-- FEATURE STRIP -->
-    <section class="border-t border-parchment-deep grid grid-cols-2 lg:grid-cols-4">
-      <div class="p-6 sm:p-8 border-e border-parchment-deep">
+    <section class="border-t border-parchment-deep grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+      <div class="p-6 sm:p-8 sm:border-e border-parchment-deep">
         <div class="font-serif text-3xl sm:text-4xl font-bold text-ink leading-none mb-2">{{ total != null ? fmtNum(total) : '—' }}<span class="text-accent">+</span></div>
         <div class="text-[13px] text-ink-light leading-snug">{{ $t('landingFeat1') }}</div>
       </div>
-      <div class="p-6 sm:p-8 lg:border-e border-parchment-deep">
-        <div class="font-serif text-3xl sm:text-4xl font-bold text-ink leading-none mb-2">94<span class="text-accent">%</span></div>
+      <div class="p-6 sm:p-8 border-t sm:border-t-0 border-parchment-deep lg:border-e">
+        <div class="font-serif text-3xl sm:text-4xl font-bold text-ink leading-none mb-2">100<span class="text-accent">%</span></div>
         <div class="text-[13px] text-ink-light leading-snug">{{ $t('landingFeat2') }}</div>
       </div>
-      <div class="p-6 sm:p-8 border-e border-parchment-deep border-t lg:border-t-0">
-        <div class="font-serif text-3xl sm:text-4xl font-bold text-ink leading-none mb-2">&lt;100<span class="text-accent">KB</span></div>
+      <div class="p-6 sm:p-8 border-t border-parchment-deep sm:border-e lg:border-t-0">
+        <div class="font-serif text-3xl sm:text-4xl font-bold text-ink leading-none mb-2">0<span class="text-accent">KB</span></div>
         <div class="text-[13px] text-ink-light leading-snug">{{ $t('landingFeat3') }}</div>
       </div>
-      <div class="p-6 sm:p-8 border-t lg:border-t-0">
+      <div class="p-6 sm:p-8 border-t border-parchment-deep lg:border-t-0">
         <div class="font-serif text-3xl sm:text-4xl font-bold text-ink leading-none mb-2">7</div>
         <div class="text-[13px] text-ink-light leading-snug">{{ $t('landingFeat4') }}</div>
       </div>

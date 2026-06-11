@@ -89,14 +89,11 @@ function onInfraSelected() {
       <Transition name="slide-up">
         <ReportExtraStep
           v-if="form.step.value >= 5"
-          :electricity-status="form.electricityStatus.value"
-          :health-status="form.healthStatus.value"
-          :community-needs="form.communityNeeds.value"
-          :vulnerable-groups="form.vulnerableGroups.value"
-          @update:electricity-status="form.electricityStatus.value = $event"
-          @update:health-status="form.healthStatus.value = $event"
-          @update:community-needs="form.communityNeeds.value = $event"
-          @update:vulnerable-groups="form.vulnerableGroups.value = $event"
+          v-model:electricity-status="form.electricityStatus.value"
+          v-model:health-status="form.healthStatus.value"
+          v-model:community-needs="form.communityNeeds.value"
+          v-model:vulnerable-groups="form.vulnerableGroups.value"
+          v-model:affected-population="form.affectedPopulation.value"
         />
       </Transition>
     </div>

@@ -35,6 +35,7 @@ const PROPS: { key: string; value: (r: RawExportRow) => string | null }[] = [
   { key: 'timestamp', value: (r) => new Date(r.submitted_at).toISOString() },
   { key: 'damage_classification', value: (r) => titleClass(r.damage_classification) },
   { key: 'infrastructure_type', value: (r) => r.infrastructure_type },
+  { key: 'hazard_type', value: (r) => r.hazard_type },
   { key: 'severity', value: (r) => r.severity },
   { key: 'electricity_status', value: (r) => r.electricity_status },
   { key: 'health_status', value: (r) => r.health_status },
@@ -53,14 +54,14 @@ function toFeature(r: RawExportRow) {
 
 const CSV_HEADERS = [
   'latitude', 'longitude', 'timestamp', 'damage_classification', 'infrastructure_type',
-  'severity', 'electricity_status', 'health_status', 'community_needs',
+  'hazard_type', 'severity', 'electricity_status', 'health_status', 'community_needs',
   'vulnerable_groups', 'affected_population', 'report_id',
 ] as const
 
 function toCsvRow(r: RawExportRow): (string | number | null)[] {
   return [
     r.lat, r.lng, new Date(r.submitted_at).toISOString(), titleClass(r.damage_classification),
-    r.infrastructure_type, r.severity, r.electricity_status, r.health_status,
+    r.infrastructure_type, r.hazard_type, r.severity, r.electricity_status, r.health_status,
     r.community_needs, r.vulnerable_groups, r.affected_population, r.report_id,
   ]
 }
@@ -94,6 +95,7 @@ function toShpFeature(r: RawExportRow) {
     properties: {
       dmg_class: titleClass(r.damage_classification),
       infra_type: r.infrastructure_type,
+      hazard: r.hazard_type,
       severity: r.severity,
       ts: new Date(r.submitted_at).toISOString(),
       elec_stat: r.electricity_status,

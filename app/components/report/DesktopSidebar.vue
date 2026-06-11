@@ -1,3 +1,10 @@
+<script setup lang="ts">
+// Fed by useReportForm via shared state — starts as the demo crisis, follows the
+// reporter's GPS-resolved (or manually picked) crisis. Names are proper-noun data
+// we deliberately don't translate.
+const crisisName = useState<string | null>('cm_report_crisis_name', () => null)
+</script>
+
 <template>
   <!--
     Follows the dashboard.html sidebar pattern: sections self-pad at 20px,
@@ -22,14 +29,12 @@
     <!-- Active crisis -->
     <div class="px-5 lg:px-6 py-4 border-b border-parchment-deep shrink-0">
       <div class="label text-ink-ghost mb-2.5">{{ $t('sidebarActiveCrisis') }}</div>
-      <!-- Crisis name + region are hardcoded placeholders (tracked: wire to active crisis
-           in a later phase). Names are proper-noun data we deliberately don't translate. -->
       <div class="font-serif font-semibold text-base lg:text-lg leading-snug text-ink mb-1.5">
-        Myanmar Earthquake 2026
+        {{ crisisName ?? '—' }}
       </div>
       <div class="flex items-center gap-1.5">
         <span class="w-1.5 h-1.5 rounded-full bg-accent shrink-0 animate-pulse" />
-        <span class="text-xs text-ink-mid leading-none">{{ $t('sidebarLive') }} · Mandalay Region</span>
+        <span class="text-xs text-ink-mid leading-none">{{ $t('sidebarLive') }}</span>
       </div>
     </div>
 

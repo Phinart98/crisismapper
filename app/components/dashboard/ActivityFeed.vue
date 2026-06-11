@@ -52,7 +52,7 @@ const STATUS_KEY = { connecting: 'feedConnecting', realtime: 'feedLive', polling
         v-for="r in feed"
         :key="r.id"
         type="button"
-        class="w-full text-start px-[18px] py-3 border-b border-parchment-deep cursor-pointer transition-colors"
+        class="w-full min-h-[44px] text-start px-[18px] py-3 border-b border-parchment-deep cursor-pointer transition-colors"
         :class="selectedId === r.id ? 'bg-parchment-mid' : 'hover:bg-parchment-mid/50'"
         @click="emit('select', r.id)"
       >
