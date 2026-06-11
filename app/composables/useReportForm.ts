@@ -8,7 +8,6 @@ import { classifyPhoto } from '~/utils/classifyPhoto'
 import { useOfflineQueue } from '~/composables/useOfflineQueue'
 import { useActiveCrises } from '~/composables/useActiveCrises'
 
-export type { InfraType }
 export type SubmitPhase = 'idle' | 'metadata' | 'photo' | 'queued' | 'done' | 'error'
 
 export function useReportForm() {

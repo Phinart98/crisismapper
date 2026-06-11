@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { InfraType } from '~/composables/useReportForm'
+import type { InfraType } from '~/utils/severity'
 
 const props = defineProps<{ modelValue: InfraType | null }>()
 const emit = defineEmits<{ 'update:modelValue': [InfraType] }>()

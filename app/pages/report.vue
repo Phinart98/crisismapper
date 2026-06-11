@@ -1,14 +1,5 @@
 <script setup lang="ts">
-const { locale } = useI18n()
-
-const localeDir: Record<string, string> = { ar: 'rtl' }
-
-useHead({
-  htmlAttrs: {
-    dir: computed(() => (localeDir[locale.value] ?? 'ltr') as 'ltr' | 'rtl'),
-    lang: computed(() => locale.value),
-  },
-})
+// <html dir>/<html lang> are set globally by useLocaleHead() in app.vue.
 </script>
 
 <template>

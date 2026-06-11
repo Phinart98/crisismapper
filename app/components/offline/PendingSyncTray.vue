@@ -3,9 +3,6 @@ const { pendingCount, isFlushing, flush } = useOfflineQueue()
 const dismissed = ref(false)
 const visible = computed(() => pendingCount.value > 0 && !dismissed.value)
 
-function handleSync() { flush() }
-function handleDismiss() { dismissed.value = true }
-
 watch(pendingCount, (n, prev) => {
   if (n > prev) dismissed.value = false
 })
@@ -36,7 +33,7 @@ watch(pendingCount, (n, prev) => {
           type="button"
           class="btn btn-ghost focus-ring min-h-[44px] px-4 text-sm"
           :disabled="isFlushing"
-          @click="handleSync"
+          @click="flush()"
         >
           {{ isFlushing ? $t('submitting') : $t('syncNow') }}
         </button>
@@ -44,7 +41,7 @@ watch(pendingCount, (n, prev) => {
           type="button"
           class="focus-ring flex h-9 w-9 items-center justify-center rounded text-ink/60 hover:text-ink"
           :aria-label="$t('syncClose')"
-          @click="handleDismiss"
+          @click="dismissed = true"
         >
           ×
         </button>

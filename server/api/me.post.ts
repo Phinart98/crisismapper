@@ -2,7 +2,7 @@ import * as v from 'valibot'
 import { getDb } from '../utils/db'
 import { hashDeviceId } from '../utils/resolveReporter'
 import { nicknameForReporter } from '../utils/nickname'
-import { snappedLocation, CELL_KM2 } from '../utils/privacy'
+import { snappedLocation, fuzzedTime, CELL_KM2 } from '../utils/privacy'
 
 // Reporter self-profile for /me. POST (not GET) so the device id stays out of URLs/logs.
 // Looks the reporter up by the one-way device hash — never creates a row (a read must not
@@ -50,7 +50,7 @@ export default defineEventHandler(async (event) => {
     db<Record<string, unknown>[]>`
       SELECT
         id, severity, damage_classification, infrastructure_type,
-        date_trunc('hour', submitted_at) AS submitted_at, is_verified
+        ${fuzzedTime(db)} AS submitted_at, is_verified
       FROM damage_reports
       WHERE reporter_id = ${reporter.id} AND is_duplicate = false
       ORDER BY submitted_at DESC
