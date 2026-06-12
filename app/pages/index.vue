@@ -62,7 +62,9 @@ const tickerText = computed(() => tickerItems.value[tickerIdx.value] ?? t('landi
 </script>
 
 <template>
-  <main class="min-h-screen flex flex-col overflow-x-hidden bg-parchment">
+  <!-- overflow-x-clip (not -hidden): hidden turns <main> into a scroll container,
+       which silently disables the nav's position:sticky. -->
+  <main class="min-h-screen flex flex-col overflow-x-clip bg-parchment">
     <!-- NAV -->
     <nav class="flex items-center justify-between px-5 sm:px-8 py-4 sm:py-5 border-b border-parchment-deep sticky top-0 bg-parchment z-[100]">
       <NuxtLink to="/" class="flex items-center gap-2.5 font-serif text-lg font-semibold tracking-tight text-ink no-underline">
@@ -180,7 +182,7 @@ const tickerText = computed(() => tickerItems.value[tickerIdx.value] ?? t('landi
     <footer class="border-t border-parchment-deep px-5 sm:px-12 py-5 sm:py-6 flex flex-col sm:flex-row items-center justify-between gap-3">
       <div class="flex items-center gap-4">
         <span class="font-sans text-[11px] font-semibold tracking-[0.12em] uppercase text-[#006EB6] border-[1.5px] border-[#006EB6] px-2 py-1 rounded-[2px]">UNDP</span>
-        <span class="text-xs text-ink-ghost">{{ $t('landingMeta') }}</span>
+        <span class="text-xs text-ink-ghost">{{ $t('landingFooterOrg') }}</span>
       </div>
       <div class="flex gap-5">
         <NuxtLink to="/leaderboard" class="text-xs text-ink-light no-underline hover:text-ink transition-colors">{{ $t('leaderboardTitle') }}</NuxtLink>

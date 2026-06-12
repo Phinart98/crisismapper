@@ -40,13 +40,20 @@ test('ticker falls back gracefully when stats fail', async ({ page }) => {
   await expect(page.getByText(EN.landingTickerFallback)).toBeVisible()
 })
 
-test('footer links: leaderboard, terms, data policy — and honest 7-language meta', async ({ page }) => {
+test('footer links: leaderboard, terms, data policy — and challenge framing', async ({ page }) => {
   await page.goto('/')
   const footer = page.locator('footer')
   await expect(footer.getByRole('link', { name: EN.leaderboardTitle })).toHaveAttribute('href', '/leaderboard')
   await expect(footer.getByRole('link', { name: EN.landingFooterTerms })).toHaveAttribute('href', '/terms')
   await expect(footer.getByRole('link', { name: EN.landingFooterPrivacy })).toHaveAttribute('href', '/privacy')
-  await expect(footer.getByText(EN.landingMeta)).toBeVisible()
+  await expect(footer.getByText(EN.landingFooterOrg)).toBeVisible()
+})
+
+test('nav stays sticky while the page scrolls', async ({ page }) => {
+  await page.goto('/')
+  await page.evaluate(() => window.scrollTo(0, 800))
+  const navTop = await page.locator('nav').evaluate(el => el.getBoundingClientRect().top)
+  expect(navTop).toBe(0)
 })
 
 test('claims framing is demo-honest', async ({ page }) => {
