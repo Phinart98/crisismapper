@@ -13,7 +13,7 @@ export const EN = readLocale('en')
 // Seeded demo crisis (supabase/migrations/20260507000000_seed_demo_crisis.sql).
 export const DEMO_CRISIS_ID = '018f3c2a-0001-7000-8000-000000000001'
 // Worldwide catch-all (supabase/migrations/20260612000000_demo_sandbox_crisis.sql).
-export const SANDBOX_CRISIS_ID = '018f3c2a-0002-7000-8000-000000000002'
+export const SANDBOX_CRISIS_ID = '018f3c2a-0099-7000-8000-000000000099'
 // Inside the demo bbox [95.8, 21.5, 96.5, 22.2] so GPS crisis-resolution succeeds.
 export const MANDALAY = { latitude: 21.97, longitude: 96.08 }
 
