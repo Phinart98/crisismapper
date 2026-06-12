@@ -20,6 +20,9 @@ test.describe('health + validation', () => {
   test('POST /api/reports rejects free-text electricity_status', async ({ request }) => {
     // Regression guard for the step-5 schema-mismatch bug: prose must 400 (never
     // reach the DB CHECK), and the structured values must be the only accepted shape.
+    // NOTE: this is the suite's one unguarded real mutation attempt — it relies on the
+    // 400. If the Valibot picklist were ever loosened, the DB CHECK constraint on
+    // electricity_status (20260501000000_init.sql) still blocks the insert.
     const res = await request.post('/api/reports', {
       data: {
         crisis_id: DEMO_CRISIS_ID,

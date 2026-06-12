@@ -22,7 +22,7 @@ const duplicatesLabel = computed(() =>
         <span class="absolute top-1/2 inset-x-0 h-[1.5px] -translate-y-1/2 bg-accent" />
         <span class="absolute start-1/2 inset-y-0 w-[1.5px] -translate-x-1/2 bg-accent" />
       </span>
-      <span class="font-serif font-semibold text-base hidden sm:inline">CrisisMapper</span>
+      <span class="font-serif font-semibold text-base sr-only sm:not-sr-only">CrisisMapper</span>
     </NuxtLink>
 
     <span class="w-px h-6 bg-parchment-deep shrink-0 hidden sm:block" />

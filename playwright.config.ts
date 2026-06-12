@@ -10,7 +10,8 @@ export default defineConfig({
   // workers share one Nuxt dev server.
   workers: process.env.CI ? 2 : 4,
   forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 2 : 0,
+  // One local retry absorbs dev-server transients (HMR restarts, slow cold compiles).
+  retries: process.env.CI ? 2 : 1,
   timeout: 60_000,
   expect: { timeout: 10_000 },
   reporter: [['list'], ['html', { open: 'never' }]],

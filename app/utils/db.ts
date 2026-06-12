@@ -15,8 +15,9 @@ export interface PendingReport {
     description?: string
     electricity_status?: string
     health_status?: string
-    community_needs?: string[]
-    vulnerable_groups?: string[]
+    // string variant: rows queued under the old free-text UI, still drainable
+    community_needs?: string[] | string
+    vulnerable_groups?: string[] | string
     affected_population?: string
     ai_severity?: string
     ai_confidence?: number

@@ -60,6 +60,7 @@ const chipClass = (active: boolean) => [
 
     <!-- Accordion trigger -->
     <button
+      type="button"
       class="flex justify-between items-center w-full min-h-[48px] px-3.5 py-3 bg-parchment-mid border border-parchment-deep rounded cursor-pointer text-sm font-medium text-ink focus-ring transition-colors hover:bg-parchment-deep/60"
       :aria-expanded="open"
       @click="open = !open"
@@ -77,6 +78,7 @@ const chipClass = (active: boolean) => [
         <div class="label mb-2">{{ $t('elec') }}</div>
         <div class="flex flex-wrap gap-1.5">
           <button
+            type="button"
             v-for="o in ELEC" :key="o.value"
             :class="chipClass(electricityStatus === o.value)"
             :aria-pressed="electricityStatus === o.value"
@@ -90,6 +92,7 @@ const chipClass = (active: boolean) => [
         <div class="label mb-2">{{ $t('health') }}</div>
         <div class="flex flex-wrap gap-1.5">
           <button
+            type="button"
             v-for="o in HEALTH" :key="o.value"
             :class="chipClass(healthStatus === o.value)"
             :aria-pressed="healthStatus === o.value"
@@ -103,6 +106,7 @@ const chipClass = (active: boolean) => [
         <div class="label mb-2">{{ $t('community') }}</div>
         <div class="flex flex-wrap gap-1.5">
           <button
+            type="button"
             v-for="o in NEEDS" :key="o.value"
             :class="chipClass(communityNeeds.includes(o.value))"
             :aria-pressed="communityNeeds.includes(o.value)"
@@ -116,6 +120,7 @@ const chipClass = (active: boolean) => [
         <div class="label mb-2">{{ $t('vuln') }}</div>
         <div class="flex flex-wrap gap-1.5">
           <button
+            type="button"
             v-for="o in VULN" :key="o.value"
             :class="chipClass(vulnerableGroups.includes(o.value))"
             :aria-pressed="vulnerableGroups.includes(o.value)"
@@ -129,6 +134,7 @@ const chipClass = (active: boolean) => [
         <div class="label mb-2">{{ $t('affectedPop') }}</div>
         <div class="flex flex-wrap gap-1.5">
           <button
+            type="button"
             v-for="p in POP" :key="p"
             dir="ltr"
             :class="chipClass(affectedPopulation === p)"

@@ -70,7 +70,7 @@ const tickerText = computed(() => tickerItems.value[tickerIdx.value] ?? t('landi
           <span class="crosshair !opacity-100" style="--size: 28px" />
           <span class="crosshair-ring !opacity-100 !border-accent" style="--size: 28px" />
         </span>
-        <span class="hidden sm:inline">CrisisMapper</span>
+        <span class="sr-only sm:not-sr-only">CrisisMapper</span>
       </NuxtLink>
       <div class="flex items-center gap-3 sm:gap-6">
         <NuxtLink to="/dashboard" class="flex items-center min-h-[44px] text-[13px] text-ink-light no-underline hover:text-ink transition-colors">{{ $t('landingNavDashboard') }}</NuxtLink>

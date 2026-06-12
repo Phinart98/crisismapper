@@ -12,6 +12,15 @@ test('no horizontal overflow on the civilian pages', async ({ page }) => {
   }
 })
 
+test('dashboard header does not clip its controls', async ({ page }) => {
+  // The header is overflow-hidden, so document-level overflow checks can't see
+  // internal clipping — measure the header element itself.
+  await page.goto('/dashboard')
+  await expect(page.getByRole('link', { name: EN.dashReportCta })).toBeVisible({ timeout: 30_000 })
+  const clipped = await page.locator('header').first().evaluate(el => el.scrollWidth > el.clientWidth)
+  expect(clipped).toBe(false)
+})
+
 test('primary interactive elements meet the 44px touch target (36px secondary chips)', async ({ page }) => {
   await page.goto('/')
   const targets = [

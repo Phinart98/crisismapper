@@ -17,7 +17,10 @@ export function useStaff() {
   }
 
   async function signOut() {
-    await useSupabaseBrowserClient().auth.signOut()
+    // scope:'local' ends only this browser's session. The default 'global' revokes
+    // every refresh token for the account — on the shared demo/judge login that
+    // would sign out everyone else currently evaluating the app.
+    await useSupabaseBrowserClient().auth.signOut({ scope: 'local' })
     user.value = null
     await navigateTo('/login')
   }

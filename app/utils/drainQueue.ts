@@ -59,6 +59,15 @@ async function drainOne(db: CrisisDB, row: PendingReport): Promise<boolean> {
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify(row.payload),
   })
+  // A validation-class rejection means the server will never accept this payload —
+  // retrying forever would block every row queued behind it and leave a phantom
+  // "pending" badge. Drop it and keep draining. Other 4xx (401/403/404/429…) can be
+  // transient (deploy in flight, auth hiccup) and stay on the retry path.
+  if ([400, 413, 422].includes(metaRes.status)) {
+    console.warn('[drainQueue] dropping permanently rejected report', metaRes.status)
+    await db.pending_reports.delete(row.id!)
+    return true
+  }
   if (!metaRes.ok) throw new Error(`metadata ${metaRes.status}`)
   const { id } = await metaRes.json() as { id: string }
 
