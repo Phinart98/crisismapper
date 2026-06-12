@@ -1,50 +1,62 @@
-# AI Validation Report
+# AI Validation
 
-> **Status:** Template — populated by `scripts/validate-ai.mjs` after a real dataset is sourced and the harness is run against the live `/api/ai/classify` endpoint.
->
-> Run with `npm run dev` in one shell and `node scripts/validate-ai.mjs` in another. The script will overwrite this file in place.
+**Status: not yet run.** The validation harness is built and ready, but a
+labeled photo dataset has not been assembled yet, so no accuracy figures exist.
+We publish no accuracy number anywhere until this report contains one — the
+landing page intentionally claims only what is verifiable today: every AI
+suggestion is reviewed and confirmed or corrected by a human reporter before
+submission.
 
-## Dataset
+## Why this exists
 
-- **Source:** _to be filled by harness_ (xBD academic dataset OR Copernicus EMS Activations)
-- **Photo count:** _N_
-- **Severity distribution (ground truth):**
-  - negligible: _N_
-  - moderate: _N_
-  - severe: _N_
-  - destroyed: _N_
+UNDP Q&A #15 encourages external datasets for model validation "provided they
+include thorough documentation and a clear description of any underlying
+assumptions." This document is where that validation lands when it runs, and
+the assumptions below are fixed in advance so the methodology cannot drift to
+fit the results.
 
-## Accuracy summary
+## How to run it
 
-| Metric | Value |
-| --- | --- |
-| Exact severity match | _N / N (NN%)_ |
-| Near match (one tier off) | _N / N (NN%)_ |
-| False positives (model said damaged, truth was negligible) | _N_ |
-| False negatives (model said negligible, truth was severe/destroyed) | _N_ |
-| Mean confidence overall | _0.NN_ |
-| Mean confidence on matches | _0.NN_ |
-| Mean confidence on misses | _0.NN_ |
+The harness (`scripts/validate-ai.mjs`) plays a labeled photo set through the
+real production endpoint (`/api/ai/classify`), including the EXIF strip,
+compression bounds, and provider fallback chain, then overwrites this file
+with the results.
 
-## Confusion matrix
+1. Assemble 50 to 100 ground-level damage photos with known severity. Planned
+   sources: the xBD dataset (Maxar building damage labels, academic license)
+   and Copernicus EMS rapid mapping activations.
+2. Place the photos in `data/damage-samples/` (gitignored) with a
+   `labels.json`:
 
-|  | predicted negligible | predicted moderate | predicted severe | predicted destroyed | predicted unknown |
-| --- | --- | --- | --- | --- | --- |
-| actual negligible | — | — | — | — | — |
-| actual moderate | — | — | — | — | — |
-| actual severe | — | — | — | — | — |
-| actual destroyed | — | — | — | — | — |
+   ```json
+   [
+     { "filename": "img001.webp", "ground_truth_severity": "severe", "source": "xBD/hurricane-michael" },
+     { "filename": "img002.jpg", "ground_truth_severity": "negligible", "source": "Copernicus EMS EMSR512" }
+   ]
+   ```
 
-## Assumptions
+3. Run `npm run dev` in one shell and `node scripts/validate-ai.mjs` in
+   another.
 
-- Ground-level or near-ground-level photos only — Copernicus EMS top-down satellite imagery is excluded.
-- Photos pre-compressed to ≤200 KB WebP (matching what a reporter's device sends).
-- Ground-truth labels mapped to the Copernicus EMS 4-tier scale (`negligible` / `moderate` / `severe` / `destroyed`).
+## What the report will contain
 
-## Photo source attribution + license
+- Dataset description: source, photo count, ground-truth severity distribution.
+- Accuracy summary: exact severity match, near match (one tier off), false
+  positives and false negatives, and mean confidence overall versus on matches
+  versus on misses (whether confidence is informative matters as much as raw
+  accuracy).
+- A full 4x5 confusion matrix across the predicted and actual tiers.
+- Per-photo source attribution and license notes.
 
-_Filled by harness from the `source` field in `labels.json`._
+## Fixed assumptions
 
-## Notes
+These hold regardless of results:
 
-_Free-form observations from the validator run — e.g. which categories the model struggled with, whether confidence correlated with accuracy, qualitative reasoning quality samples._
+- Ground-level or near-ground photos only. Satellite top-down imagery is
+  excluded: CrisisMapper is a ground-truth complement to satellite assessment,
+  not a satellite classifier.
+- Ground-truth labels are mapped to the 4-tier Copernicus EMS-aligned scale
+  (`negligible` / `moderate` / `severe` / `destroyed`) before scoring.
+- Photos are compressed to 200 KB WebP or less before classification, matching
+  what a reporter's device actually sends. Scoring pristine full-resolution
+  imagery would overstate field accuracy.

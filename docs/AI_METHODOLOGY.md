@@ -89,8 +89,7 @@ or persisted.
 | 3 (degraded) | none | — | returns synthetic envelope, reporter takes over |
 
 Both providers expose an OpenAI-compatible chat completions API, so a single
-`openai` Node SDK serves both — only the `baseURL` and `apiKey` differ. This
-mirrors the multi-provider AiService pattern used in production at TrackAm.
+`openai` Node SDK serves both — only the `baseURL` and `apiKey` differ.
 
 The fallback runs only on hard failure of the primary (HTTP 5xx, network drop,
 malformed JSON). The `openai` SDK auto-retries twice within a single provider
@@ -116,16 +115,18 @@ twice before any persistence:
 Sharp's default behavior on encode is to drop all metadata. `withMetadata()`,
 `keepExif()`, and `keepMetadata()` are not called anywhere in the pipeline.
 
-## Confidence threshold
+## Confidence in the analyst workflow
 
-Reports with `ai_confidence < 0.60` are flagged for manual review at the
-dashboard layer (Phase 7). The flag is computed at read time rather than stored,
-so the threshold can be tuned without backfilling.
+The model's confidence is stored per report (`ai_confidence`) and surfaced in
+the dashboard's report detail view, so analysts can weigh low-confidence
+classifications accordingly. Confidence at or above 0.80 also feeds the
+report quality score and the reporter trust score (see
+[ARCHITECTURE.md](./ARCHITECTURE.md)).
 
-The threshold is informed by the validation accuracy report in
-[`AI_VALIDATION.md`](./AI_VALIDATION.md). The current value (0.60) is a working
-default; the report's misclassification breakdown can justify raising or
-lowering it before final submission.
+There is deliberately no automatic accept/reject threshold: human verification
+is a staff action (the verify/flag moderation flow), and the AI's role stops at
+suggesting. A hard threshold should only be introduced once the validation
+report below provides a misclassification breakdown to justify it.
 
 ## Audit trail
 
@@ -176,13 +177,11 @@ Assumptions documented in [`AI_VALIDATION.md`](./AI_VALIDATION.md):
 | Photo too blurry / low-light | Model returns `photo_quality: 'poor'`; surfaced under the reasoning accordion |
 | Reporter is offline | Classify request fails on the network; UI shows "AI offline — your call"; reporter still submits with their own severity |
 
-## Out of scope (Phase 4)
+## Out of scope
 
 - Per-call audit logs in a dedicated table — `ai_raw_response._meta` carries
-  the audit trail per report instead. A dedicated `ai_audit_logs` table is
-  planned for Phase 9/10 if cost / debugging needs justify it.
-- Translating the dashboard manual-review queue to the 6 UN languages —
-  Phase 8.
+  the audit trail per report instead. A dedicated table can be added later if
+  cost or debugging needs justify it.
 - Retraining or fine-tuning. We use foundation models off-the-shelf with
   prompt-only steering, per the cost-effectiveness and 48-hour deployability
   judging criteria.
