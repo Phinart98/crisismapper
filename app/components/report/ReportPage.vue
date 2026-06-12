@@ -68,9 +68,15 @@ function onInfraSelected() {
         />
       </Transition>
 
+      <!-- Location resolved but no active crisis zone covers it: the flow stops
+           here with the notice — reports only attach to a real response zone. -->
+      <Transition name="slide-up">
+        <ReportNoCrisisNotice v-if="form.noCrisisHere.value" />
+      </Transition>
+
       <Transition name="slide-up">
         <ReportCrisisBadge
-          v-if="form.step.value >= 4"
+          v-if="form.step.value >= 4 && !form.noCrisisHere.value"
           :crises="form.pickerCrises.value"
           :model-value="form.crisisId.value"
           :outside-zones="form.crisisOutsideZones.value"
@@ -80,7 +86,7 @@ function onInfraSelected() {
 
       <Transition name="slide-up">
         <ReportInfraStep
-          v-if="form.step.value >= 4"
+          v-if="form.step.value >= 4 && !form.noCrisisHere.value"
           v-model="form.infraType.value"
           @update:model-value="onInfraSelected"
         />
@@ -88,7 +94,7 @@ function onInfraSelected() {
 
       <Transition name="slide-up">
         <ReportExtraStep
-          v-if="form.step.value >= 5"
+          v-if="form.step.value >= 5 && !form.noCrisisHere.value"
           v-model:electricity-status="form.electricityStatus.value"
           v-model:health-status="form.healthStatus.value"
           v-model:community-needs="form.communityNeeds.value"
@@ -100,7 +106,7 @@ function onInfraSelected() {
 
     <!-- Sticky footer -->
     <ReportSubmitFooter
-      v-if="form.step.value >= 4 && form.submitPhase.value !== 'done' && form.submitPhase.value !== 'queued'"
+      v-if="form.step.value >= 4 && !form.noCrisisHere.value && form.submitPhase.value !== 'done' && form.submitPhase.value !== 'queued'"
       :phase="form.submitPhase.value"
       @submit="form.submit()"
     />

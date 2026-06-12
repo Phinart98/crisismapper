@@ -44,7 +44,7 @@ test.describe('staff session', () => {
     await expect(page.getByRole('link', { name: 'Crises', exact: true })).toBeVisible()
     await expect(page.getByRole('link', { name: 'Staff', exact: true })).toBeVisible()
     await expect(page.getByRole('link', { name: 'Languages', exact: true })).toBeVisible()
-    await expect(page.getByText('Myanmar Earthquake 2026').first()).toBeVisible({ timeout: 20_000 })
+    await expect(page.getByText(/SIMEX Mandalay/).first()).toBeVisible({ timeout: 20_000 })
   })
 
   test('staff list renders the allowlist with login status', async ({ page }) => {

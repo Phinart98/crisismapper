@@ -1,5 +1,5 @@
 import { test, expect } from 'playwright/test'
-import { DEMO_CRISIS_ID, SANDBOX_CRISIS_ID } from './helpers/fixtures'
+import { DEMO_CRISIS_ID } from './helpers/fixtures'
 
 // Direct API assertions — no browser. Read-only against the live dev server.
 
@@ -42,7 +42,7 @@ test.describe('geofencing', () => {
   const VALID = {
     severity: 'partial',
     infrastructure_type: 'building',
-    location: [-0.2, 5.6], // Accra — far outside the Myanmar bbox
+    location: [-150, -40], // mid-Pacific — outside every crisis zone
     location_method: 'gps',
   }
 
@@ -56,12 +56,12 @@ test.describe('geofencing', () => {
     expect(res.status()).toBe(422)
   })
 
-  test('the global sandbox crisis is active and worldwide', async ({ request }) => {
+  test('no worldwide catch-all crisis exists (the no-crisis path is reachable)', async ({ request }) => {
     const crises = await (await request.get('/api/crises')).json()
-    const sandbox = crises.find((c: { id: string }) => c.id === SANDBOX_CRISIS_ID)
-    expect(sandbox).toBeTruthy()
-    expect(sandbox.bbox[0]).toBeLessThanOrEqual(-180)
-    expect(sandbox.bbox[2]).toBeGreaterThanOrEqual(180)
+    for (const c of crises) {
+      const [w, , e] = c.bbox ?? [0, 0, 0, 0]
+      expect(e - w, `${c.name} bbox spans the globe`).toBeLessThan(300)
+    }
   })
 })
 

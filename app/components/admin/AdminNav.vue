@@ -11,6 +11,8 @@ const links = [
   { to: '/admin/crises', label: 'Crises' },
   { to: '/admin/staff', label: 'Staff' },
   { to: '/admin/languages', label: 'Languages' },
+  // The live map is where moderation happens — staff sessions see exact data there.
+  { to: '/dashboard', label: 'Dashboard' },
 ]
 </script>
 

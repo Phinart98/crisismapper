@@ -1,5 +1,5 @@
 import { test, expect } from 'playwright/test'
-import { guardMutations, blockFaceDetectionCdn, fillWizardToStep5, waitForHydration, AI_FIXTURE, MANDALAY, EN } from './helpers/fixtures'
+import { guardMutations, blockFaceDetectionCdn, fillWizardToStep5, waitForHydration, AI_FIXTURE, MANDALAY, MID_PACIFIC, EN } from './helpers/fixtures'
 
 const REPORT_ID = '00000000-0000-7000-8000-0000000000e2'
 
@@ -85,6 +85,25 @@ test('photo-upload failure after metadata success is surfaced, not silent', asyn
   await page.getByRole('button', { name: EN.submit }).click()
   await expect(page.getByText(EN.confirmLabel).first()).toBeVisible()
   await expect(page.getByText(EN.photoFailedNote)).toBeVisible()
+})
+
+test.describe('no-crisis path', () => {
+  test.use({ geolocation: MID_PACIFIC })
+
+  test('location outside every crisis zone blocks the flow with the notice', async ({ page }) => {
+    await page.goto('/report')
+    await waitForHydration(page)
+    await page.setInputFiles('input[type=file]', 'tests/e2e/fixtures/sample.jpg')
+    await page.getByRole('button', { name: EN.aiConfirm }).click({ timeout: 60_000 })
+    await page.getByRole('button', { name: EN.gpsBtn }).click()
+    await page.getByText(EN.gpsLocated).waitFor()
+
+    await expect(page.getByText(EN.noCrisisTitle)).toBeVisible()
+    await expect(page.getByRole('link', { name: EN.noCrisisDashboardCta })).toHaveAttribute('href', '/dashboard')
+    // The flow is blocked: no infrastructure step, no submit footer.
+    await expect(page.getByText(EN.step4title)).toHaveCount(0)
+    await expect(page.getByRole('button', { name: EN.submit })).toHaveCount(0)
+  })
 })
 
 test('invalid Plus Code shows a validation error', async ({ page, context }) => {

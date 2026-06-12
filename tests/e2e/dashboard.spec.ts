@@ -1,5 +1,5 @@
 import { test, expect } from 'playwright/test'
-import { guardMutations, waitForHydration, EN } from './helpers/fixtures'
+import { guardMutations, waitForHydration, STAFF_STATE, EN } from './helpers/fixtures'
 
 // Real read-only data from the dev server; guardMutations blocks anything else.
 test.beforeEach(async ({ page }) => {
@@ -62,13 +62,48 @@ test('crisis selector lists the active crises', async ({ page }) => {
   expect(options).toBeGreaterThanOrEqual(1)
 })
 
-test('activity feed opens the report detail modal', async ({ page }) => {
+test('activity feed opens the report detail modal with a sign-in path', async ({ page }) => {
   const feedItem = page.getByRole('button', { name: new RegExp(EN.feedViewOnMap) }).first()
   await expect(feedItem).toBeVisible({ timeout: 30_000 })
   await feedItem.click()
   await expect(page.getByRole('button', { name: EN.modalClose })).toBeVisible({ timeout: 15_000 })
-  // Anon viewers see the moderation hint, not active moderation buttons.
+  // Anon viewers see the moderation hint with a working sign-in link that returns here.
   await expect(page.getByText(EN.modalModerationNote)).toBeVisible()
+  await expect(page.getByRole('link', { name: EN.modalSignIn })).toHaveAttribute('href', '/login?redirect=/dashboard')
+})
+
+test.describe('staff moderation', () => {
+  test.use({ storageState: STAFF_STATE })
+
+  test('verify and flag actions round-trip (mocked write)', async ({ page }) => {
+    await guardMutations(page, [/supabase/, /\/auth\//])
+    let lastAction: string | null = null
+    await page.route('**/api/admin/reports/*/moderate', (route) => {
+      lastAction = route.request().postDataJSON().action
+      const id = route.request().url().match(/reports\/([^/]+)\/moderate/)![1]
+      return route.fulfill({ json: { id, is_verified: lastAction === 'verify' } })
+    })
+    await page.goto('/dashboard')
+    await waitForHydration(page)
+
+    const feedItem = page.getByRole('button', { name: new RegExp(EN.feedViewOnMap) }).first()
+    await expect(feedItem).toBeVisible({ timeout: 30_000 })
+    await feedItem.click()
+
+    const verify = page.getByRole('button', { name: new RegExp(EN.modalVerify) }).first()
+    const flag = page.getByRole('button', { name: EN.modalFlag })
+    await expect(verify).toBeVisible({ timeout: 15_000 })
+
+    // Either state is valid at open; exercise the transition both ways.
+    if (await verify.isEnabled()) {
+      await verify.click()
+      await expect.poll(() => lastAction).toBe('verify')
+      await expect(flag).toBeEnabled()
+    }
+    await flag.click()
+    await expect.poll(() => lastAction).toBe('unverify')
+    await expect(verify).toBeEnabled()
+  })
 })
 
 test('export buttons are present for all four formats', async ({ page }) => {

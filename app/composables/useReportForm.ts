@@ -11,9 +11,8 @@ import { useActiveCrises } from '~/composables/useActiveCrises'
 export type SubmitPhase = 'idle' | 'metadata' | 'photo' | 'queued' | 'done' | 'error'
 
 export function useReportForm() {
-  const { public: { demoCrisisId } } = useRuntimeConfig()
   const queue = useOfflineQueue()
-  const { crises, load: loadCrises, containingCrises } = useActiveCrises()
+  const { crises, loaded, load: loadCrises, containingCrises } = useActiveCrises()
   onMounted(loadCrises)
 
   const step = ref(1)
@@ -24,23 +23,25 @@ export function useReportForm() {
   const location = ref<GpsResult | null>(null)
   const infraType = ref<InfraType | null>(null)
 
-  // Which crisis this report belongs to. Auto-resolved from the reporter's GPS
-  // (they're physically at the damage site); env demo crisis is the fallback so a
-  // report never blocks. `crisisManual` marks an explicit picker override.
-  const crisisId = ref<string>(demoCrisisId)
+  // Which crisis this report belongs to. Empty until the reporter's GPS resolves —
+  // never pre-filled, so the UI can't show a far-away crisis as a misleading default.
+  // `crisisManual` marks an explicit picker override among containing zones.
+  const crisisId = ref<string>('')
   const crisisManual = ref(false)
-  // location set but GPS falls outside every active crisis zone → surface a picker.
   const crisisOutsideZones = ref(false)
 
-  // Crises the picker may offer: only the zones containing the located point
-  // (geofence — Ghana can't report into Myanmar). The global Demo Sandbox contains
-  // everywhere, so the full-list fallback is only reachable if it's deactivated.
+  // Strict geofence: the picker only ever offers zones containing the located point
+  // (Ghana can't report into Myanmar; the server enforces the same with a 422).
   const pickerCrises = computed(() => {
     const loc = location.value
-    if (!loc) return crises.value
-    const within = containingCrises(loc.lat, loc.lng)
-    return within.length ? within : crises.value
+    if (!loc) return []
+    return containingCrises(loc.lat, loc.lng)
   })
+
+  // Location confirmed but no active crisis zone covers it → the flow blocks with
+  // the no-crisis notice instead of a picker.
+  const noCrisisHere = computed(() =>
+    loaded.value && !!location.value && pickerCrises.value.length === 0)
 
   watch(location, (loc) => {
     if (!loc) return
@@ -52,6 +53,7 @@ export function useReportForm() {
       crisisId.value = within[0].id
       crisisOutsideZones.value = false
     } else {
+      crisisId.value = ''
       crisisOutsideZones.value = crises.value.length > 0
     }
   })
@@ -77,7 +79,7 @@ export function useReportForm() {
 
   function validate(): boolean {
     errors.photo = !photo.value
-    errors.location = !location.value
+    errors.location = !location.value || !crisisId.value
     errors.infra = !infraType.value
     return !Object.values(errors).some(Boolean)
   }
@@ -178,7 +180,7 @@ export function useReportForm() {
     severity.value = 'partial'
     location.value = null
     infraType.value = null
-    crisisId.value = demoCrisisId
+    crisisId.value = ''
     crisisManual.value = false
     crisisOutsideZones.value = false
     description.value = ''
@@ -197,7 +199,7 @@ export function useReportForm() {
     step, photo, aiResult, aiLoading, severity, location, infraType,
     description, electricityStatus, healthStatus, communityNeeds, vulnerableGroups, affectedPopulation,
     submitPhase, reportId, photoError, errors,
-    crises, pickerCrises, crisisId, crisisManual, crisisOutsideZones, selectedCrisisName, setCrisis,
+    crises, pickerCrises, noCrisisHere, crisisId, crisisManual, crisisOutsideZones, selectedCrisisName, setCrisis,
     submit, reset, runAiClassify,
   }
 }

@@ -169,11 +169,10 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
             <p v-if="detail.is_verified" class="font-mono text-[9px] text-ink-light text-center mt-2">✓ {{ $t('modalVerify') }}</p>
           </template>
           <template v-else>
-            <div class="flex gap-2.5">
-              <button type="button" disabled class="btn flex-1 bg-ink text-parchment opacity-60 cursor-not-allowed text-[13px] min-h-[44px]">✓ {{ $t('modalVerify') }}</button>
-              <button type="button" disabled class="btn flex-1 bg-white text-ink border-[1.5px] border-parchment-deep opacity-60 cursor-not-allowed text-[13px] min-h-[44px]">{{ $t('modalFlag') }}</button>
-            </div>
-            <p class="font-mono text-[9px] text-ink-ghost text-center mt-2">{{ $t('modalModerationNote') }}</p>
+            <p class="font-mono text-[10px] text-ink-light text-center mb-2.5">{{ $t('modalModerationNote') }}</p>
+            <NuxtLink to="/login?redirect=/dashboard" class="btn btn-ghost btn-full min-h-[44px] text-[13px]">
+              {{ $t('modalSignIn') }}
+            </NuxtLink>
           </template>
         </template>
       </div>

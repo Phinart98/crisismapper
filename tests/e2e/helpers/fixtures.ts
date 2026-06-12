@@ -10,12 +10,13 @@ export function readLocale(code: string): Record<string, string> {
 
 export const EN = readLocale('en')
 
-// Seeded demo crisis (supabase/migrations/20260507000000_seed_demo_crisis.sql).
+// Flagship scenario crisis (fixed UUID across reseeds; scripts/demo/seed.mjs).
 export const DEMO_CRISIS_ID = '018f3c2a-0001-7000-8000-000000000001'
-// Worldwide catch-all (supabase/migrations/20260612000000_demo_sandbox_crisis.sql).
-export const SANDBOX_CRISIS_ID = '018f3c2a-0099-7000-8000-000000000099'
-// Inside the demo bbox [95.8, 21.5, 96.5, 22.2] so GPS crisis-resolution succeeds.
+export const FLAGSHIP_NAME = 'SIMEX Mandalay — Central Myanmar Earthquake'
+// Inside the flagship bbox so GPS crisis-resolution succeeds.
 export const MANDALAY = { latitude: 21.97, longitude: 96.08 }
+// Mid-Pacific — outside every regional crisis zone (the no-crisis path).
+export const MID_PACIFIC = { latitude: -40, longitude: -150 }
 
 export const STAFF_STATE = 'tests/e2e/.auth/staff.json'
 export const DEMO_EMAIL = 'demo@crisismapper.app'
@@ -66,7 +67,7 @@ export const PROFILE_FIXTURE = {
   verified: 4,
   zones: 3,
   impact_km2: 0.03,
-  crisis_name: 'Myanmar Earthquake 2026',
+  crisis_name: 'SIMEX Mandalay — Central Myanmar Earthquake',
   recent: [
     { id: '00000000-0000-7000-8000-00000000000a', severity: 'severe', damage_classification: 'complete', infrastructure_type: 'building', submitted_at: new Date().toISOString(), is_verified: true },
     { id: '00000000-0000-7000-8000-00000000000b', severity: 'moderate', damage_classification: 'partial', infrastructure_type: 'road', submitted_at: new Date().toISOString(), is_verified: false },
@@ -74,10 +75,10 @@ export const PROFILE_FIXTURE = {
 }
 
 export const LEADERBOARD_FIXTURE = [
-  { rank: 1, nickname: 'anon_swift_falcon', badges: 4, reports: 31, trust_tier: 'trusted', area: 'Myanmar Earthquake 2026', multi_crisis: false, isMe: true },
-  { rank: 2, nickname: 'anon_calm_otter', badges: 2, reports: 18, trust_tier: 'contributing', area: 'Myanmar Earthquake 2026', multi_crisis: false, isMe: false },
-  { rank: 3, nickname: 'anon_bold_ibis', badges: 1, reports: 9, trust_tier: 'contributing', area: 'Myanmar Earthquake 2026', multi_crisis: false, isMe: false },
-  { rank: 4, nickname: 'anon_keen_lynx', badges: 0, reports: 4, trust_tier: 'unverified', area: 'Myanmar Earthquake 2026', multi_crisis: false, isMe: false },
+  { rank: 1, nickname: 'anon_swift_falcon', badges: 4, reports: 31, trust_tier: 'trusted', area: 'SIMEX Mandalay — Central Myanmar Earthquake', multi_crisis: false, isMe: true },
+  { rank: 2, nickname: 'anon_calm_otter', badges: 2, reports: 18, trust_tier: 'contributing', area: 'SIMEX Mandalay — Central Myanmar Earthquake', multi_crisis: false, isMe: false },
+  { rank: 3, nickname: 'anon_bold_ibis', badges: 1, reports: 9, trust_tier: 'contributing', area: 'SIMEX Mandalay — Central Myanmar Earthquake', multi_crisis: false, isMe: false },
+  { rank: 4, nickname: 'anon_keen_lynx', badges: 0, reports: 4, trust_tier: 'unverified', area: 'SIMEX Mandalay — Central Myanmar Earthquake', multi_crisis: false, isMe: false },
 ]
 
 // Switch locale through the overlay-select dropdown and wait for <html lang>.

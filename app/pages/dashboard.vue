@@ -13,7 +13,9 @@ const { data: crisesData } = await useFetch<CrisisRow[]>('/api/crises', { defaul
 const crises = computed(() => crisesData.value ?? [])
 
 const DEFAULT_BBOX: [number, number, number, number] = [95.8, 21.5, 96.5, 22.2] // Mandalay
-const initialId = crises.value.find(c => c.id === demoCrisisId)?.id ?? crises.value[0]?.id ?? demoCrisisId
+// First active crisis is the flagship (newest created_at sorts first); the env demo
+// id is only a fallback for an empty crises table.
+const initialId = crises.value[0]?.id ?? demoCrisisId
 const crisisId = ref(initialId)
 
 const reports = useCrisisReports(initialId)

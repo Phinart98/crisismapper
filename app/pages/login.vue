@@ -51,7 +51,10 @@ async function signIn() {
     return
   }
 
-  await navigateTo('/admin/crises')
+  // Internal-path redirect only (no protocol-relative // or absolute URLs) —
+  // lets the dashboard modal's sign-in return staff to the report they were viewing.
+  const redirect = typeof route.query.redirect === 'string' ? route.query.redirect : ''
+  await navigateTo(redirect.startsWith('/') && !redirect.startsWith('//') ? redirect : '/admin/crises')
 }
 </script>
 
