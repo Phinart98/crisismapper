@@ -22,7 +22,8 @@ import { snappedLocation, fuzzedTime } from '../../utils/privacy'
 // /api/map/stats (real count) — the map renders the in-view sample, clustered.
 // `since` powers the polling fallback (delta fetch).
 const QuerySchema = v.object({
-  crisis_id: v.pipe(v.string(), v.uuid()),
+  // Omitted → all active crises (the landing ticker); the dashboard always scopes.
+  crisis_id: v.optional(v.pipe(v.string(), v.uuid())),
   since: v.optional(v.pipe(v.string(), v.isoTimestamp())),
   bbox: v.optional(v.pipe(v.string(), v.regex(BBOX_REGEX))),
   // Caller-supplied cap (e.g. the landing ticker only needs the latest few) — clamped to
@@ -70,8 +71,10 @@ export default defineEventHandler(async (event) => {
     FROM (
       SELECT id, ${geom} AS geom, severity, infrastructure_type, ${ts} AS submitted_at
       FROM damage_reports
-      WHERE crisis_id = ${crisis_id}
-        AND is_duplicate = false
+      WHERE is_duplicate = false
+        ${crisis_id
+          ? db`AND crisis_id = ${crisis_id}`
+          : db`AND crisis_id IN (SELECT id FROM crises WHERE is_active = true)`}
         ${since ? db`AND submitted_at > ${since}` : db``}
         ${bboxEnv ? db`AND location && ST_MakeEnvelope(${bboxEnv.w}, ${bboxEnv.s}, ${bboxEnv.e}, ${bboxEnv.n}, 4326)` : db``}
       ORDER BY submitted_at DESC

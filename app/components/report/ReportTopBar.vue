@@ -23,17 +23,15 @@ const { pendingCount, flush, isFlushing } = useOfflineQueue()
       <!-- Locale switcher — compact native-select dropdown, fits the 480px column -->
       <LanguageSwitcher />
 
-      <!-- Pending sync badge — clicking flushes immediately when count > 0 -->
+      <!-- Pending sync badge — only rendered while reports wait offline; click flushes. -->
       <button
-        class="flex items-center gap-1.5 label min-h-[32px] px-2 rounded-sm border cursor-pointer focus-ring transition-colors disabled:opacity-50"
-        :class="pendingCount > 0
-          ? 'border-sev-partial text-sev-partial bg-sev-partial/10'
-          : 'border-parchment-deep text-ink-ghost bg-transparent hover:bg-parchment-mid'"
+        v-if="pendingCount > 0"
+        class="flex items-center gap-1.5 label min-h-[32px] px-2 rounded-sm border cursor-pointer focus-ring transition-colors disabled:opacity-50 border-sev-partial text-sev-partial bg-sev-partial/10"
         :aria-label="$t('pending') + ' (' + pendingCount + ')'"
-        :disabled="pendingCount === 0 || isFlushing"
+        :disabled="isFlushing"
         @click="flush()"
       >
-        <span v-if="pendingCount > 0" class="w-1.5 h-1.5 rounded-full bg-sev-partial shrink-0" />
+        <span class="w-1.5 h-1.5 rounded-full bg-sev-partial shrink-0" />
         <span>({{ pendingCount }})</span>
       </button>
     </div>

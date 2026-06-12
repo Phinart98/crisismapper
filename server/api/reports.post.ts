@@ -53,6 +53,25 @@ export default defineEventHandler(async (event) => {
   const [lng, lat] = d.location
 
   const db = getDb()
+
+  // Geofence: the crisis must exist + be active, and the point must fall inside its
+  // bbox (expanded ~0.25° ≈ 25km for GPS jitter at zone edges; bbox NULL = open).
+  // 422, not 400: drainQueue treats it as a permanent rejection and drops the queued
+  // row instead of retrying a payload the server will never accept.
+  const [zone] = await db<{ in_zone: boolean }[]>`
+    SELECT (bbox IS NULL
+            OR ST_Intersects(ST_Expand(bbox, 0.25),
+                             ST_SetSRID(ST_MakePoint(${lng}, ${lat}), 4326))) AS in_zone
+    FROM crises
+    WHERE id = ${d.crisis_id} AND is_active = true
+  `
+  if (!zone) {
+    throw createError({ statusCode: 422, message: 'Unknown or inactive crisis' })
+  }
+  if (!zone.in_zone) {
+    throw createError({ statusCode: 422, message: 'Report location is outside the selected crisis zone' })
+  }
+
   const reporterId = d.device_id ? await resolveReporter(db, d.device_id) : null
   const [row] = await db<{ id: string }[]>`
     INSERT INTO damage_reports (

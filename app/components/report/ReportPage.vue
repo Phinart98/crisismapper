@@ -71,7 +71,7 @@ function onInfraSelected() {
       <Transition name="slide-up">
         <ReportCrisisBadge
           v-if="form.step.value >= 4"
-          :crises="form.crises.value"
+          :crises="form.pickerCrises.value"
           :model-value="form.crisisId.value"
           :outside-zones="form.crisisOutsideZones.value"
           @select="form.setCrisis"

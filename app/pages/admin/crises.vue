@@ -16,7 +16,10 @@ interface CrisisRow {
   bbox: [number, number, number, number] | null
 }
 
-const { data: crises, refresh, pending } = await useFetch<CrisisRow[]>('/api/admin/crises', { default: () => [] })
+// lazy: render the page shell immediately and stream the list in (the template
+// already has a pending state) — blocking navigation on this fetch made the
+// admin nav feel slow.
+const { data: crises, refresh, pending } = useFetch<CrisisRow[]>('/api/admin/crises', { default: () => [], lazy: true })
 
 // Form state — editingId null = creating a new crisis.
 const editingId = ref<string | null>(null)

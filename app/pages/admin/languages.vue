@@ -194,6 +194,20 @@ function download() {
         </span>
       </p>
 
+      <!-- The MT engine is self-hosted by design: translations of crisis terminology
+           never leave operator infrastructure, and the tool works in air-gapped or
+           sanctioned environments with no vendor dependency. -->
+      <div v-if="status === 'error'" class="mt-3 p-3 rounded-sm bg-parchment-mid border border-parchment-deep text-[13px] text-ink-mid max-w-3xl leading-relaxed">
+        <span class="label block mb-1.5">About the translation engine</span>
+        Machine translation runs on a self-hosted
+        <a href="https://github.com/LibreTranslate/LibreTranslate" target="_blank" rel="noopener" class="underline">LibreTranslate</a>
+        instance (open source, offline-capable) so no text is sent to an external vendor. To enable it,
+        run the engine locally:
+        <code class="block font-mono text-[11px] bg-white border border-parchment-deep rounded-sm px-2 py-1.5 mt-1.5 mb-1.5 overflow-x-auto">docker run -ti --rm -p 5000:5000 libretranslate/libretranslate</code>
+        or point <code class="font-mono text-[11px]">NUXT_LIBRE_TRANSLATE_URL</code> at a hosted instance.
+        Without it, machine translation is skipped — the manual workflow below still produces a complete pack.
+      </div>
+
       <!-- Review + preview -->
       <div v-if="rows.length" class="mt-6 grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6 items-start">
         <!-- Review table -->

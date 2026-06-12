@@ -16,13 +16,14 @@ export type HazardType = 'earthquake' | 'flood' | 'conflict' | 'cyclone' | 'hurr
 export const HAZARD_TYPES: readonly HazardType[] = ['earthquake', 'flood', 'conflict', 'cyclone', 'hurricane', 'other']
 
 // Reporter behavioral trust tier (Phase 9). Mirrors the reporters.trust_tier generated
-// column (score < 0.3 / < 0.7 / else). Dot colors mirror FilterSidebar's TRUST_LEGEND;
-// CSS vars are fine here (DOM, not WebGL paint).
+// column (score < 0.3 / < 0.7 / else). Dedicated @theme tokens — never the severity
+// palette, so the trust legend can't be misread as damage levels. CSS vars are fine
+// here (DOM, not WebGL paint).
 export type TrustTier = 'unverified' | 'contributing' | 'trusted'
 export const TRUST_COLORS: Record<TrustTier, string> = {
-  unverified: 'var(--c-ink-ghost)',
-  contributing: 'var(--c-sev-minimal)',
-  trusted: 'var(--c-sev-partial)',
+  unverified: 'var(--color-trust-unverified)',
+  contributing: 'var(--color-trust-contributing)',
+  trusted: 'var(--color-trust-trusted)',
 }
 
 export const uiToDb: Record<UiSeverity, DbSeverity> = {

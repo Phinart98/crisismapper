@@ -18,7 +18,9 @@ export type LeaderboardScope = 'crisis' | 'all'
 // own row ("YOU") without ever returning a reporter id to the client.
 export function useLeaderboard(crisisId: string) {
   const rows = ref<LeaderboardRow[]>([])
-  const scope = ref<LeaderboardScope>('crisis')
+  // Default to all-time: a reporter who just submitted into ANY crisis (incl. the
+  // global sandbox) sees themselves immediately; the per-crisis tab stays available.
+  const scope = ref<LeaderboardScope>('all')
   const loading = ref(true)
   const error = ref(false)
 

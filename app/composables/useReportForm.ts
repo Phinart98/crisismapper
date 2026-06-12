@@ -13,7 +13,7 @@ export type SubmitPhase = 'idle' | 'metadata' | 'photo' | 'queued' | 'done' | 'e
 export function useReportForm() {
   const { public: { demoCrisisId } } = useRuntimeConfig()
   const queue = useOfflineQueue()
-  const { crises, load: loadCrises, resolveCrisis } = useActiveCrises()
+  const { crises, load: loadCrises, containingCrises } = useActiveCrises()
   onMounted(loadCrises)
 
   const step = ref(1)
@@ -32,11 +32,24 @@ export function useReportForm() {
   // location set but GPS falls outside every active crisis zone → surface a picker.
   const crisisOutsideZones = ref(false)
 
+  // Crises the picker may offer: only the zones containing the located point
+  // (geofence — Ghana can't report into Myanmar). The global Demo Sandbox contains
+  // everywhere, so the full-list fallback is only reachable if it's deactivated.
+  const pickerCrises = computed(() => {
+    const loc = location.value
+    if (!loc) return crises.value
+    const within = containingCrises(loc.lat, loc.lng)
+    return within.length ? within : crises.value
+  })
+
   watch(location, (loc) => {
-    if (!loc || crisisManual.value) return
-    const match = resolveCrisis(loc.lat, loc.lng)
-    if (match) {
-      crisisId.value = match.id
+    if (!loc) return
+    const within = containingCrises(loc.lat, loc.lng)
+    // A manual pick stays sticky only while it still contains the (new) location.
+    if (crisisManual.value && within.some(c => c.id === crisisId.value)) return
+    crisisManual.value = false
+    if (within[0]) {
+      crisisId.value = within[0].id
       crisisOutsideZones.value = false
     } else {
       crisisOutsideZones.value = crises.value.length > 0
@@ -184,7 +197,7 @@ export function useReportForm() {
     step, photo, aiResult, aiLoading, severity, location, infraType,
     description, electricityStatus, healthStatus, communityNeeds, vulnerableGroups, affectedPopulation,
     submitPhase, reportId, photoError, errors,
-    crises, crisisId, crisisManual, crisisOutsideZones, selectedCrisisName, setCrisis,
+    crises, pickerCrises, crisisId, crisisManual, crisisOutsideZones, selectedCrisisName, setCrisis,
     submit, reset, runAiClassify,
   }
 }

@@ -29,15 +29,30 @@ test('header: stats, heatmap toggle, report CTA', async ({ page }) => {
   await expect(cta).not.toContainText('←')
 })
 
-test('severity filter narrows the shown count', async ({ page }) => {
-  await expect(page.getByText(/Showing/)).toBeVisible({ timeout: 30_000 })
-  const before = await page.getByText(/Showing/).textContent()
-  // Deselect one severity tier; the pill should change (or at least re-render).
+test('filters start inactive (All time default) and the pill appears on toggle', async ({ page }) => {
+  // Default = no filters → no "Showing X of Y" pill, and old reports stay visible.
+  await expect(page.getByText(EN.dashReports)).toBeVisible({ timeout: 30_000 })
+  await expect(page.getByText(/Showing/)).toHaveCount(0)
+
+  // Selecting a severity tier activates filtering.
   await page.getByRole('button', { name: new RegExp(EN.sevSevere, 'i') }).first().click()
-  await expect(async () => {
-    const after = await page.getByText(/Showing/).textContent()
-    expect(after).not.toBe(before)
-  }).toPass({ timeout: 15_000 })
+  await expect(page.getByText(/Showing/)).toBeVisible({ timeout: 15_000 })
+
+  // Clear restores the unfiltered view.
+  await page.getByRole('button', { name: new RegExp(EN.dashClear) }).click()
+  await expect(page.getByText(/Showing/)).toHaveCount(0)
+})
+
+test('time range chips filter and reset', async ({ page }) => {
+  await expect(page.getByText(EN.dashReports)).toBeVisible({ timeout: 30_000 })
+  const allChip = page.getByRole('button', { name: EN.filterAllTime })
+  await expect(allChip).toHaveAttribute('aria-pressed', 'true')
+
+  await page.getByRole('button', { name: '24h', exact: true }).click()
+  await expect(page.getByText(/Showing/)).toBeVisible({ timeout: 15_000 })
+
+  await allChip.click()
+  await expect(page.getByText(/Showing/)).toHaveCount(0)
 })
 
 test('crisis selector lists the active crises', async ({ page }) => {

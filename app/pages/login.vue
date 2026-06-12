@@ -3,8 +3,9 @@
 // the staff_emails allowlist gates authorization (requireStaff/is_staff). Password is the
 // pragmatic primitive here — no email delivery, no domain, no external IdP — and a real
 // deployment swaps this control for the org's SSO (UN Azure AD / SAML) behind the same
-// server boundary. Operator-facing, English-literal.
-useHead({ title: 'Staff sign in — CrisisMapper', meta: [{ name: 'robots', content: 'noindex' }] })
+// server boundary.
+const { t } = useI18n()
+useHead({ title: () => `${t('loginTitle')} — CrisisMapper`, meta: [{ name: 'robots', content: 'noindex' }] })
 
 const supabase = useSupabaseBrowserClient()
 const route = useRoute()
@@ -16,14 +17,14 @@ const busy = ref(false)
 const errorMsg = ref('')
 
 const queryError = computed(() => {
-  if (route.query.error === 'not_staff') return 'This account isn’t authorized for staff access.'
-  if (route.query.error === 'session_expired') return 'Your session expired. Please sign in again.'
+  if (route.query.error === 'not_staff') return t('loginErrorNotStaff')
+  if (route.query.error === 'session_expired') return t('loginErrorExpired')
   return ''
 })
 
 async function signIn() {
   if (!email.value || !password.value) {
-    errorMsg.value = 'Enter your email and password.'
+    errorMsg.value = t('loginErrorMissing')
     return
   }
   busy.value = true
@@ -35,7 +36,7 @@ async function signIn() {
   })
   if (error) {
     busy.value = false
-    errorMsg.value = 'Incorrect email or password.'
+    errorMsg.value = t('loginErrorInvalid')
     return
   }
 
@@ -46,7 +47,7 @@ async function signIn() {
   } catch {
     await supabase.auth.signOut()
     busy.value = false
-    errorMsg.value = 'This account isn’t authorized for staff access.'
+    errorMsg.value = t('loginErrorNotStaff')
     return
   }
 
@@ -61,19 +62,19 @@ async function signIn() {
         to="/"
         class="inline-flex items-center min-h-[44px] font-mono text-xs text-ink-light no-underline hover:text-ink transition-colors focus-ring rounded-sm"
       >
-        <span class="rtl-flip">←</span>&nbsp;Back to home
+        <span class="rtl-flip">←</span>&nbsp;{{ $t('loginBack') }}
       </NuxtLink>
       <div class="text-center mb-8">
         <span class="label">CrisisMapper</span>
-        <h1 class="font-serif font-bold text-2xl sm:text-3xl mt-1">Staff sign in</h1>
+        <h1 class="font-serif font-bold text-2xl sm:text-3xl mt-1">{{ $t('loginTitle') }}</h1>
         <p class="text-sm text-ink-light mt-2 leading-relaxed">
-          UNDP staff only. Sign in with your authorized account.
+          {{ $t('loginSub') }}
         </p>
       </div>
 
       <form class="flex flex-col gap-3" @submit.prevent="signIn">
         <label class="flex flex-col gap-1.5">
-          <span class="label">Email</span>
+          <span class="label">{{ $t('loginEmail') }}</span>
           <input
             v-model="email" type="email" autocomplete="username" inputmode="email"
             placeholder="you@undp.org"
@@ -81,14 +82,14 @@ async function signIn() {
           >
         </label>
         <label class="flex flex-col gap-1.5">
-          <span class="label">Password</span>
+          <span class="label">{{ $t('loginPassword') }}</span>
           <input
             v-model="password" type="password" autocomplete="current-password"
             class="focus-ring px-3 min-h-[48px] bg-white border border-parchment-deep rounded-sm text-base"
           >
         </label>
         <button type="submit" class="btn btn-primary btn-full min-h-[48px] text-sm" :disabled="busy">
-          {{ busy ? 'Signing in…' : 'Sign in' }}
+          {{ busy ? $t('loginSubmitting') : $t('loginSubmit') }}
         </button>
         <p v-if="errorMsg || queryError" class="p-3 rounded-sm bg-accent/10 border border-accent/30 text-[13px] text-accent">
           {{ errorMsg || queryError }}

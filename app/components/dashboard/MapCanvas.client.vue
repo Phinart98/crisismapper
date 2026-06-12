@@ -71,6 +71,34 @@ function buildStyle(): StyleSpecification {
           'line-width': ['interpolate', ['linear'], ['zoom'], 9, 0.4, 14, 1.6, 18, 5],
         },
       },
+      // Place names — responders need to orient by town/landmark, not bare contours.
+      // name:latin first keeps an international tool readable; local script falls back
+      // via name. Minor before major so cities win label collisions. Data layers are
+      // added after load, so markers/clusters always render above these.
+      {
+        id: 'place-minor', type: 'symbol', source: 'openmaptiles', 'source-layer': 'place',
+        minzoom: 9,
+        filter: ['match', ['get', 'class'], ['village', 'suburb', 'quarter', 'neighbourhood'], true, false],
+        layout: {
+          'text-field': ['coalesce', ['get', 'name:latin'], ['get', 'name']],
+          'text-font': ['Noto Sans Regular'],
+          'text-size': ['interpolate', ['linear'], ['zoom'], 9, 10, 14, 12],
+          'text-max-width': 8,
+        },
+        paint: { 'text-color': '#8A8273', 'text-halo-color': '#F5EFE4', 'text-halo-width': 1.2 },
+      },
+      {
+        id: 'place-major', type: 'symbol', source: 'openmaptiles', 'source-layer': 'place',
+        filter: ['match', ['get', 'class'], ['city', 'town'], true, false],
+        layout: {
+          'text-field': ['coalesce', ['get', 'name:latin'], ['get', 'name']],
+          'text-font': ['Noto Sans Regular'],
+          'text-size': ['interpolate', ['linear'], ['zoom'], 4, 11, 8, 13, 12, 16],
+          'text-letter-spacing': 0.04,
+          'text-max-width': 8,
+        },
+        paint: { 'text-color': '#6B6B6B', 'text-halo-color': '#F5EFE4', 'text-halo-width': 1.4 },
+      },
     ],
   }
 }

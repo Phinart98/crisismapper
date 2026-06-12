@@ -6,7 +6,9 @@ import { getDb } from '../../utils/db'
 //   total        — non-duplicate report count for the crisis
 //   coverage_pct — share of ~1km grid cells in the crisis bbox that have ≥1 report
 //   hourly       — 24 hourly report counts (last 24h) for the header sparkline
-const QuerySchema = v.object({ crisis_id: v.pipe(v.string(), v.uuid()) })
+// crisis_id omitted → aggregate across all active crises (the landing overlay);
+// coverage_pct is per-crisis-bbox and meaningless globally, so it returns 0 there.
+const QuerySchema = v.object({ crisis_id: v.optional(v.pipe(v.string(), v.uuid())) })
 
 const GRID = 0.01 // ~1.1km at this latitude
 
@@ -18,9 +20,13 @@ export default defineEventHandler(async (event) => {
   const { crisis_id } = result.output
   const db = getDb()
 
+  const byCrisis = crisis_id
+    ? db`crisis_id = ${crisis_id}`
+    : db`crisis_id IN (SELECT id FROM crises WHERE is_active = true)`
+
   // Independent queries — run concurrently to halve the endpoint's round-trip latency.
-  const [[totals], hourly] = await Promise.all([
-    db<{ total: number; coverage_pct: number; duplicate_count: number }[]>`
+  const totalsQuery = crisis_id
+    ? db<{ total: number; coverage_pct: number; duplicate_count: number }[]>`
       WITH c AS (
         SELECT bbox FROM crises WHERE id = ${crisis_id}
       ),
@@ -47,7 +53,18 @@ export default defineEventHandler(async (event) => {
         counts.duplicate_count,
         LEAST(100, round(100.0 * covered.n / cells.total_cells))::int AS coverage_pct
       FROM cells, covered, counts
-    `,
+    `
+    : db<{ total: number; coverage_pct: number; duplicate_count: number }[]>`
+      SELECT
+        count(*) FILTER (WHERE NOT is_duplicate)::int AS total,
+        count(*) FILTER (WHERE is_duplicate)::int     AS duplicate_count,
+        0::int                                        AS coverage_pct
+      FROM damage_reports
+      WHERE ${byCrisis}
+    `
+
+  const [[totals], hourly] = await Promise.all([
+    totalsQuery,
     db<{ n: number }[]>`
       WITH hours AS (
         SELECT generate_series(
@@ -59,7 +76,7 @@ export default defineEventHandler(async (event) => {
       SELECT count(r.id)::int AS n
       FROM hours
       LEFT JOIN damage_reports r
-        ON r.crisis_id = ${crisis_id}
+        ON r.${byCrisis}
         AND r.is_duplicate = false
         AND date_trunc('hour', r.submitted_at) = hours.h
       GROUP BY hours.h

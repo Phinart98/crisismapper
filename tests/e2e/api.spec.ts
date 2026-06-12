@@ -1,5 +1,5 @@
 import { test, expect } from 'playwright/test'
-import { DEMO_CRISIS_ID } from './helpers/fixtures'
+import { DEMO_CRISIS_ID, SANDBOX_CRISIS_ID } from './helpers/fixtures'
 
 // Direct API assertions — no browser. Read-only against the live dev server.
 
@@ -34,6 +34,34 @@ test.describe('health + validation', () => {
       },
     })
     expect(res.status()).toBe(400)
+  })
+})
+
+test.describe('geofencing', () => {
+  // Both rejections happen before any INSERT — no prod rows are created.
+  const VALID = {
+    severity: 'partial',
+    infrastructure_type: 'building',
+    location: [-0.2, 5.6], // Accra — far outside the Myanmar bbox
+    location_method: 'gps',
+  }
+
+  test('out-of-zone report is rejected with 422', async ({ request }) => {
+    const res = await request.post('/api/reports', { data: { ...VALID, crisis_id: DEMO_CRISIS_ID } })
+    expect(res.status()).toBe(422)
+  })
+
+  test('unknown crisis is rejected with 422', async ({ request }) => {
+    const res = await request.post('/api/reports', { data: { ...VALID, crisis_id: '00000000-0000-7000-8000-0000000000ff' } })
+    expect(res.status()).toBe(422)
+  })
+
+  test('the global sandbox crisis is active and worldwide', async ({ request }) => {
+    const crises = await (await request.get('/api/crises')).json()
+    const sandbox = crises.find((c: { id: string }) => c.id === SANDBOX_CRISIS_ID)
+    expect(sandbox).toBeTruthy()
+    expect(sandbox.bbox[0]).toBeLessThanOrEqual(-180)
+    expect(sandbox.bbox[2]).toBeGreaterThanOrEqual(180)
   })
 })
 

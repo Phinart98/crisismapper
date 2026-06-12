@@ -28,16 +28,11 @@ export interface Stats {
 export interface Filters {
   sev: DbSeverity[]      // empty = all
   infra: InfraType[]     // empty = all
-  hours: number          // time window
+  hours: number | null   // time window; null = all time (default — recovery runs for months)
 }
 
 type ConnectionMode = 'connecting' | 'realtime' | 'polling'
 
-// Time-range filter bounds (hours). Shared with the dashboard + sidebar so the
-// "max = no time filter" sentinel lives in one place.
-export const HOURS_MIN = 6
-export const HOURS_MAX = 168
-export const HOURS_STEP = 6
 const FEED_LIMIT = 30
 
 export type FeedItem = ReportProps & { lng: number; lat: number }
@@ -51,7 +46,7 @@ export function useCrisisReports(initialCrisisId: string) {
   const geojson = ref<ReportCollection>(empty())
   const stats = ref<Stats>({ total: 0, duplicate_count: 0, coverage_pct: 0, hourly: [] })
   const feed = ref<FeedItem[]>([])
-  const filters = reactive<Filters>({ sev: [], infra: [], hours: 72 })
+  const filters = reactive<Filters>({ sev: [], infra: [], hours: null })
   const connectionMode = ref<ConnectionMode>('connecting')
   const viewportLoading = ref(false)
 
@@ -92,13 +87,13 @@ export function useCrisisReports(initialCrisisId: string) {
   // Filtered set drives both the map (setData → clusters + points honor filters,
   // which per-layer filter expressions can't do for clustered sources) and the
   // "showing X of Y" indicator.
-  const cutoff = computed(() => Date.now() - filters.hours * 3600_000)
+  const cutoff = computed(() => filters.hours === null ? null : Date.now() - filters.hours * 3600_000)
   const filteredFeatures = computed(() =>
     geojson.value.features.filter((f) => {
       const p = f.properties
       if (filters.sev.length && !filters.sev.includes(p.severity)) return false
       if (filters.infra.length && (!p.infrastructure_type || !filters.infra.includes(p.infrastructure_type))) return false
-      if (new Date(p.submitted_at).getTime() < cutoff.value) return false
+      if (cutoff.value !== null && new Date(p.submitted_at).getTime() < cutoff.value) return false
       return true
     }),
   )

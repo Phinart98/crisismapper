@@ -5,8 +5,6 @@ import type { DbSeverity } from '~/utils/severity'
 const { t, locale } = useI18n()
 const { infra, dbSev } = useLabels()
 const { relativeTime } = useFormatters()
-const config = useRuntimeConfig()
-const crisisId = config.public.demoCrisisId as string
 
 useHead({
   title: 'CrisisMapper — UNDP Crisis Damage Reporting',
@@ -39,13 +37,13 @@ const tickerItems = computed(() => tickerFeatures.value.map(
 
 let rotate: ReturnType<typeof setInterval> | null = null
 onMounted(async () => {
-  if (!crisisId) return
   try {
+    // No crisis_id → aggregate across all active crises (landing shows the whole system).
     const [stats, fc] = await Promise.all([
-      $fetch<{ total: number }>('/api/map/stats', { query: { crisis_id: crisisId } }),
+      $fetch<{ total: number }>('/api/map/stats'),
       // Only the latest few for the ticker — the landing must stay tiny (no full fetch).
       $fetch<{ features: { properties: TickerFeature }[] }>(
-        '/api/map/reports', { query: { crisis_id: crisisId, limit: 6 } },
+        '/api/map/reports', { query: { limit: 6 } },
       ),
     ])
     total.value = stats.total

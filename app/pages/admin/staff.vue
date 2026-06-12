@@ -9,7 +9,10 @@ useHead({ title: 'Staff — CrisisMapper', meta: [{ name: 'robots', content: 'no
 interface StaffRow { email: string, created_at: string, has_login: boolean }
 
 const { user } = useStaff()
-const { data: staff, refresh, pending } = await useFetch<StaffRow[]>('/api/admin/staff', { default: () => [] })
+// lazy: render the page shell immediately and stream the list in (the template
+// already has a pending state) — blocking navigation on this fetch made the
+// admin nav feel slow.
+const { data: staff, refresh, pending } = useFetch<StaffRow[]>('/api/admin/staff', { default: () => [], lazy: true })
 
 const email = ref('')
 const password = ref('')
@@ -73,6 +76,36 @@ async function removeStaff(target: string) {
     errorMsg.value = err?.data?.message || 'Could not remove the staff member.'
   }
 }
+
+// Self-service password change — makes "they can change the password after signing in"
+// true. Supabase updateUser works on the signed-in session; no admin API needed.
+const ownPassword = ref('')
+const ownPasswordBusy = ref(false)
+const ownPasswordMsg = ref<{ ok: boolean, text: string } | null>(null)
+
+function generateOwnPassword() {
+  const keep = password.value
+  generatePassword()
+  ownPassword.value = password.value
+  password.value = keep
+}
+
+async function changeOwnPassword() {
+  ownPasswordMsg.value = null
+  if (ownPassword.value.length < 8) {
+    ownPasswordMsg.value = { ok: false, text: 'Password must be at least 8 characters.' }
+    return
+  }
+  ownPasswordBusy.value = true
+  const { error } = await useSupabaseBrowserClient().auth.updateUser({ password: ownPassword.value })
+  ownPasswordBusy.value = false
+  if (error) {
+    ownPasswordMsg.value = { ok: false, text: error.message }
+    return
+  }
+  ownPassword.value = ''
+  ownPasswordMsg.value = { ok: true, text: 'Password changed. Use it the next time you sign in.' }
+}
 </script>
 
 <template>
@@ -124,6 +157,37 @@ async function removeStaff(target: string) {
           <p class="font-mono text-[13px] text-ink break-all">{{ added.email }} · {{ added.password }}</p>
           <p class="text-[11px] text-ink-light mt-1">They can change the password after signing in. This won’t be shown again.</p>
         </div>
+      </section>
+
+      <!-- Your account -->
+      <section class="border-t border-parchment-deep pt-6">
+        <h2 class="font-serif font-bold text-lg mb-1">Your account</h2>
+        <p class="text-sm text-ink-light mb-4 max-w-2xl">
+          Change the password for <span class="font-mono text-[12px]">{{ user?.email }}</span>.
+          It takes effect on your next sign-in.
+        </p>
+        <div class="flex flex-col sm:flex-row gap-3 items-stretch sm:items-end max-w-3xl">
+          <label class="flex flex-col gap-1.5 flex-1">
+            <span class="label">New password</span>
+            <div class="flex gap-2">
+              <input
+                v-model="ownPassword" type="text" autocomplete="new-password" placeholder="min 8 chars"
+                class="focus-ring flex-1 min-w-0 px-3 min-h-[44px] bg-white border border-parchment-deep rounded-sm text-base"
+              >
+              <button type="button" class="btn btn-ghost min-h-[44px] text-[12px] shrink-0" @click="generateOwnPassword">Generate</button>
+            </div>
+          </label>
+          <button type="button" class="btn btn-primary min-h-[44px] text-sm" :disabled="ownPasswordBusy" @click="changeOwnPassword">
+            {{ ownPasswordBusy ? 'Changing…' : 'Change password' }}
+          </button>
+        </div>
+        <p
+          v-if="ownPasswordMsg"
+          class="mt-3 p-3 rounded-sm border text-[13px] max-w-3xl"
+          :class="ownPasswordMsg.ok ? 'bg-trust-trusted/10 border-trust-trusted/40 text-trust-trusted' : 'bg-accent/10 border-accent/30 text-accent'"
+        >
+          {{ ownPasswordMsg.text }}
+        </p>
       </section>
 
       <!-- Current staff -->

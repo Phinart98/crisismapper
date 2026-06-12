@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useCrisisReports, HOURS_MAX } from '~/composables/useCrisisReports'
+import { useCrisisReports } from '~/composables/useCrisisReports'
 import type { CrisisRow } from '~/composables/useActiveCrises'
 
 useHead({ title: 'CrisisMapper — Dashboard' })
@@ -32,11 +32,11 @@ const buildingsUrl = computed(() => `/api/buildings?crisis_id=${crisisId.value}`
 // Switching the selector tears down + re-subscribes realtime for the new crisis.
 watch(crisisId, id => reports.switchCrisis(id))
 
-const filtersActive = computed(() => reports.filters.sev.length > 0 || reports.filters.infra.length > 0 || reports.filters.hours < HOURS_MAX)
+const filtersActive = computed(() => reports.filters.sev.length > 0 || reports.filters.infra.length > 0 || reports.filters.hours !== null)
 function clearFilters() {
   reports.filters.sev = []
   reports.filters.infra = []
-  reports.filters.hours = HOURS_MAX
+  reports.filters.hours = null
 }
 
 onMounted(() => reports.init())

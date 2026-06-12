@@ -34,10 +34,11 @@ test('offline submit queues locally, then drains once back online', async ({ pag
 
   // Reconnect. The offline-sync plugin auto-flushes on the 'online' event, so the
   // queue may drain before (or instead of) a manual badge click — accept either path.
+  // Once drained the badge unmounts entirely (hidden at zero pending).
   online = true
   await context.setOffline(false)
   await page.getByRole('button', { name: new RegExp(`${EN.pending}.*\\(1\\)`) }).click({ timeout: 3_000 }).catch(() => {})
-  await expect(page.getByRole('button', { name: new RegExp(`${EN.pending}.*\\(0\\)`) })).toBeVisible({ timeout: 30_000 })
+  await expect(page.getByRole('button', { name: new RegExp(EN.pending) })).toBeHidden({ timeout: 30_000 })
   expect(await countPending(page)).toBe(0)
 })
 

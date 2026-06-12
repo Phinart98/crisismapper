@@ -39,19 +39,23 @@ export function useActiveCrises() {
     }
   }
 
-  // Smallest containing bbox wins when crises overlap (most specific zone).
-  function resolveCrisis(lat: number, lng: number): CrisisRow | null {
-    let best: CrisisRow | null = null
-    let bestArea = Infinity
-    for (const c of crises.value) {
-      if (!c.bbox) continue
-      const [w, s, e, n] = c.bbox
-      if (lng < w || lng > e || lat < s || lat > n) continue
-      const area = (e - w) * (n - s)
-      if (area < bestArea) { best = c; bestArea = area }
-    }
-    return best
+  // All crises whose bbox contains the point, smallest (most specific) first — the
+  // global Demo Sandbox envelope always sorts last, so real zones shadow it.
+  function containingCrises(lat: number, lng: number): CrisisRow[] {
+    return crises.value
+      .filter((c) => {
+        if (!c.bbox) return false
+        const [w, s, e, n] = c.bbox
+        return lng >= w && lng <= e && lat >= s && lat <= n
+      })
+      .sort((a, b) =>
+        (a.bbox![2] - a.bbox![0]) * (a.bbox![3] - a.bbox![1])
+        - (b.bbox![2] - b.bbox![0]) * (b.bbox![3] - b.bbox![1]))
   }
 
-  return { crises, loaded, load, resolveCrisis }
+  function resolveCrisis(lat: number, lng: number): CrisisRow | null {
+    return containingCrises(lat, lng)[0] ?? null
+  }
+
+  return { crises, loaded, load, resolveCrisis, containingCrises }
 }

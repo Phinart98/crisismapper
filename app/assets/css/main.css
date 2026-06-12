@@ -23,6 +23,12 @@
   --color-sev-partial:  #C9722C;
   --color-sev-complete: #8B2E2A;
 
+  /* Trust tiers — reporter credibility (legend, badges). Deliberately a different
+     family from the severity ramp so the two legends can't be confused. */
+  --color-trust-unverified:   #8C8474;
+  --color-trust-contributing: #5E7488;
+  --color-trust-trusted:      #2E6B5E;
+
   /* Typography → generates font-serif, font-sans, font-mono */
   --font-serif: 'Source Serif 4', Georgia, serif;
   --font-sans:  'IBM Plex Sans', 'Helvetica Neue', Arial, sans-serif;

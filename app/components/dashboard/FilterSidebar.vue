@@ -2,7 +2,6 @@
 import type { DbSeverity, InfraType, TrustTier } from '~/utils/severity'
 import { SEVERITY_COLORS, SEVERITY_FILTER_ORDER, INFRA_TYPES, TRUST_COLORS } from '~/utils/severity'
 import type { Filters } from '~/composables/useCrisisReports'
-import { HOURS_MIN, HOURS_MAX, HOURS_STEP } from '~/composables/useCrisisReports'
 
 const props = defineProps<{
   crises: { id: string; name: string; crisis_type: string }[]
@@ -38,13 +37,13 @@ function toggleInfra(t: InfraType) {
   else props.filters.infra.splice(i, 1)
 }
 
-function stepHours(delta: number) {
-  props.filters.hours = Math.min(HOURS_MAX, Math.max(HOURS_MIN, props.filters.hours + delta))
-}
-// 72 → "72h", 168 → "7d" (whole days read cleaner than "168h").
-const hoursLabel = computed(() =>
-  props.filters.hours % 24 === 0 ? `${props.filters.hours / 24}d` : `${props.filters.hours}h`,
-)
+// Discrete windows: operational views (24h/72h) through recovery-scale (30d) plus
+// All — recovery operations run for months, so a hard cap would hide real data.
+const TIME_CHIPS: { hours: number | null, label: string | null }[] = [
+  { hours: 24, label: '24h' }, { hours: 72, label: '72h' },
+  { hours: 168, label: '7d' }, { hours: 720, label: '30d' },
+  { hours: null, label: null }, // null label → $t('filterAllTime')
+]
 </script>
 
 <template>
@@ -116,35 +115,19 @@ const hoursLabel = computed(() =>
 
     <!-- Time range -->
     <section class="px-5 py-4 border-b border-parchment-deep">
-      <div class="flex justify-between items-center mb-2.5">
-        <div class="label">{{ $t('filterTimeRange') }}</div>
-        <div class="font-mono text-[10px] text-accent">{{ $t('filterLast', { range: hoursLabel }) }}</div>
-      </div>
-      <div class="flex items-center gap-2">
+      <div class="label mb-2.5">{{ $t('filterTimeRange') }}</div>
+      <div class="flex flex-wrap gap-1.5">
         <button
+          v-for="w in TIME_CHIPS"
+          :key="w.label ?? 'all'"
           type="button"
-          class="focus-ring shrink-0 w-8 h-8 rounded-sm border border-parchment-deep bg-white text-ink-mid text-lg leading-none flex items-center justify-center cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed hover:bg-parchment-mid"
-          :disabled="filters.hours <= HOURS_MIN"
-          :aria-label="$t('filterDecreaseRange')"
-          @click="stepHours(-HOURS_STEP)"
-        >−</button>
-        <input
-          v-model.number="filters.hours"
-          type="range" :min="HOURS_MIN" :max="HOURS_MAX" :step="HOURS_STEP"
-          class="flex-1 min-w-0"
-          :aria-label="$t('filterRangeAria')"
-        >
-        <button
-          type="button"
-          class="focus-ring shrink-0 w-8 h-8 rounded-sm border border-parchment-deep bg-white text-ink-mid text-lg leading-none flex items-center justify-center cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed hover:bg-parchment-mid"
-          :disabled="filters.hours >= HOURS_MAX"
-          :aria-label="$t('filterIncreaseRange')"
-          @click="stepHours(HOURS_STEP)"
-        >+</button>
-      </div>
-      <div class="flex justify-between mt-1">
-        <span class="font-mono text-[9px] text-ink-ghost">6h</span>
-        <span class="font-mono text-[9px] text-ink-ghost">7d</span>
+          class="focus-ring px-2.5 min-h-[36px] rounded-full border-[1.5px] font-mono text-[10px] tracking-[0.06em] uppercase cursor-pointer transition-colors"
+          :class="filters.hours === w.hours
+            ? 'bg-ink text-parchment border-ink'
+            : 'bg-white text-ink-mid border-parchment-deep'"
+          :aria-pressed="filters.hours === w.hours"
+          @click="filters.hours = w.hours"
+        >{{ w.label ?? $t('filterAllTime') }}</button>
       </div>
     </section>
 

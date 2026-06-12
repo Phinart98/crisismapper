@@ -90,6 +90,10 @@ const impactKm2 = computed(() => profile.value?.impact_km2 ?? 0)
     <div class="flex flex-col gap-2.5 w-full max-w-xs">
       <button class="btn btn-primary btn-full min-h-[48px]" @click="emit('again')">{{ $t('confirmAnother') }}</button>
       <NuxtLink v-if="!queued && profile?.found" to="/me" class="btn btn-ghost btn-full min-h-[48px]">{{ $t('confirmViewProfile') }}</NuxtLink>
+      <div class="grid grid-cols-2 gap-2.5">
+        <NuxtLink to="/dashboard" class="btn btn-ghost min-h-[48px]">{{ $t('landingNavDashboard') }}</NuxtLink>
+        <NuxtLink to="/" class="btn btn-ghost min-h-[48px]">{{ $t('leaderboardHome') }}</NuxtLink>
+      </div>
     </div>
   </div>
 </template>
