@@ -19,9 +19,15 @@ the photographers whose work makes the demo convincing.
   events the photographs actually depict. Each seeded report carries its photo's true
   source and license in its description, visible to staff.
 - **The pipeline is real.** Seed reports are not inserted directly. They are submitted
-  through the same public API a civilian uses, so each one is classified by the live AI
-  vision model, geofenced, deduplicated, quality-scored, and trust-scored exactly like a
-  genuine submission.
+  through the same public API a civilian uses, so each one is geofenced, deduplicated,
+  quality-scored, and trust-scored exactly like a genuine submission.
+- **The AI classifications on demo reports are model-generated, not live vision calls.**
+  The live reporter path classifies real photos with Groq/Gemini vision. For the synthetic
+  demo seed, the AI fields are produced by a hand-authored generator
+  (`scripts/demo/classify.mjs`) keyed to each report's hazard, infrastructure, and severity,
+  so we never spend the (daily-capped) free vision quota on fake reports. These rows carry
+  `_meta.provider: "demo"` in their audit trail; reports captured by the real model carry
+  `"groq"` or `"gemini"`.
 
 ## Scenario crises
 
