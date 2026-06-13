@@ -59,6 +59,8 @@ test('degraded AI falls back to manual severity selection', async ({ page }) => 
   }))
   await page.goto('/report')
   await waitForHydration(page)
+  await page.getByRole('button', { name: EN.gpsBtn }).click()
+  await page.getByText(EN.gpsLocated).waitFor()
   await page.setInputFiles('input[type=file]', 'tests/e2e/fixtures/sample.jpg')
   // The visible degraded indicator is the offline banner; manual severity chips remain.
   await expect(page.getByText(EN.aiOffline)).toBeVisible({ timeout: 60_000 })
@@ -69,8 +71,7 @@ test('denied geolocation falls back to Plus Code entry', async ({ page, context 
   await context.clearPermissions()
   await page.goto('/report')
   await waitForHydration(page)
-  await page.setInputFiles('input[type=file]', 'tests/e2e/fixtures/sample.jpg')
-  await page.getByRole('button', { name: EN.aiConfirm }).click({ timeout: 60_000 })
+  // Location is step 1 now — Plus Code lives in the same step as the GPS button.
   await page.getByRole('button', { name: EN.gpsBtn }).click()
   await expect(page.getByText(EN.gpsDenied)).toBeVisible({ timeout: 15_000 })
   await page.getByPlaceholder(EN.gpsPlaceholder).fill('7MRX+PG Mandalay')
@@ -93,14 +94,14 @@ test.describe('no-crisis path', () => {
   test('location outside every crisis zone blocks the flow with the notice', async ({ page }) => {
     await page.goto('/report')
     await waitForHydration(page)
-    await page.setInputFiles('input[type=file]', 'tests/e2e/fixtures/sample.jpg')
-    await page.getByRole('button', { name: EN.aiConfirm }).click({ timeout: 60_000 })
+    // Location is step 1; resolving outside every zone blocks BEFORE the photo step.
     await page.getByRole('button', { name: EN.gpsBtn }).click()
     await page.getByText(EN.gpsLocated).waitFor()
 
     await expect(page.getByText(EN.noCrisisTitle)).toBeVisible()
     await expect(page.getByRole('link', { name: EN.noCrisisDashboardCta })).toHaveAttribute('href', '/dashboard')
-    // The flow is blocked: no infrastructure step, no submit footer.
+    // The flow is blocked: no photo capture, no infrastructure step, no submit.
+    await expect(page.getByRole('button', { name: EN.capture })).toHaveCount(0)
     await expect(page.getByText(EN.step4title)).toHaveCount(0)
     await expect(page.getByRole('button', { name: EN.submit })).toHaveCount(0)
   })
@@ -110,8 +111,7 @@ test('invalid Plus Code shows a validation error', async ({ page, context }) => 
   await context.clearPermissions()
   await page.goto('/report')
   await waitForHydration(page)
-  await page.setInputFiles('input[type=file]', 'tests/e2e/fixtures/sample.jpg')
-  await page.getByRole('button', { name: EN.aiConfirm }).click({ timeout: 60_000 })
+  // The Plus Code field is in the first (location) step — reachable immediately.
   await page.getByPlaceholder(EN.gpsPlaceholder).fill('not-a-plus-code')
   await page.getByPlaceholder(EN.gpsPlaceholder).press('Enter')
   await expect(page.getByText(EN.gpsInvalid)).toBeVisible()

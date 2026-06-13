@@ -5,9 +5,16 @@ import type { GpsResult } from '~/composables/useGeolocation'
 
 const form = useReportForm()
 
+// Location is step 1 — crisis context is established before anything else, so a
+// reporter outside every active zone is stopped before taking a photo.
+function onLocationResolved(result: GpsResult) {
+  form.location.value = result
+  if (form.step.value < 2) form.step.value = 2
+}
+
 function onPhotoCaptured(result: PhotoResult) {
   form.photo.value = result
-  form.step.value = 2
+  if (form.step.value < 3) form.step.value = 3
   form.runAiClassify(result.webpBlob)
 }
 
@@ -15,15 +22,10 @@ function onRetake() {
   form.photo.value = null
   form.aiResult.value = null
   form.aiLoading.value = false
-  form.step.value = 1
+  form.step.value = 2
 }
 
-function onAiAdvance() { form.step.value = 3 }
-
-function onLocationResolved(result: GpsResult) {
-  form.location.value = result
-  if (form.step.value < 4) form.step.value = 4
-}
+function onAiAdvance() { if (form.step.value < 4) form.step.value = 4 }
 
 function onInfraSelected() {
   if (form.step.value < 5) form.step.value = 5
@@ -47,40 +49,45 @@ function onInfraSelected() {
 
     <!-- Form body -->
     <div v-else class="flex-1 px-5 sm:px-7 md:px-6 pt-6 sm:pt-8 pb-24 sm:pb-28 overflow-auto">
-      <ReportPhotoStep @captured="onPhotoCaptured" @retake="onRetake" />
+      <!-- Step 1: location FIRST — establishes which crisis (if any) this report
+           belongs to before the reporter invests in a photo. -->
+      <ReportLocationStep
+        :has-error="form.errors.location"
+        @resolved="onLocationResolved"
+      />
+
+      <!-- Location resolved but no active crisis zone covers it: stop here. -->
+      <Transition name="slide-up">
+        <ReportNoCrisisNotice v-if="form.noCrisisHere.value" />
+      </Transition>
+
+      <!-- Detected crisis (with a change affordance among containing zones). -->
+      <Transition name="slide-up">
+        <ReportCrisisBadge
+          v-if="form.step.value >= 2 && !form.noCrisisHere.value"
+          :crises="form.pickerCrises.value"
+          :model-value="form.crisisId.value"
+          :outside-zones="form.crisisOutsideZones.value"
+          @select="form.setCrisis"
+        />
+      </Transition>
+
+      <Transition name="slide-up">
+        <ReportPhotoStep
+          v-if="form.step.value >= 2 && !form.noCrisisHere.value"
+          @captured="onPhotoCaptured"
+          @retake="onRetake"
+        />
+      </Transition>
 
       <Transition name="slide-up">
         <ReportAiClassificationCard
-          v-if="form.step.value >= 2"
+          v-if="form.step.value >= 3 && !form.noCrisisHere.value"
           v-model="form.severity.value"
           :ai-result="form.aiResult.value"
           :ai-loading="form.aiLoading.value"
           @confirm="onAiAdvance"
           @correct="onAiAdvance"
-        />
-      </Transition>
-
-      <Transition name="slide-up">
-        <ReportLocationStep
-          v-if="form.step.value >= 3"
-          :has-error="form.errors.location"
-          @resolved="onLocationResolved"
-        />
-      </Transition>
-
-      <!-- Location resolved but no active crisis zone covers it: the flow stops
-           here with the notice — reports only attach to a real response zone. -->
-      <Transition name="slide-up">
-        <ReportNoCrisisNotice v-if="form.noCrisisHere.value" />
-      </Transition>
-
-      <Transition name="slide-up">
-        <ReportCrisisBadge
-          v-if="form.step.value >= 4 && !form.noCrisisHere.value"
-          :crises="form.pickerCrises.value"
-          :model-value="form.crisisId.value"
-          :outside-zones="form.crisisOutsideZones.value"
-          @select="form.setCrisis"
         />
       </Transition>
 
@@ -104,7 +111,7 @@ function onInfraSelected() {
       </Transition>
     </div>
 
-    <!-- Sticky footer -->
+    <!-- Sticky footer — appears once infra (step 4) is reachable. -->
     <ReportSubmitFooter
       v-if="form.step.value >= 4 && !form.noCrisisHere.value && form.submitPhase.value !== 'done' && form.submitPhase.value !== 'queued'"
       :phase="form.submitPhase.value"

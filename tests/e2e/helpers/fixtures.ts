@@ -126,14 +126,18 @@ export async function waitForHydration(page: Page) {
   )
 }
 
-// Drive the wizard through photo -> AI -> GPS -> infra. Callers mock routes first.
+// Drive the wizard in the location-first order: GPS -> photo -> AI -> infra.
+// Callers mock routes first and must supply a geolocation inside a crisis bbox.
 export async function fillWizardToStep5(page: Page) {
   await waitForHydration(page)
+  await page.getByRole('button', { name: EN.gpsBtn }).click()
+  await page.getByText(EN.gpsLocated).waitFor()
+  // Location resolved + crisis matched → the photo step renders. Wait for its
+  // capture button so the file input is attached before we set it.
+  await page.getByRole('button', { name: EN.capture }).waitFor({ timeout: 30_000 })
   await page.setInputFiles('input[type=file]', 'tests/e2e/fixtures/sample.jpg')
   // Compression worker + dev-server compiles still need patience on a cold run.
   await page.getByRole('button', { name: EN.aiConfirm }).click({ timeout: 60_000 })
-  await page.getByRole('button', { name: EN.gpsBtn }).click()
-  await page.getByText(EN.gpsLocated).waitFor()
   await page.getByRole('button', { name: EN.infraBuilding, exact: true }).click()
   await page.getByText(EN.step5label).waitFor()
 }

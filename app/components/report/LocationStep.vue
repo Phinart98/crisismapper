@@ -21,8 +21,8 @@ function onInputBlur() {
 <template>
   <section class="mb-10 sm:mb-12">
     <div class="mb-5">
-      <div class="label mb-1.5">{{ $t('step3label') }}</div>
-      <div class="font-serif text-xl sm:text-2xl font-semibold leading-tight">{{ $t('step3title') }}</div>
+      <div class="label mb-1.5">{{ $t('step1label') }}</div>
+      <div class="font-serif text-xl sm:text-2xl font-semibold leading-tight">{{ $t('step1title') }}</div>
     </div>
 
     <!-- GPS button -->

@@ -58,7 +58,7 @@ const confidenceBarColor = computed(() => {
 <template>
   <section class="mb-10 sm:mb-12">
     <div class="mb-5">
-      <div class="label mb-1.5">{{ $t('step2label') }}</div>
+      <div class="label mb-1.5">{{ $t('step3label') }}</div>
       <div class="font-serif text-xl sm:text-2xl font-semibold leading-tight">{{ $t('aiTitle') }}</div>
     </div>
 
