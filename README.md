@@ -19,7 +19,7 @@ CrisisMapper closes that gap. A civilian with a smartphone opens a web page, tak
 
 1. Open https://crisismapper.vercel.app and press **Open Reporter**.
 2. Take or choose a photo of any building. The AI suggests a damage severity; confirm or correct it.
-3. Allow location access (or type a Plus Code). The report attaches to the crisis zone containing you. Anywhere outside an active crisis falls into the global Demo Sandbox, so the flow works from any country.
+3. Allow location access (or type a Plus Code). The report attaches to the crisis zone containing you. The demo seeds fourteen regional scenarios spanning every continent, so wherever you are there is almost certainly one nearby; report from the open ocean and you will see the "no active crisis in your area" path instead.
 4. Pick an infrastructure type, optionally answer the structured situation questions, and submit.
 5. Open the **Dashboard** to see your report on the live map, then the **Leaderboard** and your profile to see the gamification layer.
 6. To see the offline path: turn on airplane mode before submitting. The report is saved on the device and synced automatically when you reconnect.
@@ -95,7 +95,7 @@ No names, phone numbers, or emails are ever collected. Reporters are identified 
 - **Reporter PWA** (`/report`): five-step wizard with camera capture, on-device photo compression, blur and face warnings, AI severity suggestion with mandatory human confirmation, GPS with Plus Code fallback, and structured Core Questions (electricity, health services, community needs, vulnerable groups, affected population).
 - **Offline-first pipeline**: every submission is queued in IndexedDB first, then drained. Android gets OS-level background sync; everything else drains on reconnect or next visit. Poison payloads are dropped instead of blocking the queue.
 - **Live dashboard** (`/dashboard`): MapLibre map with clustering, heatmap, building footprints, severity / infrastructure / time filters, a live activity feed over Supabase Realtime with a polling fallback, and a per-report detail modal. Public, with the anonymized projection above; staff sessions see exact data.
-- **Geofenced crises**: operators draw a bounding box per crisis; reporters are matched to the zone containing them and the server rejects reports outside it. A worldwide Demo Sandbox crisis catches everyone else.
+- **Geofenced crises**: operators draw a bounding box per crisis; reporters are matched to the zone containing them and the server rejects reports outside it. Locations with no active crisis get a clear "no active crisis in your area" notice rather than a misattributed report. See [docs/DEMO_DATA.md](docs/DEMO_DATA.md) for the seeded demo scenarios.
 - **GIS export** (staff): GeoJSON, CSV, GeoPackage, and Shapefile, streamed from a database cursor so a 500K-report crisis exports in bounded memory. The schema follows the challenge specification: decimal-degree coordinates, ISO timestamps, three-tier `damage_classification` (Minimal / Partial / Complete), `infrastructure_type`, `hazard_type`, and the Core Questions columns.
 - **Trust and quality scoring**: database triggers score every report (photo quality, AI confidence, GPS method, detail completeness, cross-reporter corroboration within 50m and 24h) and maintain a per-reporter trust tier. Probable duplicates are flagged and excluded from analyst views by default.
 - **Gamification**: badges, coverage impact, and an anonymous leaderboard to sustain reporting after the first burst of attention.

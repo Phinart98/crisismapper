@@ -42,3 +42,7 @@ prod-*.png
 
 # Phase 4 — AI validation dataset (xBD / Copernicus EMS photos, kept off git)
 data/damage-samples/
+
+# Demo seed photos (re-hosted in Supabase storage; manifest.json IS committed)
+data/demo-photos/*/
+
