@@ -31,9 +31,11 @@ the photographers whose work makes the demo convincing.
 
 ## Scenario crises
 
-Fourteen regional scenarios give global coverage. Locations outside every zone (oceans,
-poles, and uncovered regions) intentionally hit the reporter flow's "no active crisis in
-your area" path, so the geofence is demonstrable both ways.
+Twenty-one regional scenarios give dense global coverage across every inhabited
+continent. The dashboard opens on a world overview showing all of them at once;
+locations outside every zone (oceans, poles, and the gaps between scenarios)
+intentionally hit the reporter flow's "no active crisis in your area" path, so the
+geofence is demonstrable both ways.
 
 | Scenario | Hazard | Region | Example cities |
 | --- | --- | --- | --- |
@@ -41,16 +43,23 @@ your area" path, so the geofence is demonstrable both ways.
 | SIMEX Anatolia | Earthquake | Türkiye / N. Syria | Gaziantep, Antakya, Aleppo |
 | SIMEX Andes | Earthquake | Pacific South America | Lima, Quito, Arequipa |
 | SIMEX Maghreb | Earthquake | North-West Africa | Marrakesh, Agadir, Algiers |
+| SIMEX Java | Earthquake | Indonesia | Jakarta, Bandung, Surabaya |
+| SIMEX Sichuan | Earthquake | Western China | Chengdu, Chongqing, Mianyang |
 | SIMEX Indus | Flood | Pakistan | Karachi, Hyderabad, Sukkur |
+| SIMEX Gangetic Plain | Flood | Northern India | Delhi, Kanpur, Patna |
 | SIMEX Gulf of Guinea | Flood | West Africa coast | Accra, Lagos, Cotonou |
 | SIMEX Rhineland | Flood | NW Europe | Cologne, Liège, Maastricht |
+| SIMEX Mekong | Flood | Mainland SE Asia | Bangkok, Phnom Penh, Ho Chi Minh City |
+| SIMEX Rift Valley | Flood | East Africa | Nairobi, Addis Ababa, Kampala |
+| SIMEX Limpopo | Flood | Southern Africa | Johannesburg, Pretoria, Gaborone |
+| SIMEX Sudeste | Flood | Southeast Brazil | São Paulo, Rio, Belo Horizonte |
+| SIMEX Murray-Darling | Flood | SE Australia | Coffs Harbour, Canberra, Sydney |
 | SIMEX Visayas | Typhoon | Central Philippines | Tacloban, Cebu, Manila |
+| SIMEX Bengal Delta | Cyclone | Bay of Bengal | Dhaka, Kolkata, Chittagong |
 | SIMEX Sofala | Cyclone | SE Africa | Beira, Chimoio, Maputo |
 | SIMEX Antilles | Hurricane | Caribbean | Port-au-Prince, Santo Domingo, San Juan |
 | SIMEX Atlantic Seaboard | Hurricane | US East / Gulf | Fort Myers, New Orleans, Houston |
-| SIMEX Murray-Darling | Flood | SE Australia | Coffs Harbour, Canberra, Sydney |
-| SIMEX Mekong | Flood | Mainland SE Asia | Bangkok, Phnom Penh, Ho Chi Minh City |
-| SIMEX Rift Valley | Flood | East Africa | Nairobi, Addis Ababa, Kampala |
+| SIMEX Isthmus | Hurricane | Central America | Guatemala City, San Salvador, Tegucigalpa |
 
 ## Rebuilding the demo data
 
