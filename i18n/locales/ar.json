@@ -209,7 +209,7 @@
   "dashHeatmap": "الخريطة الحرارية",
   "dashReportCta": "الإبلاغ عن أضرار",
   "dashAllCrises": "جميع الأزمات النشطة",
-  "dashActiveCrises": "{n} أزمة نشطة",
+  "dashActiveCrisesLabel": "أزمات نشطة",
   "dashShowFeed": "إظهار التدفّق",
   "dashHideFeed": "إخفاء التدفّق",
   "filterActiveCrisis": "الأزمة النشطة",

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Stats } from '~/composables/useCrisisReports'
 
-const props = defineProps<{ stats: Stats }>()
+const props = defineProps<{ stats: Stats; global?: boolean; crisisCount?: number }>()
 const heatmap = defineModel<boolean>('heatmap', { required: true })
 const feedOpen = defineModel<boolean>('feedOpen', { required: true })
 
@@ -40,12 +40,19 @@ const duplicatesLabel = computed(() =>
 
     <span class="w-px h-6 bg-parchment-deep shrink-0 hidden md:block" />
 
-    <!-- Coverage -->
+    <!-- Coverage % for a single crisis; active-crisis count for the global view
+         (coverage is per-bbox and meaningless aggregated). -->
     <div class="hidden md:flex items-baseline gap-1.5 shrink-0">
-      <span class="font-serif font-bold text-2xl sm:text-[28px] leading-none tabular-nums">
-        {{ stats.coverage_pct }}<span class="text-base">%</span>
-      </span>
-      <span class="label">{{ $t('dashCoverage') }}</span>
+      <template v-if="global">
+        <span class="font-serif font-bold text-2xl sm:text-[28px] leading-none tabular-nums">{{ crisisCount }}</span>
+        <span class="label">{{ $t('dashActiveCrisesLabel') }}</span>
+      </template>
+      <template v-else>
+        <span class="font-serif font-bold text-2xl sm:text-[28px] leading-none tabular-nums">
+          {{ stats.coverage_pct }}<span class="text-base">%</span>
+        </span>
+        <span class="label">{{ $t('dashCoverage') }}</span>
+      </template>
     </div>
 
     <!-- Sparkline -->

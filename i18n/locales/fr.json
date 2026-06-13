@@ -209,7 +209,7 @@
   "dashHeatmap": "CARTE DE CHALEUR",
   "dashReportCta": "Signaler des dégâts",
   "dashAllCrises": "Toutes les crises actives",
-  "dashActiveCrises": "{n} crises actives",
+  "dashActiveCrisesLabel": "crises actives",
   "dashShowFeed": "AFFICHER LE FLUX",
   "dashHideFeed": "MASQUER LE FLUX",
   "filterActiveCrisis": "Crise active",

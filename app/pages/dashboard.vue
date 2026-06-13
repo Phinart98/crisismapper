@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useCrisisReports } from '~/composables/useCrisisReports'
+import { useCrisisReports, ALL_CRISES } from '~/composables/useCrisisReports'
 import type { CrisisRow } from '~/composables/useActiveCrises'
 
 useHead({ title: 'CrisisMapper — Dashboard' })
@@ -12,13 +12,16 @@ const { public: { demoCrisisId } } = useRuntimeConfig()
 const { data: crisesData } = await useFetch<CrisisRow[]>('/api/crises', { default: () => [] })
 const crises = computed(() => crisesData.value ?? [])
 
-const DEFAULT_BBOX: [number, number, number, number] = [95.8, 21.5, 96.5, 22.2] // Mandalay
-// First active crisis is the flagship (newest created_at sorts first); the env demo
-// id is only a fallback for an empty crises table.
-const initialId = crises.value[0]?.id ?? demoCrisisId
-const crisisId = ref(initialId)
+// Whole-world bounds for the global overview (slightly past the antimeridian so the
+// Pacific crises aren't clipped). Single-crisis views fit their own bbox.
+const WORLD_BBOX: [number, number, number, number] = [-168, -55, 192, 72]
 
-const reports = useCrisisReports(initialId)
+// Default to the global "all active crises" overview — a decision-maker sees the
+// worldwide picture first, then drills into a crisis from the selector.
+const crisisId = ref<string>(ALL_CRISES)
+const isGlobal = computed(() => crisisId.value === ALL_CRISES)
+
+const reports = useCrisisReports(ALL_CRISES)
 
 const heatmap = ref(false)
 const feedOpen = ref(true)            // desktop feed column
@@ -27,11 +30,16 @@ const mobileFeedOpen = ref(false)     // mobile feed bottom sheet
 const selectedId = ref<string | null>(null)
 
 const activeCrisis = computed(() => crises.value.find(c => c.id === crisisId.value) ?? null)
-const activeBbox = computed<[number, number, number, number]>(() => activeCrisis.value?.bbox ?? DEFAULT_BBOX)
-const regionLabel = computed(() => activeCrisis.value?.name ?? t('regionFallback'))
-const buildingsUrl = computed(() => `/api/buildings?crisis_id=${crisisId.value}`)
+const activeBbox = computed<[number, number, number, number]>(() =>
+  isGlobal.value ? WORLD_BBOX : (activeCrisis.value?.bbox ?? WORLD_BBOX))
+const regionLabel = computed(() =>
+  isGlobal.value ? t('dashAllCrises') : (activeCrisis.value?.name ?? t('regionFallback')))
+// Building footprints are per-crisis (and only ingested for the flagship); the
+// global view skips them — an empty url tells MapCanvas to omit the layer.
+const buildingsUrl = computed(() => isGlobal.value ? '' : `/api/buildings?crisis_id=${crisisId.value}`)
 
-// Switching the selector tears down + re-subscribes realtime for the new crisis.
+// Switching the selector tears down the current view and re-loads (realtime for a
+// single crisis, polling for the global overview).
 watch(crisisId, id => reports.switchCrisis(id))
 
 const filtersActive = computed(() => reports.filters.sev.length > 0 || reports.filters.infra.length > 0 || reports.filters.hours !== null)
@@ -47,7 +55,13 @@ onBeforeUnmount(() => reports.dispose())
 
 <template>
   <div class="flex flex-col h-[100dvh] overflow-hidden bg-parchment">
-    <DashboardHeader v-model:heatmap="heatmap" v-model:feed-open="feedOpen" :stats="reports.stats.value" />
+    <DashboardHeader
+      v-model:heatmap="heatmap"
+      v-model:feed-open="feedOpen"
+      :stats="reports.stats.value"
+      :global="isGlobal"
+      :crisis-count="crises.length"
+    />
 
     <div class="flex flex-1 overflow-hidden relative">
       <!-- Left sidebar (static on lg+) -->

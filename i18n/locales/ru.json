@@ -209,7 +209,7 @@
   "dashHeatmap": "ТЕПЛОВАЯ КАРТА",
   "dashReportCta": "Сообщить о повреждениях",
   "dashAllCrises": "Все активные кризисы",
-  "dashActiveCrises": "{n} активных кризисов",
+  "dashActiveCrisesLabel": "активных кризисов",
   "dashShowFeed": "ПОКАЗАТЬ ЛЕНТУ",
   "dashHideFeed": "СКРЫТЬ ЛЕНТУ",
   "filterActiveCrisis": "Активный кризис",

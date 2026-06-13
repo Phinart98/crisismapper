@@ -103,9 +103,13 @@ function buildStyle(): StyleSpecification {
   }
 }
 
+// Empty collection stands in for the buildings source in the global view (no
+// per-crisis footprints) — an empty url string would make MapLibre fetch "/".
+const EMPTY_FC: GeoJSON.FeatureCollection = { type: 'FeatureCollection', features: [] }
+
 function addDataLayers(m: MaplibreMap) {
   // Building footprints (PostGIS / Overture) — the signature geographic overlay.
-  m.addSource(BUILDINGS_SRC, { type: 'geojson', data: props.buildingsUrl })
+  m.addSource(BUILDINGS_SRC, { type: 'geojson', data: props.buildingsUrl || EMPTY_FC })
   m.addLayer({ id: 'buildings-fill', type: 'fill', source: BUILDINGS_SRC, paint: { 'fill-color': '#CDBFA8', 'fill-opacity': 0.55 } })
   m.addLayer({ id: 'buildings-line', type: 'line', source: BUILDINGS_SRC, paint: { 'line-color': '#A8A08E', 'line-width': 0.5 } })
 
@@ -289,7 +293,7 @@ watch(() => props.heatmap, (on) => {
 
 watch(() => props.buildingsUrl, (url) => {
   if (!loaded || !map) return
-  ;(map.getSource(BUILDINGS_SRC) as GeoJSONSource | undefined)?.setData(url)
+  ;(map.getSource(BUILDINGS_SRC) as GeoJSONSource | undefined)?.setData(url || EMPTY_FC)
 })
 </script>
 

@@ -209,7 +209,7 @@
   "dashHeatmap": "RAMANI YA JOTO",
   "dashReportCta": "Ripoti uharibifu",
   "dashAllCrises": "Dharura zote zinazoendelea",
-  "dashActiveCrises": "Dharura {n} zinazoendelea",
+  "dashActiveCrisesLabel": "dharura zinazoendelea",
   "dashShowFeed": "ONYESHA MLISHO",
   "dashHideFeed": "FICHA MLISHO",
   "filterActiveCrisis": "Janga linaloendelea",

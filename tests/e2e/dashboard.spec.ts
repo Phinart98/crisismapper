@@ -55,11 +55,21 @@ test('time range chips filter and reset', async ({ page }) => {
   await expect(page.getByText(/Showing/)).toHaveCount(0)
 })
 
-test('crisis selector lists the active crises', async ({ page }) => {
+test('opens on the global all-crises overview, drills into a single crisis', async ({ page }) => {
   const select = page.locator('select').filter({ hasText: 'Myanmar' })
   await expect(select).toBeVisible()
-  const options = await select.locator('option').count()
-  expect(options).toBeGreaterThanOrEqual(1)
+  // Default = the global view; the selector offers "All active crises" + each crisis.
+  await expect(select).toHaveValue('all')
+  await expect(select.locator('option').first()).toHaveText(EN.dashAllCrises)
+  expect(await select.locator('option').count()).toBeGreaterThanOrEqual(3) // All + several crises
+
+  // Header shows the active-crisis count in global mode (not coverage %).
+  await expect(page.getByText(EN.dashActiveCrisesLabel, { exact: true })).toBeVisible()
+
+  // Drilling into a crisis switches the view to it.
+  await select.selectOption({ label: 'SIMEX Mandalay — Central Myanmar Earthquake' })
+  await expect(select).not.toHaveValue('all')
+  await expect(page.getByText(EN.dashCoverage)).toBeVisible({ timeout: 15_000 })
 })
 
 test('activity feed opens the report detail modal with a sign-in path', async ({ page }) => {

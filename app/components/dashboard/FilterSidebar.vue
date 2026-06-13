@@ -2,6 +2,7 @@
 import type { DbSeverity, InfraType, TrustTier } from '~/utils/severity'
 import { SEVERITY_COLORS, SEVERITY_FILTER_ORDER, INFRA_TYPES, TRUST_COLORS } from '~/utils/severity'
 import type { Filters } from '~/composables/useCrisisReports'
+import { ALL_CRISES } from '~/composables/useCrisisReports'
 
 const props = defineProps<{
   crises: { id: string; name: string; crisis_type: string }[]
@@ -10,12 +11,19 @@ const props = defineProps<{
 }>()
 const crisisId = defineModel<string>('crisisId', { required: true })
 
+const { t } = useI18n()
 const { dbSev, infra, hazard, trust } = useLabels()
 const { busy: exportBusy, error: exportError, download: downloadExport } = useExport(crisisId)
 
-// Hazard type of the active crisis — makes the system's context-agnostic reach (Q25)
-// visible: the chip flips earthquake → flood → cyclone as crises are switched.
-const activeHazardType = computed(() => props.crises.find(c => c.id === crisisId.value)?.crisis_type)
+// Global "All active crises" option first, then the individual crises.
+const crisisOptions = computed(() => [
+  { id: ALL_CRISES, name: t('dashAllCrises') },
+  ...props.crises,
+])
+
+// Hazard chip only makes sense for a single crisis; hidden in the global view.
+const activeHazardType = computed(() =>
+  crisisId.value === ALL_CRISES ? undefined : props.crises.find(c => c.id === crisisId.value)?.crisis_type)
 
 const EXPORT_FORMATS = ['GeoJSON', 'CSV', 'GPKG', 'Shapefile']
 // Labels/descriptions carry i18n keys (translated in template); colour is sourced from the
@@ -56,7 +64,7 @@ const TIME_CHIPS: { hours: number | null, label: string | null }[] = [
         class="focus-ring w-full px-3 py-2.5 min-h-[44px] bg-white border border-parchment-deep rounded-sm font-sans text-[13px] text-ink cursor-pointer appearance-none bg-no-repeat"
         style="background-image:url(&quot;data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%236B6B6B' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E&quot;);background-position:right 12px center"
       >
-        <option v-for="c in crises" :key="c.id" :value="c.id">{{ c.name }}</option>
+        <option v-for="c in crisisOptions" :key="c.id" :value="c.id">{{ c.name }}</option>
       </select>
 
       <!-- Localized hazard-type chip — surfaces the crisis's hazard category (the part we

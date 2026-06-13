@@ -209,7 +209,7 @@
   "dashHeatmap": "HEATMAP",
   "dashReportCta": "Report damage",
   "dashAllCrises": "All active crises",
-  "dashActiveCrises": "{n} active crises",
+  "dashActiveCrisesLabel": "active crises",
   "dashShowFeed": "SHOW FEED",
   "dashHideFeed": "HIDE FEED",
   "filterActiveCrisis": "Active crisis",

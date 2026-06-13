@@ -209,7 +209,7 @@
   "dashHeatmap": "热力图",
   "dashReportCta": "报告损毁",
   "dashAllCrises": "所有活跃危机",
-  "dashActiveCrises": "{n} 个活跃危机",
+  "dashActiveCrisesLabel": "个活跃危机",
   "dashShowFeed": "显示动态",
   "dashHideFeed": "隐藏动态",
   "filterActiveCrisis": "当前危机",

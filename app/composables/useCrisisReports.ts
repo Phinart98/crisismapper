@@ -41,8 +41,15 @@ const empty = (): ReportCollection => ({ type: 'FeatureCollection', features: []
 const toFeedItem = (f: ReportFeature): FeedItem =>
   ({ ...f.properties, lng: f.geometry.coordinates[0], lat: f.geometry.coordinates[1] })
 
+// Sentinel for the global "all active crises" dashboard view: endpoints aggregate
+// when crisis_id is omitted, and there's no single broadcast channel to subscribe to,
+// so global mode polls for updates instead of using realtime.
+export const ALL_CRISES = 'all'
+
 export function useCrisisReports(initialCrisisId: string) {
   let activeId = initialCrisisId
+  // crisis_id query param: omitted in global mode so the endpoints aggregate.
+  const qId = () => (activeId === ALL_CRISES ? undefined : activeId)
   const geojson = ref<ReportCollection>(empty())
   const stats = ref<Stats>({ total: 0, duplicate_count: 0, coverage_pct: 0, hourly: [] })
   const feed = ref<FeedItem[]>([])
@@ -116,8 +123,8 @@ export function useCrisisReports(initialCrisisId: string) {
 
   async function loadInitial() {
     const [fc, s] = await Promise.all([
-      $fetch<ReportCollection>('/api/map/reports', { query: { crisis_id: activeId } }),
-      $fetch<Stats>('/api/map/stats', { query: { crisis_id: activeId } }),
+      $fetch<ReportCollection>('/api/map/reports', { query: { crisis_id: qId() } }),
+      $fetch<Stats>('/api/map/stats', { query: { crisis_id: qId() } }),
     ])
     const fresh = rebuild(fc)
     // Newest first for the feed, capped.
@@ -140,7 +147,7 @@ export function useCrisisReports(initialCrisisId: string) {
     const token = ++viewportToken
     viewportLoading.value = true
     try {
-      const fc = await $fetch<ReportCollection>('/api/map/reports', { query: { crisis_id: activeId, bbox } })
+      const fc = await $fetch<ReportCollection>('/api/map/reports', { query: { crisis_id: qId(), bbox } })
       if (token !== viewportToken) return // a newer pan superseded this fetch
       geojson.value = rebuild(fc)
     } finally {
@@ -157,7 +164,7 @@ export function useCrisisReports(initialCrisisId: string) {
   async function fetchDelta(): Promise<boolean> {
     if (!lastTs) return false
     const fc = await $fetch<ReportCollection>('/api/map/reports', {
-      query: { crisis_id: activeId, since: lastTs },
+      query: { crisis_id: qId(), since: lastTs },
     })
     let added = false
     for (const f of fc.features) if (addFeature(f)) added = true
@@ -214,7 +221,9 @@ export function useCrisisReports(initialCrisisId: string) {
 
   async function init() {
     await loadInitial()
-    subscribeRealtime()
+    // Global mode has no single crisis channel — poll for the live feel instead.
+    if (activeId === ALL_CRISES) startPolling()
+    else subscribeRealtime()
   }
 
   function dispose() {
